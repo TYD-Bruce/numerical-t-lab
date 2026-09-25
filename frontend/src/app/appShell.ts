@@ -1,5 +1,6 @@
 import type { RouteId } from "./contracts";
 import { createThemeToggle } from "./theme";
+import "../assets/fonts/fonts.css";
 import "./theme.css";
 import "./platform.css";
 

@@ -1,9 +1,11 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Chunk 1B independent re-audit PASS; local commit then chunk 1C**
-Runtime scope this round: **credential sessions and destination policy**
-Current chunk baseline: clean `main` at `2e20a3afe37a4183be9ca0e8df006d2bdf236010`
+Status: **Chunk 1C independently passed; chunk 2A next**
+Runtime scope this round: **offline assets and browser CSP**
+Current chunk baseline: clean `main` at `b9fad94ae46c9ea89bd1d481739d8f610ba471e7`
+The maintainer explicitly resumed after a safe pause. Current evidence is in
+[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md).
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
@@ -124,7 +126,7 @@ personal-connection security or offline readiness.
 Commit boundary after the independent audit passes:
 `Constrain local Tutor HTTP transport`.
 
-### Chunk 1B — Credential sessions and destination policy (current chunk)
+### Chunk 1B — Credential sessions and destination policy (committed at `b9fad94`)
 
 - Implement per-tab proof, JSON/custom-header personal operations, strictly
   explicit credentials, 30-minute idle / 8-hour absolute expiry, bounded session
@@ -167,6 +169,18 @@ Commit boundary after the independent audit passes:
 
 Gate: asset/build graph and browser evidence, both themes and mobile/desktop.
 Stop for review. No dependency installation without separate authorization.
+
+Implemented: local interface fonts/licenses, MathLive asset policy, CSP response
+headers and build meta policy. Final full verification passes 112 files / 1,579
+tests and the 116-module build; browser evidence includes external-traffic-blocked
+Labs, math editors, synthetic Tutor and CSP negative probes. The external
+beforeunload automation limitation is isolated and recorded in the review.
+Independent audit returned PASS with P0/P1/P2/P3 all zero. It independently
+passed 80 focused tests, typechecks, boundaries, an external build and browser
+spot checks. All 26 file hashes matched before/after review; the implementation
+task independently confirmed the match before recording verdict metadata.
+
+Commit boundary: `Bundle offline Tutor assets and enforce browser policy`.
 
 ## 4. Phase 2 — Provider adapters and explicit verification
 
@@ -391,6 +405,8 @@ with no unresolved in-scope findings; the implementation task confirmed that all
 
 Chunk 1B independent re-audit returned PASS after both P2 corrections. The
 implementation task verified all 21 file hashes against the frozen manifest.
-Current gate: commit chunk 1B locally, then implement and independently audit
-chunk 1C. All other
+Chunk 1B is committed locally at `b9fad94`. After explicit maintainer resume,
+chunk 1C completed local verification and independent audit with no findings.
+Current gate after its local commit: implement 2A, then independently audit,
+correct/re-audit and commit. All other
 provider, offline and both-Lab requirements remain in scope for later rounds.

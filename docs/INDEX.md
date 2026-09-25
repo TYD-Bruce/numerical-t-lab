@@ -25,10 +25,13 @@
 
 ## Current active milestone
 
-**AI Tutor Connections v1 — chunk 1B independent re-audit PASS.**
-The continuing goal retains separate audited chunk commits. Chunk 1A is
-committed at `2e20a3a`. Session/proof, expiry, candidate/active isolation and
-destination transport pass 111 files / 1,570 tests, typechecks, boundaries and build.
+**AI Tutor Connections v1 — chunk 1C independently passed; chunk 2A next.**
+The maintainer explicitly resumed. Chunks 1A and 1B passed independent audit
+and are committed locally at `2e20a3a` and `b9fad94`. Chunk 1C's independent
+audit also passed with no findings; see the [current checkpoint](tutor/HANDOFF.md#current-chunk-1c-checkpoint).
+Local assets/CSP pass 112 files / 1,579 tests, typechecks, boundaries and build.
+Browser evidence covers both Labs with external requests blocked and records
+the separate minimal beforeunload automation limitation.
 The complete feature scope includes personal connections
 only with local frontend/backend, native Windows, strict offline local models,
 session-only credentials, all requested cloud providers with explicit Kimi
@@ -39,11 +42,12 @@ regions, and Tutor interfaces for both ODE and Linear Systems.
 - [Feature handoff](tutor/HANDOFF.md)
 - [Review verification and chunk 1A evidence](reviews/2026-09-25-ai-tutor-connections-review-and-chunk-1a.md)
 - [Chunk 1B evidence](reviews/2026-09-25-ai-tutor-connections-chunk-1b.md)
+- [Chunk 1C evidence](reviews/2026-09-25-ai-tutor-connections-chunk-1c.md)
 
-Next gate: local commit for chunk 1B after its GPT-6 Astra / Extra High PASS,
-then chunk 1C offline assets/CSP. The personal session API is explicitly
+Next gate after this local chunk 1C commit: chunk 2A adapters, followed by
+independent GPT-6 Astra / Extra High audit and any corrections. The personal session API is explicitly
 enabled locally; public provider operations remain unavailable.
-Personal key UI, providers, offline assets and both-Lab integration remain later
+Personal key UI, providers and both-Lab integration remain later
 rounds. Each chunk requires audit/fix/re-audit before its local commit. No chunk
 is pushed individually; all chunks and the final independent overall audit
 must pass before push and Vercel demo update. Live provider calls remain separate.

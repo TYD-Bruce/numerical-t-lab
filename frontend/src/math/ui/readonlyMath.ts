@@ -47,7 +47,12 @@ export function loadMathLiveModule(): Promise<typeof import("mathlive")> {
     import("mathlive"),
     import("mathlive/fonts.css"),
     import("mathlive/static.css"),
-  ]).then(([mathlive]) => mathlive);
+  ]).then(([mathlive]) => {
+    // CSS above owns bundled fonts. Never infer asset paths from a lazy chunk.
+    mathlive.MathfieldElement.fontsDirectory = null;
+    mathlive.MathfieldElement.soundsDirectory = null;
+    return mathlive;
+  });
   return mathLiveModulePromise;
 }
 

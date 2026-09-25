@@ -1,7 +1,7 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Chunk 1A committed; chunk 1B independently passed; remaining chunks planned**
+Status: **Chunks 1A/1B committed; chunk 1C independently passed; chunk 2A next**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
@@ -19,6 +19,7 @@ Related documents:
 - [Feature handoff](../../tutor/HANDOFF.md)
 - [Review verification and chunk 1A evidence](../../reviews/2026-09-25-ai-tutor-connections-review-and-chunk-1a.md)
 - [Chunk 1B evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-1b.md)
+- [Chunk 1C evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md)
 - [Current architecture](../../architecture/CURRENT_ARCHITECTURE.md)
 - [Numerical contracts](../../contracts/NUMERICAL_CONTRACTS.md)
 - [Linear Systems v1 design](2026-08-10-linear-systems-lab-v1-design.md)
@@ -202,7 +203,11 @@ all resource directives, local fonts/MathLive and the existing inline theme
 bootstrap before enabling enforcement. Production `connect-src` is same-origin;
 development may additionally allow its exact loopback HMR WebSocket. Do not
 copy `script-src 'self'` blindly or add broad wildcard/unsafe exceptions to make
-the current page pass. CSP and offline behavior are not implemented in chunk 1A.
+the current page pass. Chunk 1C implements local fonts and resource CSP: it
+hashes the owned bootstrap and keeps a styles-only inline exception for existing
+MathLive/Vite/layout CSS. Local response headers also deny embedding. The static
+meta policy does not claim to enforce header-only directives. Complete offline
+inference remains gated on the later adapters and connection UI.
 
 An offline UI label describes T-Lab's enforced traffic policy. It cannot prove
 the internals of an arbitrary local server. A genuine local inference server
@@ -418,9 +423,9 @@ alter another client's model state.
 
 ## 12. Review gate and public references
 
-Current gate: chunk 1A is committed after independent re-audit. Chunk 1B
-(credential sessions/destination policy) passed independent re-audit after two
-model-selection/ID corrections and is ready for its local commit. Providers, offline assets, settings
+Current gate: chunks 1A/1B are committed after independent re-audit. Chunk 1C
+(offline assets and browser CSP) passed independent audit with no findings;
+chunk 2A follows its local commit. Providers, settings
 and both-Lab integration remain later chunks. Follow the continuing goal through
 each gate; do not push before the final independent overall audit.
 

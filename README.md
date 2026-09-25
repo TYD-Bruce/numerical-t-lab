@@ -125,6 +125,12 @@ it is disabled by default and exposes no model discovery or inference routes
 until the provider adapters are complete. It never uses environment keys for
 personal connections.
 
+Interface and math fonts are bundled locally with notices in `/licenses/`.
+Local dev/preview enforce a browser content security policy; production HTML
+also carries a same-origin resource policy. This verifies offline asset loading,
+not complete local inference: provider adapters and connection UI are still in
+development. See [font provenance](frontend/src/assets/fonts/README.md).
+
 ## Build, preview, and verification
 
 ```bash
@@ -196,6 +202,14 @@ See [`docs/INDEX.md`](docs/INDEX.md) for the current architecture, active plan,
 design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
+
+### 2026-09-25 — Offline assets and browser resource policy
+
+- Bundled interface fonts and notices, removed external font requests, and
+  constrained MathLive to bundled fonts without implicit sound downloads.
+- Added CSP for local dev/preview and built HTML, with narrowly scoped theme
+  bootstrap and HMR allowances. Verified both Labs with external traffic blocked;
+  personal model inference and settings remain subsequent chunks.
 
 ### 2026-09-25 — Local Tutor credential/session foundation
 

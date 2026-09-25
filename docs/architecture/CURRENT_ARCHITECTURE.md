@@ -60,6 +60,20 @@ Its local dev/preview servers bind to `127.0.0.1` with strict ports and disabled
 CORS. HMR shares the dev listener. Host and same-origin browser metadata are
 checked before API proxy Host rewriting; unsafe listener overrides fail startup.
 
+`frontend/contentSecurityPolicy.ts` owns the browser resource policy. Local
+Vite dev/preview send it as an HTTP header, including a no-embedding restriction;
+the build injects the supported resource directives as a meta policy before
+scripts. Only the owned theme bootstrap receives an inline-script hash. Normal
+connections are same-origin; dev adds its exact HMR host/port. Inline CSS is
+allowed for existing Vite/MathLive/layout behavior, not scripts. Data font/image
+assets are allowed; object/frame/worker/media loads and form submission are denied.
+
+AppShell imports bundled interface font CSS from `src/assets/fonts/`; licenses
+ship under `/licenses/`. MathLive fonts/static CSS stay at the deferred math
+boundary, with implicit font/sound path discovery disabled. Browser assets have
+been checked with external traffic blocked; full local inference remains a
+later adapter/UI milestone. See [chunk 1C evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md).
+
 ### Numerical domain
 
 `packages/numerics` is DOM-free and exposes deliberate subpaths rather than an

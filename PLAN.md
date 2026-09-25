@@ -2,7 +2,11 @@
 
 ## Current status
 
-**Active milestone: AI Tutor Connections v1 — chunk 1B independently passed.**
+**Active milestone: AI Tutor Connections v1 — chunk 1C independently passed; chunk 2A next.**
+The maintainer explicitly resumed the continuing implementation goal.
+Chunks 1A and 1B are committed locally at `2e20a3a` and `b9fad94` after
+independent audit. Chunk 1C also passed with no in-scope findings. Its checkpoint is in
+[the feature handoff](docs/tutor/HANDOFF.md#current-chunk-1c-checkpoint).
 The maintainer has selected local-only personal connections, native
 Windows, strict offline local inference, session-only keys, explicit cloud
 providers/regions, and Tutor interfaces for both ODE and Linear Systems.
@@ -14,17 +18,24 @@ authorized the continuing implementation sequence with independent audit before
 every chunk commit. The
 [feature handoff](docs/tutor/HANDOFF.md) records all agreed choices, source
 findings, scope, and continuation rules. The
-[current review/evidence record](docs/reviews/2026-09-25-ai-tutor-connections-chunk-1b.md)
+[current review/evidence record](docs/reviews/2026-09-25-ai-tutor-connections-chunk-1c.md)
 distinguishes current fixes from future acceptance requirements.
 
-**Next gate: local chunk 1B commit, then chunk 1C (offline assets/CSP).**
-The corrected chunk 1B snapshot passed independent re-audit. Chunk 1A was committed as
-`2e20a3a` after its audit passed. Chunk 1B adds explicit local session/proof
-routes, expiring credentials, candidate/active isolation and scoped destination
-transport. It passes 111 files / 1,570 tests, typechecks, boundaries and build.
+**Next gate: chunk 2A implementation, independent audit and any correction/re-audit before its local commit.**
+Chunk 1C bundles interface and math fonts, disables implicit MathLive asset
+fetching, and enforces browser resource policy through local headers and built
+HTML. Full verification passes 112 files / 1,579 tests, typechecks, boundaries
+and build. Browser checks cover both Labs, themes, math editing, synthetic
+Tutor replies and deliberate CSP violations with external traffic blocked.
+The review records the automation limitation reproduced on a separate minimal
+beforeunload fixture; it does not claim that hard-navigation check passed.
 Provider operations remain unavailable and no browser key form is exposed.
-The first audit's two model discovery/ID findings are closed. All 21 files
-matched the reviewed snapshot before final verdict metadata was recorded.
+The independent 1C audit passed 80 focused tests, typechecks, boundaries, an
+external-directory build and browser spot checks. All 26 files matched the
+frozen audit snapshot; the implementation task independently rechecked their
+bytes before recording this verdict. Pre-commit follow-up is limited to
+verdict/gate metadata and LF normalization of one license notice.
+Chunk 2A, local-compatible and OpenAI adapters, follows this local 1C commit.
 The maintainer authorizes one coherent local commit after
 each chunk passes independent audit and any corrections are rechecked. Do not
 push individual chunks. After all chunks, an independent overall audit must

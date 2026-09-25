@@ -1,6 +1,7 @@
 import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { createHash } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { build, resolveConfig } from "vite";
 
@@ -74,6 +75,37 @@ describe("Vite root-base deployment contract", () => {
     expect(indexHtml).toContain("<title>Numerical T Lab</title>");
     expect(indexHtml).not.toContain("<title>Numerical Analysis Lab</title>");
     expect(indexHtml).not.toContain("<title>Numerical ODE Lab</title>");
+  });
+
+  it("ships a restrictive CSP that permits only the exact inline theme bootstrap", () => {
+    const policy = indexHtml.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)?.[1];
+    expect(policy).toBeDefined();
+    const inline = indexHtml.match(/<script id="theme-bootstrap">([\s\S]*?)<\/script>/)?.[1];
+    expect(inline).toBeDefined();
+    const hash = createHash("sha256").update(inline!.replace(/\r\n?/g, "\n")).digest("base64");
+    expect(policy).toContain(`script-src 'self' 'sha256-${hash}';`);
+    expect(policy).toContain("connect-src 'self';");
+    // frame-ancestors is header-only; a meta directive would be ignored.
+    expect(policy).not.toContain("frame-ancestors");
+    expect(policy).not.toMatch(/ws:|https:|unsafe-eval|\*/);
+    expect(indexHtml.indexOf("Content-Security-Policy")).toBeLessThan(indexHtml.indexOf("<script"));
+  });
+
+  it("bundles body and technical fonts with distributable licenses and no remote font hints", async () => {
+    expect(indexHtml).not.toMatch(/fonts\.google|rel="preconnect"/);
+    expect(emittedCss).toContain('font-family:DM Sans');
+    expect(emittedCss).toContain('font-family:JetBrains Mono');
+    const fonts = [...emittedCss.matchAll(/url\(\/assets\/([^)]*\.(?:woff2?|ttf))\)/g)].map(m => m[1]!);
+    for (const family of ["DMSans", "JetBrainsMono"]) expect(fonts.some(file => file.startsWith(family))).toBe(true);
+    for (const font of fonts) expect((await readFile(join(outputDirectory, "assets", font))).length).toBeGreaterThan(0);
+    for (const family of ["dm-sans", "jetbrains-mono"]) {
+      expect(await readFile(join(outputDirectory, "licenses", `${family}-OFL.txt`), "utf8"))
+        .toContain("SIL OPEN FONT LICENSE Version 1.1");
+    }
+    for (const library of ["mathlive", "katex-fonts"]) {
+      expect(await readFile(join(outputDirectory, "licenses", `${library}-LICENSE.txt`), "utf8"))
+        .toContain("Permission is hereby granted");
+    }
   });
 
   it("keeps dynamic chunks measurable in the manifest", () => {

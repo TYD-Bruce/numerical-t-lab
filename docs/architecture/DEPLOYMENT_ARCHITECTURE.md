@@ -37,8 +37,22 @@ Explicit `T_LAB_PERSONAL_TUTOR=true` now enables local-only session routes with
 per-tab proof, JSON schemas, 16 KiB bodies and expiring backend credentials.
 Unset/false leaves those routes absent; invalid flag values fail startup.
 Provider discovery/test/chat routes remain unavailable. The hosted adapter has
-no path to this session owner. No local production server, CSP or offline asset
-support has been added yet.
+no path to this session owner. No separate local production server or complete
+personal inference workflow has been added yet.
+
+Dev/preview HTTP responses carry an enforced CSP, including `frame-ancestors
+'none'`. Build output has a meta CSP before scripts with the supported resource
+directives; header-only embedding restrictions are not misrepresented as meta
+protection on a hosted static deployment. The approved inline theme bootstrap
+is hashed with HTML newline normalization. Only dev permits its exact HMR
+WebSocket, with no wildcard, unsafe script, or eval allowance. The styles-only
+inline exception supports current Vite/MathLive and layout rendering.
+
+Interface fonts and licenses are local build assets. MathLive's existing CSS
+owns its deferred bundled fonts; implicit font/sound requests are disabled.
+Cold browser checks used a deny-all external proxy, with local synthetic Tutor
+replies. This establishes asset/CSP behavior, not live provider readiness or a
+complete offline personal-connection product.
 
 ## SPA fallback and assets
 

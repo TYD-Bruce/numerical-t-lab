@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin } from "vite";
 import { fileURLToPath } from "node:url";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { contentSecurityPolicy, localContentSecurityPolicy } from "./contentSecurityPolicy";
 
 const frontendRoot = fileURLToPath(new URL(".", import.meta.url));
 
@@ -35,6 +36,9 @@ const localBoundary: Plugin = {
       if (listener.host !== "127.0.0.1" || !listener.strictPort || listener.cors !== false || listener.https) {
         throw new Error("T-Lab local servers require HTTP 127.0.0.1, strict ports and disabled CORS.");
       }
+      if (Object.keys(listener.headers ?? {}).some(key => key.toLowerCase() === "content-security-policy")) {
+        throw new Error("T-Lab local content security policy cannot be overridden.");
+      }
     }
     // A separate/custom HMR listener or middleware server could bypass the binding.
     if (config.server.middlewareMode || typeof config.server.hmr === "object") {
@@ -46,16 +50,37 @@ const localBoundary: Plugin = {
   },
   configureServer(server) {
     server.middlewares.use(localRequestBoundary);
+    server.middlewares.use((req, res, next) => {
+      res.setHeader("Content-Security-Policy", localContentSecurityPolicy(req.headers.host));
+      next();
+    });
   },
   configurePreviewServer(server) {
     server.middlewares.use(localRequestBoundary);
+    server.middlewares.use((_req, res, next) => {
+      res.setHeader("Content-Security-Policy", localContentSecurityPolicy());
+      next();
+    });
+  },
+};
+
+const buildPolicy: Plugin = {
+  name: "t-lab-build-content-security-policy",
+  apply: "build",
+  transformIndexHtml: {
+    order: "post",
+    handler: () => [{
+      tag: "meta",
+      attrs: { "http-equiv": "Content-Security-Policy", content: contentSecurityPolicy() },
+      injectTo: "head-prepend",
+    }],
   },
 };
 
 export default defineConfig({
   root: frontendRoot,
   base: "/",
-  plugins: [localBoundary],
+  plugins: [localBoundary, buildPolicy],
   build: {
     outDir: "../dist",
     emptyOutDir: true,

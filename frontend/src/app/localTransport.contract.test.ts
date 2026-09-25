@@ -94,6 +94,8 @@ describe("local Vite configuration", () => {
     { server: { middlewareMode: true } },
     { server: { cors: true } },
     { legacy: { skipWebSocketTokenCheck: true } },
+    { server: { headers: { "Content-Security-Policy": "default-src *" } } },
+    { preview: { headers: { "content-security-policy": "default-src *" } } },
   ])("fails closed on unsafe listener overrides %j", async (override) => {
     const validation = resolveConfig({ configFile, envFile: false, ...override }, "serve").then(() => undefined);
     await expect(validation).rejects.toThrow(/local/i);
@@ -163,6 +165,22 @@ describe.each(["dev", "preview"] as const)("%s loopback proxy", (mode) => {
     expect(JSON.parse(result.text)).toEqual({ message: "fixture" });
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith({});
+  });
+
+  it.each(["127.0.0.1", "localhost"])("enforces resource destinations for %s", async (hostname) => {
+    const response = await send(port, { Host: `${hostname}:${port}` }, "/", "GET");
+    const policy = String(response.headers["content-security-policy"]);
+    expect(policy).toContain("default-src 'none'");
+    expect(policy).toContain("script-src 'self' 'sha256-");
+    expect(policy).not.toContain("'unsafe-eval'");
+    expect(policy).toContain("object-src 'none'");
+    expect(policy).toContain("base-uri 'none'");
+    expect(policy).toContain("form-action 'none'");
+    expect(policy).toContain("frame-ancestors 'none'");
+    expect(policy).toContain(mode === "dev"
+      ? `connect-src 'self' ws://${hostname}:${port};`
+      : "connect-src 'self';");
+    if (mode === "preview") expect(policy).not.toContain("ws://");
   });
 
   it("blocks a foreign incoming Host before proxy Host rewriting", async () => {

@@ -1,11 +1,83 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-25
-Phase: **Chunk 1B — credential sessions and destination policy**
-Status: **Independent re-audit PASS — ready for local commit**
+Phase: **Chunk 1C — offline assets and browser CSP**
+Status: **Independently passed — local commit boundary, chunk 2A next**
 Canonical status: the maintainer's continuing goal authorizes the complete
 feature sequence, with independent audit/fix/re-audit before each local commit.
-Runtime impact: **explicitly enabled local session API and provider transport foundation**.
+Runtime impact: **local fonts, MathLive asset policy and browser CSP implemented locally**.
+
+## Current chunk 1C checkpoint
+
+The maintainer explicitly resumed after the safe pause. The continuing goal
+retains independent audit/fix/re-audit before each local commit, then an overall
+audit before push and deployment.
+
+- Reviewed baseline: branch `main`, HEAD `b9fad94ae46c9ea89bd1d481739d8f610ba471e7`
+  (`Add local Tutor credential sessions`). Chunk 1B passed independent re-audit;
+  the implementation task verified all 21 hashes before recording verdict metadata
+  and committing. The worktree was clean before chunk 1C started.
+- Chunk 1C contains 26 reviewed files; Git history records its local commit.
+  Owners: `frontend/contentSecurityPolicy.ts`, `frontend/vite.config.ts`,
+  `frontend/index.html`, `frontend/src/app/appShell.ts`, local font assets and
+  licenses, `frontend/src/math/ui/readonlyMath.ts`, and focused tests.
+- DM Sans normal/italic and JetBrains Mono normal variable TTFs are unmodified
+  upstream files, with OFL notices under `frontend/public/licenses` and MIT
+  notices for MathLive/KaTeX fonts. [Font provenance](../../frontend/src/assets/fonts/README.md)
+  records pinned sources, hashes, licenses and asset costs.
+- CSP is a local HTTP response header plus a production HTML meta policy.
+  It hashes the existing inline theme bootstrap, permits same-origin requests
+  and the exact development HMR host/port, and rejects configured header overrides.
+  The styles-only inline exception supports existing Vite/MathLive/layout CSS;
+  scripts have no unsafe-inline/eval allowance. Data fonts/images are permitted.
+  Local HTTP headers also deny embedding; the header-only directive is absent
+  from static meta CSP. Deferred MathLive uses bundled CSS fonts and disables
+  implicit font-directory/sound fetching.
+- Nine new regression cases failed before implementation. Focused validation:
+  6 files / 80 tests. Full `npm.cmd run verify`: **112 files / 1,579 tests**, all
+  typechecks, boundaries and 116-module build passed. Entry JS remains 59.11 /
+  18.31 kB gzip; Tutor 12.14 / 4.61 kB. Fonts add 825,348 raw bytes (402,844 gzip).
+  No dependency, numerical or provider-adapter change.
+- Real Chrome checks used isolated sessions and a loopback proxy that rejects
+  all external traffic, with local fixtures only. Dev Home/HMR and ODE math
+  editing/solve/Tutor passed. Production Linear Systems editing/solve and ODE
+  math editing, virtual keyboard, solve and synthetic Tutor reply passed.
+  Desktop 1440 x 1000 and mobile 390 x 844, Light/Dark, local fonts and saved
+  theme reload were observed. Normal checked flows had no CSP violations,
+  cross-origin resource requests or document horizontal overflow.
+- Production probes: same-origin license fetch 200; external and other-loopback-
+  port fetches blocked; an unauthorized inline script did not execute. Intentional
+  violations were recorded separately from normal-flow evidence. The local app
+  was also rejected in an iframe after adding the header-only embedding policy.
+- One automated hard navigation after a completed Linear Systems solve left
+  the isolated agent-browser/Chrome target unresponsive. After resume, the same
+  Windows socket error 10060 was reproduced on a separate minimal HTML page
+  with only a button and native beforeunload handler, without any T-Lab code.
+  This isolates the symptom outside this feature, without identifying the
+  driver/Chrome internal cause. In-app Home/Resume restored Linear Systems
+  output successfully. Do not claim the hard-navigation check passed.
+- Evidence is in the OS temporary directory: `t-lab-chunk-1c-final-verify.log`,
+  `t-lab-chunk-1c-focused.log`, `t-lab-chunk-1c-red.log`, and directory
+  `t-lab-chunk-1c-browser` (screenshots, observation/probe JSON, proxy-denial log,
+  fixture scripts and `beforeunload-isolation.txt`). Temporary evidence is
+  local, not a production verification. The [chunk review](../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md)
+  records scope, evidence and limitations. Fixture processes were stopped for
+  the pause; resumed browser checks used new task-owned fixtures only. All
+  resumed task-owned browsers, drivers and fixture servers are now stopped.
+
+`Audit AI Tutor connections` (GPT-6 Astra, Extra High) returned **PASS**, with
+P0/P1/P2/P3 all zero. It independently passed 80 focused tests, typechecks,
+boundaries, an external build and browser spot checks. It also reproduced the
+hard-navigation automation timeout and retained that limitation. All 26 file
+hashes matched before/after audit. The implementation task independently checked
+the exact bytes before recording this verdict. Pre-commit follow-up is limited
+to verdict/gate metadata and LF normalization of one license notice, without
+wording or font-byte changes. Commit boundary: `Bundle offline Tutor assets and enforce browser policy`.
+Then advance to 2A; retain all later feature chunks and the final
+overall-audit-before-push/deployment gate.
+
+The following sections retain the agreed requirements and chunk 1A/1B evidence;
+the current checkpoint above supersedes their earlier next-gate wording.
 
 ## Starting point
 
@@ -20,7 +92,8 @@ design and plan), explicitly included by the maintainer's follow-up. No unrelate
 work was discarded. The first independent audit reviewed the uncommitted chunk.
 Chunk 1A subsequently passed independent re-audit and was committed as
 `2e20a3afe37a4183be9ca0e8df006d2bdf236010`. Chunk 1B started from that clean
-`main` revision; its local changes are the current task's work.
+`main` revision and is now committed at `b9fad94`. Chunk 1C follows that baseline
+at the local commit boundary recorded above.
 
 The current Tutor is an ODE-specific client of `/api/chat`; its backend uses
 deterministic demo replies or an environment-held OpenAI key with a fixed
@@ -52,7 +125,8 @@ against source and primary documentation; useful constraints were incorporated.
 1. [Design](../superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md)
 2. [Repository-grounded implementation plan](../superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md)
 3. [Review verification and chunk 1A evidence](../reviews/2026-09-25-ai-tutor-connections-review-and-chunk-1a.md)
-4. [Current chunk 1B evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-1b.md)
+4. [Chunk 1B evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-1b.md)
+5. [Current chunk 1C evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md)
 
 The new scope deliberately combines provider configuration and Linear Systems
 Tutor integration. It supersedes the older plan's separation of those topics
@@ -72,7 +146,8 @@ lifecycle, and security responsibilities remain binding.
 - Linear Systems already stores the result and trace evidence needed for
   grounding; no numerical algorithm change is proposed.
 - Browser cancellation does not currently cancel the upstream provider fetch.
-- Google Fonts currently cause external traffic during local use.
+- Google Fonts caused external traffic in the starting baseline; chunk 1C
+  replaces those requests with local assets and browser resource policy.
 - Connection selection is proposed as tab-wide, but transcript transfer consent
   is per Lab. An inactive Lab must not leak its history after a provider switch.
 - Model discovery is not readiness or mathematical-quality verification.
@@ -99,8 +174,8 @@ lifecycle, and security responsibilities remain binding.
   validated cloud DNS, retains TLS identity, rejects redirects, and has bounded
   request/response/deadline behavior without retries or provider fallback.
 - Personal discovery/test/chat routes remain absent and capability reports
-  `providerOperations: false`. No key form, model adapter, offline/CSP change or
-  Linear Systems Tutor is present. Transport tests use synthetic sockets/DNS.
+  `providerOperations: false`. That chunk had no key form, model adapter,
+  offline/CSP change or Linear Systems Tutor. Transport tests use synthetic sockets/DNS.
 
 The session, policy, transport and wire contract are recorded in the current
 evidence document. Future adapters must release request leases in `finally`,
@@ -138,7 +213,7 @@ after verifying exact Git/deployment targets. Dependency installation, model
 management and paid/live provider calls remain separately gated.
 Before a continuation, repeat preflight and inspect any task-owned diff.
 Never stash/reset or overwrite it automatically. Chunk 1A passed its audit and
-was committed. Chunk 1B has now passed its own re-audit before the next local commit.
+was committed. Chunk 1B passed its own re-audit and was committed at `b9fad94`.
 
 The first audit returned NEEDS_FIXES with one P2: enabling
 `legacy.skipWebSocketTokenCheck` allowed an external-origin, token-free HMR
@@ -153,7 +228,7 @@ documentation checks. All 16 files matched the frozen manifest before and after
 review; the implementation task independently confirmed that match before
 recording this verdict. No further runtime changes followed the pass.
 
-## Current validation and limitations
+## Historical chunk 1B validation and limitations
 
 Chunk 1B passes `npm.cmd run verify`: 111 files / 1,570 tests, all workspace/API
 typechecks, import boundaries and the unchanged 115-module browser build.
@@ -162,9 +237,10 @@ HTTP/proxy/HMR and hosted packaging checks pass. A separate native Windows
 `dev.ts` opt-out/opt-in probe returned 404/201; task-owned processes were stopped.
 No live provider, real browser or deployment validation is claimed.
 
-Local fonts/CSP, complete provider adapters, the key form/history workflow and
-Linear Systems Tutor remain unfinished. Google Fonts still requires external
-traffic. The complete goal is active; chunk 1B does not satisfy the final gate.
+At that historical boundary, local fonts/CSP, provider adapters, the key form/
+history workflow and Linear Systems Tutor were unfinished; Google Fonts still
+required external traffic. Chunk 1C now covers fonts/CSP. Provider adapters,
+the key form/history workflow and Linear Systems Tutor remain later chunks.
 
 The first independent chunk 1B audit returned NEEDS_FIXES for two P2 model
 selection/ID constraints. Both are corrected with new failing-then-passing
@@ -198,8 +274,8 @@ compatibility must never be reused as personal-route authorization.
 
 ## Exact next gate
 
-**Commit the independently passed chunk 1B locally, then continue to chunk 1C
-under the maintainer's continuing goal.**
+**After this local chunk 1C commit, implement chunk 2A; require its own independent
+audit and correction/re-audit before the next local commit.**
 
 Chunk 1C covers offline assets/CSP; provider families, connection/history UI and
 both-Lab Tutor integration follow in separately audited rounds. No per-chunk
