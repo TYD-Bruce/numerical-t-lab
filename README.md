@@ -121,15 +121,18 @@ Direct native CLI JSON requests remain supported on `/api/chat`.
 Personal model connections and strict offline mode are under phased development;
 there is no browser key-entry form yet. See the [Tutor handoff](docs/tutor/HANDOFF.md).
 The backend personal API can be enabled with `T_LAB_PERSONAL_TUTOR=true`;
-it is disabled by default. Local-compatible, OpenAI, Anthropic and Gemini discovery and
-synthetic connection testing are implemented behind per-session proof. Personal
+it is disabled by default. Local-compatible, OpenAI, Anthropic, Gemini, DeepSeek
+and standard Kimi discovery/testing are implemented behind per-session proof.
+Kimi requires an explicit international/mainland destination. Known models requiring
+preserved reasoning history are unavailable in this final-text-only version;
+see the [model limitations](docs/reviews/2026-09-25-ai-tutor-connections-chunk-2c.md#model-compatibility-boundary). Personal
 Tutor chat and the settings UI remain later integration chunks. Personal
 connections never use environment keys.
 
 Interface and math fonts are bundled locally with notices in `/licenses/`.
 Local dev/preview enforce a browser content security policy; production HTML
 also carries a same-origin resource policy. This verifies offline asset loading,
-not complete local inference: provider adapters and connection UI are still in
+not complete local inference: connection UI and Lab integration are still in
 development. See [font provenance](frontend/src/assets/fonts/README.md).
 
 ## Build, preview, and verification
@@ -203,6 +206,13 @@ See [`docs/INDEX.md`](docs/INDEX.md) for the current architecture, active plan,
 design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
+
+### 2026-09-25 — DeepSeek and regional Kimi adapters
+
+- Added direct provider discovery and synthetic testing with explicit regional
+  destinations, bounded complete answers and no retry or fallback.
+- Known Kimi models requiring preserved reasoning history fail before inference;
+  personal chat and settings remain subsequent integration chunks.
 
 ### 2026-09-25 — Native Anthropic and Gemini adapters
 

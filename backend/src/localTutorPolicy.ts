@@ -24,8 +24,9 @@ const ERRORS: Record<TutorConnectionErrorCode, readonly [number, string]> = {
   provider_unsupported: [400, "This provider is not available in this version."],
   discovery_unsupported: [422, "This server does not provide model discovery. Enter an exact model ID."],
   model_unavailable: [409, "The selected model is not reported as available. Load it in your model server before testing."],
+  model_unsupported: [422, "This model requires preserved reasoning history, which Tutor does not support. Choose a different model."],
   response_refused: [422, "The model declined this request or its safety filter blocked the answer."],
-  response_incomplete: [422, "The model did not finish its answer within the output limit. No partial answer was accepted."],
+  response_incomplete: [422, "The model did not finish its answer. No partial answer was accepted."],
   input_too_large: [413, "The conversation and context exceed the supported input size. Start a shorter conversation."],
 };
 

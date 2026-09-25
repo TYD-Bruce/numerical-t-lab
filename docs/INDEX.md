@@ -25,14 +25,14 @@
 
 ## Current active milestone
 
-**AI Tutor Connections v1 — chunk 2B independently passed; chunk 2C next.**
+**AI Tutor Connections v1 — chunk 2C independently passed; chunk 3A next.**
 Chunks 1A, 1B and 1C passed independent audit and are committed locally at
-`2e20a3a`, `b9fad94` and `f36cfc1`; 2A is committed at `74a0773` after independent
-re-audit. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-2b-checkpoint).
-Native Anthropic/Gemini adapters pass 10 focused files / 334 tests and full
-verification: 115 files / 1,724 tests, typechecks, boundaries and build.
+`2e20a3a`, `b9fad94` and `f36cfc1`; 2A/2B are committed at `74a0773`/`fd14abc`
+after independent review. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-2c-checkpoint).
+DeepSeek and regional Kimi adapters pass 11 focused files / 437 tests and full
+verification: 116 files / 1,827 tests, typechecks, boundaries and build.
 Provider evidence is synthetic.
-Independent audit passed with all severity counts zero; all 16 hashes matched.
+Independent chunk 2C audit passed with all severity counts zero; all 15 hashes matched.
 Chunk 1C retains the browser evidence and minimal beforeunload automation limitation.
 The complete feature scope includes personal connections
 only with local frontend/backend, native Windows, strict offline local models,
@@ -47,11 +47,12 @@ regions, and Tutor interfaces for both ODE and Linear Systems.
 - [Chunk 1C evidence](reviews/2026-09-25-ai-tutor-connections-chunk-1c.md)
 - [Chunk 2A evidence](reviews/2026-09-25-ai-tutor-connections-chunk-2a.md)
 - [Chunk 2B evidence](reviews/2026-09-25-ai-tutor-connections-chunk-2b.md)
+- [Chunk 2C evidence](reviews/2026-09-25-ai-tutor-connections-chunk-2c.md)
 
-Next gate: commit the independently passed 2B, then implement and audit 2C
-DeepSeek/Kimi. The explicitly enabled local personal API
-supports local/OpenAI/Anthropic/Gemini discovery and synthetic testing. Personal
-chat, key UI, remaining providers and both-Lab integration remain later
+Next gate: commit the independently passed 2C, then implement and audit 3A.
+The explicitly enabled local personal API supports all six provider families
+for discovery and synthetic testing, subject to documented model limitations.
+Personal chat, key UI and both-Lab integration remain later
 rounds. Each chunk requires audit/fix/re-audit before its local commit. No chunk
 is pushed individually; all chunks and the final independent overall audit
 must pass before push and Vercel demo update. Live provider calls remain separate.

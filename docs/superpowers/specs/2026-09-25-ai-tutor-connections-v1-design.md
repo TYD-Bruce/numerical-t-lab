@@ -1,7 +1,7 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Chunks through 2A committed; chunk 2B independently passed; chunk 2C next**
+Status: **Chunks through 2B committed; chunk 2C independently passed; chunk 3A next**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
@@ -22,6 +22,7 @@ Related documents:
 - [Chunk 1C evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md)
 - [Chunk 2A evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-2a.md)
 - [Chunk 2B evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-2b.md)
+- [Chunk 2C evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-2c.md)
 - [Current architecture](../../architecture/CURRENT_ARCHITECTURE.md)
 - [Numerical contracts](../../contracts/NUMERICAL_CONTRACTS.md)
 - [Linear Systems v1 design](2026-08-10-linear-systems-lab-v1-design.md)
@@ -222,9 +223,10 @@ A failure to reach it produces a local error, never a cloud request.
 
 Use a small backend adapter layer, not a general agent framework.
 
-Implementation checkpoint: 2A implements local-compatible/OpenAI and 2B adds
-native Anthropic/Gemini adapters. DeepSeek/Kimi remain 2C. The table describes
-the full approved scope, not current end-to-end UI availability.
+Implementation checkpoint: 2A implements local-compatible/OpenAI, 2B adds native
+Anthropic/Gemini, and 2C adds DeepSeek/Kimi. The provider-family adapters are
+locally implemented; personal chat and settings remain later integration chunks.
+The table describes approved protocols, not end-to-end UI or every-model readiness.
 
 | Provider family | Proposed transport |
 |---|---|
@@ -244,6 +246,22 @@ stringifying the raw response. Reasoning-only, tool-only, safety-blocked,
 refusal-without-answer, truncated-without-final-text, empty and malformed
 responses are explicit failure fixtures. Any usable but truncated answer must
 be identified as incomplete, never a successfully completed Tutor response.
+
+The 2C protocol cross-check identifies a bounded compatibility exclusion:
+Kimi's documented `kimi-k3`, `kimi-k2.7-code` and `kimi-k2.7-code-highspeed`
+require preserved historical reasoning, while this Tutor retains only final
+answers. Mark those exact IDs unavailable during discovery and reject manual
+test/completion with `model_unsupported` before inference. Do not silently
+replay, synthesize or add storage for reasoning. This follows the provider's
+documented multi-turn requirement; it does not claim a tested HTTP rejection.
+Other IDs still need explicit testing and carry no universal compatibility
+guarantee. Future model capabilities require evidence, not ID-prefix guesses.
+The settings UI must explain this limit and surface the fixed failure message.
+
+DeepSeek uses `max_tokens`; Kimi uses `max_completion_tokens`. Both omit tools,
+temperature, optional thinking controls and optional output schemas. DeepSeek
+resource exhaustion maps to a busy failure, and provider-aborted generation
+maps to incomplete output, never a successful partial answer or user cancellation.
 
 Network actions are explicit:
 
@@ -446,9 +464,9 @@ alter another client's model state.
 
 ## 12. Review gate and public references
 
-Current gate: chunks through 2A are committed after independent audit. Chunk 2B
-(native Anthropic/Gemini) passed independent audit with no findings. After its
-local commit, chunk 2C adds DeepSeek/Kimi. Settings and both-Lab integration remain
+Current gate: chunks through 2B are committed after independent audit. Chunk 2C
+(DeepSeek/Kimi) passed independent audit with no findings. After its local
+commit, chunk 3A adds connection/history state and Lab-owned context. Settings and both-Lab integration remain
 later chunks. Follow the continuing goal through each gate; do not push before
 the final independent overall audit.
 

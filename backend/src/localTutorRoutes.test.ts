@@ -53,7 +53,7 @@ describe("explicitly enabled local personal session routes", () => {
   it("bootstraps a private no-store capability and returns no cookie", async () => {
     const result = await send("/api/personal/session");
     expect(result.status).toBe(201);
-    expect(JSON.parse(result.text).capabilities).toEqual({ protocol: 1, providerOperations: true, providers: ["local", "openai", "anthropic", "gemini"] });
+    expect(JSON.parse(result.text).capabilities).toEqual({ protocol: 1, providerOperations: true, providers: ["local", "openai", "anthropic", "gemini", "deepseek", "kimi"] });
     expect(result.headers["cache-control"]).toBe("no-store");
     expect(result.headers["access-control-allow-origin"]).toBeUndefined();
     expect(result.headers["set-cookie"]).toBeUndefined();

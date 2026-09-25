@@ -3,8 +3,12 @@ import type { LocalTutorLease } from "../../localTutorSession.js";
 import { PROVIDER_MODEL_LIMIT, requireSelectedModel, TutorConnectionError, validateModelId } from "../../localTutorPolicy.js";
 import { requestProvider } from "./providerTransport.js";
 
-export const SUPPORTED_TUTOR_PROVIDERS: readonly TutorProvider[] = Object.freeze(["local", "openai", "anthropic", "gemini"]);
+export const SUPPORTED_TUTOR_PROVIDERS: readonly TutorProvider[] = Object.freeze(["local", "openai", "anthropic", "gemini", "deepseek", "kimi"]);
 export const PROVIDER_ADAPTER_LIMITS = Object.freeze({ models: PROVIDER_MODEL_LIMIT, messages: 40, inputBytes: 32 * 1024, outputBytes: 32 * 1024 });
+// The documented always-preserved models need historical reasoning, which this
+// final-text-only Tutor deliberately does not retain. Other IDs still need an
+// explicit connection test; this is not an exhaustive model capability registry.
+const KIMI_PRESERVED_THINKING_MODELS = new Set(["kimi-k3", "kimi-k2.7-code", "kimi-k2.7-code-highspeed"]);
 export interface ProviderPrompt { readonly instructions: string; readonly messages: readonly TutorMessage[] }
 type Send = typeof requestProvider;
 type JsonRecord = Record<string, unknown>;
@@ -33,6 +37,7 @@ function modelList(value: unknown, provider: TutorProvider): TutorModelCandidate
     if (seen.has(id)) throw new TutorConnectionError("response_invalid");
     seen.add(id);
     let availability: TutorModelCandidate["availability"] = "listed";
+    if (provider === "kimi" && KIMI_PRESERVED_THINKING_MODELS.has(id)) availability = "unavailable";
     if (provider === "gemini" && model.supportedGenerationMethods !== undefined) {
       const methods = model.supportedGenerationMethods;
       if (!Array.isArray(methods) || methods.some(method => typeof method !== "string")) throw new TutorConnectionError("response_invalid");
@@ -95,13 +100,17 @@ function boundedText(value: unknown): string {
   return value.trim();
 }
 
-function localFinal(value: unknown): string {
-  const choices = record(value).choices;
+function chatFinal(value: unknown, provider: TutorProvider): string {
+  const response = record(value);
+  if (response.error != null) throw new TutorConnectionError("response_invalid");
+  const choices = response.choices;
   if (!Array.isArray(choices) || choices.length !== 1) throw new TutorConnectionError("response_invalid");
   const choice = record(choices[0]);
   const message = record(choice.message);
   if (message.refusal || choice.finish_reason === "content_filter") throw new TutorConnectionError("response_refused");
   if (choice.finish_reason === "length") throw new TutorConnectionError("response_incomplete");
+  if (provider === "deepseek" && choice.finish_reason === "insufficient_system_resource") throw new TutorConnectionError("provider_busy");
+  if (provider === "deepseek" && choice.finish_reason === "aborted") throw new TutorConnectionError("response_incomplete");
   const toolCalls = message.tool_calls;
   if (choice.finish_reason !== "stop" || message.role !== "assistant" ||
     (toolCalls != null && (!Array.isArray(toolCalls) || toolCalls.length > 0)) || message.function_call) throw new TutorConnectionError("response_invalid");
@@ -190,13 +199,16 @@ function boundedPrompt(prompt: ProviderPrompt): ProviderPrompt {
 async function complete(lease: LocalTutorLease, prompt: ProviderPrompt, testing: boolean, send: Send): Promise<string> {
   eligible(lease);
   const model = requireSelectedModel(lease.connection);
+  const provider = lease.connection.provider;
+  if (provider === "kimi" && KIMI_PRESERVED_THINKING_MODELS.has(model)) throw new TutorConnectionError("model_unsupported");
   const captured = boundedPrompt(prompt);
-  const local = lease.connection.provider === "local";
+  const local = provider === "local";
   if (local) await localReadiness(lease, send);
   lease.assertCurrent();
-  const provider = lease.connection.provider;
-  const body = local ? {
-    model, stream: false, max_tokens: testing ? 1024 : 4096,
+  const compatible = local || provider === "deepseek" || provider === "kimi";
+  const body = compatible ? {
+    model, stream: false,
+    [provider === "kimi" ? "max_completion_tokens" : "max_tokens"]: testing ? (local ? 1024 : 2048) : 4096,
     messages: [{ role: "system", content: captured.instructions }, ...captured.messages],
   } : provider === "openai" ? {
     model, stream: false, store: false, max_output_tokens: testing ? 2048 : 4096,
@@ -214,7 +226,7 @@ async function complete(lease: LocalTutorLease, prompt: ProviderPrompt, testing:
   };
   const response = await send(lease, "complete", body);
   lease.assertCurrent();
-  return local ? localFinal(response) : provider === "openai" ? openaiFinal(response)
+  return compatible ? chatFinal(response, provider) : provider === "openai" ? openaiFinal(response)
     : provider === "anthropic" ? anthropicFinal(response) : geminiFinal(response);
 }
 

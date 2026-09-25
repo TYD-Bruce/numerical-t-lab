@@ -116,18 +116,22 @@ operations also require session ID/proof headers. No frontend key form exists.
 validation. `ai/providers/providerTransport.ts` supplies one bounded native HTTP
 attempt with pinned DNS/TLS identity, header credentials and no redirects or
 fallback. `providerAdapters.ts` implements local Chat Completions, OpenAI
-Responses, native Anthropic Messages and Gemini generateContent discovery,
-synthetic testing and bounded final-text extraction. Native discovery requests
+Responses, native Anthropic Messages, Gemini generateContent, DeepSeek and
+regional Kimi discovery, synthetic testing and bounded final-text extraction.
+The compatible chat protocols share final extraction but use provider-specific
+token-budget fields. Known Kimi models requiring preserved reasoning are marked
+unavailable and rejected before testing/completion; no reasoning cache exists.
+Native discovery requests
 one page capped at 256 models, sharing `PROVIDER_MODEL_LIMIT` with validation;
 `TutorModelDiscovery` exposes projected models and `hasMore`, never raw cursors.
 The personal API exposes exact `/discover` and `/test` operations with leases;
-bootstrap reports these four supported providers. Successful testing marks
+bootstrap reports all six provider families. Successful testing marks
 the current candidate for explicit activation; failure preserves the active
 connection. HTTP caller closure cancels the lease and outgoing request.
 Local inference first reads model metadata and uses policy-owned `autoload=false`
 on the completion URL. Metadata is server-reported, not lifecycle attestation.
 The backend-only completion port awaits the later profile/context/history-aware
-handler; there is no personal chat HTTP route yet. Other adapters remain planned. See
+handler; there is no personal chat HTTP route yet. See
 the [Tutor design](../superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md).
 
 Root `api/chat.ts` remains the public `/api/chat` Vercel entry. It enforces the

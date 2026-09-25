@@ -1,11 +1,11 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Chunk 2B independently passed; chunk 2C next**
-Runtime scope this round: **native Anthropic/Gemini adapters and bounded discovery**
-Current chunk baseline: clean `main` at `74a07735c84a2b24088f5a6b75cfddcfb2e08c9a`
+Status: **Chunk 2C independently passed; chunk 3A next**
+Runtime scope this round: **DeepSeek and explicit regional Kimi adapters**
+Current chunk baseline: clean `main` at `fd14abcff6a2192a95248d30a5446b89d37af1f6`
 The maintainer explicitly resumed after a safe pause. Current evidence is in
-[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-2b.md).
+[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-2c.md).
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
@@ -193,7 +193,8 @@ Chunk 2A implements the adapters and exact local discovery/test routes, with
 test-gated candidate activation. Its tested `completeWithProvider` port remains
 backend-only until Phase 3 supplies profile/context/history validation; there
 is no public personal chat proxy. Bootstrap initially advertised local/OpenAI;
-2B adds native Anthropic/Gemini. Limits are owned by `PROVIDER_ADAPTER_LIMITS`:
+2B adds native Anthropic/Gemini and 2C completes the six provider families.
+Limits are owned by `PROVIDER_ADAPTER_LIMITS`:
 256 models (shared policy-owned `PROVIDER_MODEL_LIMIT`), 40 messages, 32 KiB
 prompt and final text. Test budgets are 1,024 local / 2,048 OpenAI output tokens;
 internal completion is capped at 4,096. No automatic truncation or context-fit
@@ -208,6 +209,16 @@ generation candidates; absent metadata is not a capability guarantee. Exact-ID
 entry remains available for partial lists. Tests cover actual request options
 through mocked native HTTPS sockets, route/session activation, no retry,
 stale responses, malformed discovery, output limits and explicit credentials.
+
+Chunk 2C reuses the compatible-chat final parser for DeepSeek and explicit Kimi
+regions, with separate output-budget fields and fixed header-only destinations.
+Tests are capped at 2,048 output tokens and completions at 4,096. Resource-busy
+and interrupted DeepSeek responses fail without retry. Catalogs use a single
+bounded list request; listing is not readiness. Kimi's three documented
+always-preserved-thinking IDs are unavailable and rejected before inference,
+including exact-ID entry; the Tutor neither retains nor invents reasoning history.
+The [2C review](../../reviews/2026-09-25-ai-tutor-connections-chunk-2c.md)
+records IDs, official references and the fixture-only evidence boundary.
 
 Readiness is read-only metadata, not attestation. Local unloaded/loading/sleeping
 states block inference; a bare listing is only a candidate. Only unsupported
@@ -264,6 +275,8 @@ Tests first for:
 - local capability required before key entry;
 - form-key clearing and absent browser persistence;
 - provider/region/model editing and verification invalidation;
+- clear model-compatibility limitations, including the fixed preserved-reasoning
+  rejection and the distinction between connection testing and accuracy/readiness;
 - configuration test failure preserving the active conversation/connection;
 - connection replacement aborting pending work;
 - Start fresh, explicit Transfer this Lab, and Cancel;
@@ -442,7 +455,11 @@ all 21 frozen hashes before recording verdict metadata. Chunk 2A is committed
 at `74a0773`. Chunk 2B now passes 334 focused tests and full verification with
 115 files / 1,724 tests, typechecks, boundaries and build. Independent 2B audit
 returned PASS with P0/P1/P2/P3 all zero; the implementation task verified all
-16 frozen hashes before recording verdict metadata. Current gate:
-local 2B commit before implementing and auditing DeepSeek/Kimi
-in 2C. All remaining provider, complete offline workflow and both-Lab
-requirements remain in scope for later rounds.
+16 frozen hashes before recording verdict metadata. Chunk 2B is committed at
+`fd14abc`. Chunk 2C passes 11 focused files / 437 tests and full verification
+with 116 files / 1,827 tests, typechecks, boundaries and build. Independent audit
+returned PASS with P0/P1/P2/P3 all zero, independently repeating focused/API/
+boundary checks. The implementation task verified all 15 frozen hashes before
+recording the verdict. Current gate: the local commit
+`Add DeepSeek and regional Kimi Tutor adapters`, then implement and audit 3A.
+The complete offline workflow and both-Lab requirements remain in scope.

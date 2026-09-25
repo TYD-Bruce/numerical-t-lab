@@ -175,5 +175,5 @@ export type TutorConnectionErrorCode =
   | "request_busy" | "request_cancelled" | "provider_unavailable"
   | "redirect_rejected" | "response_too_large" | "response_invalid"
   | "timeout" | "provider_auth" | "provider_busy"
-  | "provider_unsupported" | "discovery_unsupported" | "model_unavailable"
+  | "provider_unsupported" | "discovery_unsupported" | "model_unavailable" | "model_unsupported"
   | "response_refused" | "response_incomplete" | "input_too_large";

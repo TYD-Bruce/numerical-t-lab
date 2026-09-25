@@ -189,9 +189,10 @@ describe("personal provider adapters", () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  it("rejects not-yet-implemented providers before any request", async () => {
+  it("rejects an unsupported provider before any request", async () => {
     const send = vi.fn<typeof requestProvider>();
-    await expect(testProviderConnection(owned("deepseek").lease, send)).rejects.toMatchObject({ code: "provider_unsupported" });
+    const { lease } = owned();
+    await expect(testProviderConnection({ ...lease, connection: { ...lease.connection, provider: "unsupported" as never } }, send)).rejects.toMatchObject({ code: "provider_unsupported" });
     expect(send).not.toHaveBeenCalled();
   });
 });

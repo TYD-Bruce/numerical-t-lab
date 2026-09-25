@@ -1,13 +1,57 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-25
-Phase: **Chunk 2B — native Anthropic and Gemini adapters**
-Status: **Independently passed — local commit boundary, chunk 2C next**
+Phase: **Chunk 2C — DeepSeek and regional Kimi adapters**
+Status: **Independently passed — local commit boundary, chunk 3A next**
 Canonical status: the maintainer's continuing goal authorizes the complete
 feature sequence, with independent audit/fix/re-audit before each local commit.
-Runtime impact: **native Anthropic/Gemini added to local personal discovery/test and backend completion adapters**.
+Runtime impact: **DeepSeek/Kimi added to local personal discovery/test and backend completion adapters**.
 
-## Current chunk 2B checkpoint
+## Current chunk 2C checkpoint
+
+- Starting branch `main`, clean HEAD `fd14abcff6a2192a95248d30a5446b89d37af1f6`
+  (`Add native Anthropic and Gemini Tutor adapters`). All previous chunk commits
+  remain local; 2B passed independent review with no findings.
+- The backend now supports every requested provider family. DeepSeek uses
+  `max_tokens`, Kimi `max_completion_tokens`; synthetic tests use 2,048 output
+  tokens and internal completions 4,096. Shared compatible-chat extraction keeps
+  final text only, rejects error envelopes, refusal/incomplete/tool-only replies,
+  and maps DeepSeek resource exhaustion/interruption to controlled errors.
+- Kimi international and mainland keep separate fixed hosts and credentials.
+  No redirect, retry, region/provider/environment-key fallback, optional tools,
+  thinking controls or model-management operation was added.
+- Official Kimi guidance requires historical reasoning for `kimi-k3`,
+  `kimi-k2.7-code` and `kimi-k2.7-code-highspeed`. Those exact IDs are reported
+  unavailable and fail testing/completion before inference. This final-text-only
+  version does not support preserved thinking. Other IDs remain candidates,
+  with no all-model or multi-turn compatibility guarantee from a greeting test.
+  Future settings must explain the limitation and surface `model_unsupported`.
+- New fixture coverage: **103 cases**. Focused: **11 files / 437 tests**. Full
+  `npm.cmd run verify`: **116 files / 1,827 tests**, all typechecks, boundaries
+  and the unchanged 116-module frontend build pass. Entry JS 59.11 / 18.31 kB
+  gzip; deferred Tutor 12.14 / 4.61 kB. The initial red run had 104 failures
+  (103 new adapter cases and one updated capability expectation), then passed.
+- Evidence logs: `t-lab-chunk-2c-red.log`, `t-lab-chunk-2c-adapters.log`,
+  `t-lab-chunk-2c-focused.log`, `t-lab-chunk-2c-api-typecheck.log`,
+  `t-lab-chunk-2c-verify.log` in OS temporary storage. The
+  [2C review](../reviews/2026-09-25-ai-tutor-connections-chunk-2c.md) records
+  protocol sources, exact fixture boundaries, exclusions and the audit gate.
+- No real provider/model/credential was used. New protocol fixtures inject
+  replies or mock DNS/native HTTPS sockets. Existing HTTP fixtures exercise the
+  listener/session boundary. No new browser or deployment evidence is claimed.
+
+`Audit AI Tutor connections` (GPT-6 Astra, Extra High) returned **PASS**, with
+P0/P1/P2/P3 all zero. Independent checks passed 437 focused tests, API typecheck,
+boundaries and diff/doc checks. All 15 paths/hashes matched before/after audit;
+the implementation task independently verified the frozen bytes, main HEAD and
+empty index before recording the verdict. No runtime change followed that pass.
+
+Next: commit `Add DeepSeek and regional Kimi Tutor adapters` locally. Chunk 3A follows with
+connection/history state and Lab-authored context; personal chat and settings
+are still unavailable. The final overall audit remains mandatory before push
+and Vercel demo update.
+
+## Historical chunk 2B checkpoint
 
 - Starting branch `main`, clean HEAD `74a07735c84a2b24088f5a6b75cfddcfb2e08c9a`
   (`Add local and OpenAI Tutor adapters`). Chunk 2A passed independent re-audit
@@ -49,7 +93,7 @@ boundaries and diff checks. All 16 paths/hashes matched before and after audit;
 the implementation task independently verified them before recording verdict
 metadata. No subsequent runtime changes.
 
-Commit boundary: `Add native Anthropic and Gemini Tutor adapters`, then 2C.
+Committed locally as `fd14abc` (`Add native Anthropic and Gemini Tutor adapters`).
 The complete feature and overall audit
 remain required before push and Vercel demo update.
 
@@ -378,9 +422,9 @@ compatibility must never be reused as personal-route authorization.
 
 ## Exact next gate
 
-**After this local chunk 1C commit, implement chunk 2A; require its own independent
-audit and correction/re-audit before the next local commit.**
+**Commit the independently passed chunk 2C locally, then implement and
+independently audit chunk 3A before its next local commit.**
 
-Chunk 1C covers offline assets/CSP; provider families, connection/history UI and
-both-Lab Tutor integration follow in separately audited rounds. No per-chunk
+Provider adapters are locally implemented with documented model limitations;
+connection/history UI and both-Lab Tutor integration follow in separate rounds. No per-chunk
 push or deployment. Keep the latest release record separate from this local work.
