@@ -1,13 +1,59 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-25
-Phase: **Chunk 2A — local-compatible and OpenAI adapters**
-Status: **Independently passed — local commit boundary, chunk 2B next**
+Phase: **Chunk 2B — native Anthropic and Gemini adapters**
+Status: **Independently passed — local commit boundary, chunk 2C next**
 Canonical status: the maintainer's continuing goal authorizes the complete
 feature sequence, with independent audit/fix/re-audit before each local commit.
-Runtime impact: **explicit local/OpenAI discovery/test and backend completion adapters implemented locally**.
+Runtime impact: **native Anthropic/Gemini added to local personal discovery/test and backend completion adapters**.
 
-## Current chunk 2A checkpoint
+## Current chunk 2B checkpoint
+
+- Starting branch `main`, clean HEAD `74a07735c84a2b24088f5a6b75cfddcfb2e08c9a`
+  (`Add local and OpenAI Tutor adapters`). Chunk 2A passed independent re-audit
+  after its empty-tool-list correction and is committed locally.
+- `providerAdapters.ts` now supports native Anthropic Messages and Gemini
+  generateContent through the existing native transport. Anthropic uses separate
+  system instructions and user/assistant history; Gemini uses native content
+  parts and user/model roles. Synthetic test budgets are 2,048 output tokens;
+  internal completion remains 4,096. No tools, optional reasoning configuration,
+  beta API or automatic retry is enabled.
+- Native output extraction keeps final text only. Anthropic handles both refusal
+  signals, including `stop_details`; Gemini excludes `thought` content and
+  signatures. Incomplete/refused/empty/malformed/tool-only/reasoning-only replies
+  fail with fixed public errors. Native text fragments concatenate without
+  inserting characters into optional JSON text.
+- Native model discovery makes one request capped at 256 models, using the
+  same policy-owned limit as response validation. The common response is now
+  `{ models, hasMore }`. Raw cursors are neither exposed nor followed; exact-ID
+  entry remains the fallback when the list is partial. Gemini native names are
+  preserved, and explicitly unsupported generation methods mark a model
+  unavailable. Empty protobuf lists are accepted; error objects are rejected.
+- Bootstrap advertises local/OpenAI/Anthropic/Gemini. DeepSeek/Kimi remain 2C;
+  personal chat HTTP, settings, history consent and both-Lab integration remain
+  later chunks. Existing local readiness/autoload, credential/session lifecycle,
+  legacy hosted chat, numerical behavior and dependency versions are unchanged.
+- New native fixtures: **71 cases**. Focused: **10 files / 334 tests**. Full
+  `npm.cmd run verify`: **115 files / 1,724 tests**, typechecks, boundaries and
+  116-module frontend build pass. Entry JS 59.11 / 18.31 kB gzip; Tutor 12.14 /
+  4.61 kB, unchanged. Fixtures use injected replies or simulated HTTPS sockets;
+  no real provider, key or model was used. No new browser/deployment claim.
+- Temporary evidence: `t-lab-chunk-2b-native-red.log`,
+  `t-lab-chunk-2b-discovery-error-red.log`, `t-lab-chunk-2b-focused.log`,
+  `t-lab-chunk-2b-final-verify.log`. The [2B review](../reviews/2026-09-25-ai-tutor-connections-chunk-2b.md)
+  records primary sources, exact tests and limits.
+
+`Audit AI Tutor connections` (GPT-6 Astra, Extra High) returned **PASS**, with
+P0/P1/P2/P3 all zero. Independent checks passed 334 focused tests, API typecheck,
+boundaries and diff checks. All 16 paths/hashes matched before and after audit;
+the implementation task independently verified them before recording verdict
+metadata. No subsequent runtime changes.
+
+Commit boundary: `Add native Anthropic and Gemini Tutor adapters`, then 2C.
+The complete feature and overall audit
+remain required before push and Vercel demo update.
+
+## Historical chunk 2A checkpoint
 
 - Starting branch `main`, clean HEAD `f36cfc111aa3a44f57335babb6d39ad75909afa2`
   (`Bundle offline Tutor assets and enforce browser policy`). Chunk 1C passed
@@ -63,9 +109,8 @@ tests, API typecheck, boundaries and the original HTTP reproduction. All 21
 hashes matched v2 before/after audit; the implementation task independently
 verified them before recording verdict metadata. No subsequent runtime edits.
 
-Commit boundary: `Add local and OpenAI Tutor adapters`. Then implement chunk 2B, native
-Anthropic/Gemini. Preserve every later chunk and the overall audit before push
-and Vercel demo deployment.
+Committed locally as `74a0773` (`Add local and OpenAI Tutor adapters`). The
+current checkpoint above governs continuation; retain the overall audit gate.
 
 ## Historical chunk 1C checkpoint
 

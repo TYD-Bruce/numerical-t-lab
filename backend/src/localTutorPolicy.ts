@@ -102,6 +102,7 @@ export function normalizeConnection(input: unknown): ServerConnection {
 }
 
 export type ProviderOperation = "discover" | "readiness" | "complete";
+export const PROVIDER_MODEL_LIMIT = 256;
 
 export function requireSelectedModel(connection: TutorConnectionMetadata): string {
   if (connection.model === undefined) throw new TutorConnectionError("model_required");
@@ -121,7 +122,9 @@ export function providerRequestTarget(connection: TutorConnectionMetadata, opera
   }
   // This query is owned by policy, never user input. Disable router process
   // autoload even when state changes after the adapter's readiness check.
-  const query = connection.provider === "local" && operation === "complete" ? "?autoload=false" : "";
+  const query = connection.provider === "local" && operation === "complete" ? "?autoload=false"
+    : operation === "discover" && connection.provider === "anthropic" ? `?limit=${PROVIDER_MODEL_LIMIT}`
+    : operation === "discover" && connection.provider === "gemini" ? `?pageSize=${PROVIDER_MODEL_LIMIT}` : "";
   return { url: `${base}${path}${query}`, method: operation === "complete" ? "POST" : "GET" };
 }
 

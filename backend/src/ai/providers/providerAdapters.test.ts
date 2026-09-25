@@ -140,7 +140,7 @@ describe("personal provider adapters", () => {
       { id: "another" },
     ] });
     const listed = await discoverModels(lease, send);
-    expect(listed).toEqual([{ id: "fixture", availability: provider === "local" ? "loaded" : "listed" }, { id: "another", availability: "listed" }]);
+    expect(listed).toEqual({ models: [{ id: "fixture", availability: provider === "local" ? "loaded" : "listed" }, { id: "another", availability: "listed" }], hasMore: false });
     expect(send).toHaveBeenCalledTimes(1); expect(send).toHaveBeenCalledWith(lease, "discover");
     expect(JSON.stringify(listed)).not.toMatch(/private|secret/);
   });
@@ -191,7 +191,7 @@ describe("personal provider adapters", () => {
 
   it("rejects not-yet-implemented providers before any request", async () => {
     const send = vi.fn<typeof requestProvider>();
-    await expect(testProviderConnection(owned("anthropic").lease, send)).rejects.toMatchObject({ code: "provider_unsupported" });
+    await expect(testProviderConnection(owned("deepseek").lease, send)).rejects.toMatchObject({ code: "provider_unsupported" });
     expect(send).not.toHaveBeenCalled();
   });
 });

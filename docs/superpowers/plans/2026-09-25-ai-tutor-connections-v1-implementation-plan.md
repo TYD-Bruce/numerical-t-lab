@@ -1,11 +1,11 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Chunk 2A independently passed; chunk 2B next**
-Runtime scope this round: **local-compatible/OpenAI adapters and explicit discovery/test**
-Current chunk baseline: clean `main` at `f36cfc111aa3a44f57335babb6d39ad75909afa2`
+Status: **Chunk 2B independently passed; chunk 2C next**
+Runtime scope this round: **native Anthropic/Gemini adapters and bounded discovery**
+Current chunk baseline: clean `main` at `74a07735c84a2b24088f5a6b75cfddcfb2e08c9a`
 The maintainer explicitly resumed after a safe pause. Current evidence is in
-[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-2a.md).
+[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-2b.md).
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
@@ -55,7 +55,7 @@ Additional owners; unimplemented entries remain proposed:
   and identity; no provider key retention.
 - `frontend/src/tutor/tutorConnectionSettings.ts`: lazy local connection form
   within the existing Tutor presentation, not a competing modal.
-- `backend/src/ai/providers/`: bounded native transport and local/OpenAI
+- `backend/src/ai/providers/`: bounded native transport and local/OpenAI/Anthropic/Gemini
   payload/extraction adapters implemented; other provider adapters remain planned.
 - `backend/src/localTutorSession.ts`: implemented expiring credential/session
   ownership, independent of serializable Lab/Tutor state, with policy and scoped
@@ -192,11 +192,22 @@ provider scope; completing 2A does not finish phase 2.
 Chunk 2A implements the adapters and exact local discovery/test routes, with
 test-gated candidate activation. Its tested `completeWithProvider` port remains
 backend-only until Phase 3 supplies profile/context/history validation; there
-is no public personal chat proxy. Bootstrap advertises only local/OpenAI.
-Limits are owned by `PROVIDER_ADAPTER_LIMITS`: 256 models, 40 messages, 32 KiB
+is no public personal chat proxy. Bootstrap initially advertised local/OpenAI;
+2B adds native Anthropic/Gemini. Limits are owned by `PROVIDER_ADAPTER_LIMITS`:
+256 models (shared policy-owned `PROVIDER_MODEL_LIMIT`), 40 messages, 32 KiB
 prompt and final text. Test budgets are 1,024 local / 2,048 OpenAI output tokens;
 internal completion is capped at 4,096. No automatic truncation or context-fit
 claim. OpenAI assistant history explicitly represents final answers.
+
+Chunk 2B uses each native API's instructions, history roles and final-text fields.
+It excludes thinking/signatures, handles refusal/incomplete states and uses
+2,048-token synthetic tests / 4,096-token completions. Discovery requests only
+one page with policy-owned size, returning `{ models, hasMore }` without raw
+cursors or automatic pagination. Gemini method metadata can exclude unsupported
+generation candidates; absent metadata is not a capability guarantee. Exact-ID
+entry remains available for partial lists. Tests cover actual request options
+through mocked native HTTPS sockets, route/session activation, no retry,
+stale responses, malformed discovery, output limits and explicit credentials.
 
 Readiness is read-only metadata, not attestation. Local unloaded/loading/sleeping
 states block inference; a bare listing is only a candidate. Only unsupported
@@ -427,7 +438,11 @@ full verification with 114 files / 1,653 tests, typechecks, boundaries and build
 Its first audit's P2 empty-tool-call-list compatibility finding is corrected
 with eight added adapter cases and real HTTP coverage. Independent re-audit
 returned PASS with all severity counts zero; the implementation task verified
-all 21 frozen hashes before recording verdict metadata. Current gate:
-commit 2A before implementing and auditing native
-Anthropic/Gemini in 2B. All remaining provider, complete offline workflow and
-both-Lab requirements remain in scope for later rounds.
+all 21 frozen hashes before recording verdict metadata. Chunk 2A is committed
+at `74a0773`. Chunk 2B now passes 334 focused tests and full verification with
+115 files / 1,724 tests, typechecks, boundaries and build. Independent 2B audit
+returned PASS with P0/P1/P2/P3 all zero; the implementation task verified all
+16 frozen hashes before recording verdict metadata. Current gate:
+local 2B commit before implementing and auditing DeepSeek/Kimi
+in 2C. All remaining provider, complete offline workflow and both-Lab
+requirements remain in scope for later rounds.

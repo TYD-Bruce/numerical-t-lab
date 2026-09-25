@@ -2,11 +2,12 @@
 
 ## Current status
 
-**Active milestone: AI Tutor Connections v1 — chunk 2A independently passed; chunk 2B next.**
+**Active milestone: AI Tutor Connections v1 — chunk 2B independently passed; chunk 2C next.**
 The maintainer explicitly resumed the continuing implementation goal.
 Chunks 1A, 1B and 1C are committed locally at `2e20a3a`, `b9fad94` and
-`f36cfc1` after independent audit. Chunk 2A started from that clean local main.
-Its checkpoint is in [the feature handoff](docs/tutor/HANDOFF.md#current-chunk-2a-checkpoint).
+`f36cfc1` after independent audit. Chunk 2A is committed at `74a0773` after
+independent re-audit. Chunk 2B started from that clean local main; its checkpoint
+is in [the feature handoff](docs/tutor/HANDOFF.md#current-chunk-2b-checkpoint).
 The maintainer has selected local-only personal connections, native
 Windows, strict offline local inference, session-only keys, explicit cloud
 providers/regions, and Tutor interfaces for both ODE and Linear Systems.
@@ -18,27 +19,23 @@ authorized the continuing implementation sequence with independent audit before
 every chunk commit. The
 [feature handoff](docs/tutor/HANDOFF.md) records all agreed choices, source
 findings, scope, and continuation rules. The
-[current review/evidence record](docs/reviews/2026-09-25-ai-tutor-connections-chunk-2a.md)
+[current review/evidence record](docs/reviews/2026-09-25-ai-tutor-connections-chunk-2b.md)
 distinguishes current fixes from future acceptance requirements.
 
-**Next gate: commit the independently passed chunk 2A, then implement and audit chunk 2B.**
-Chunk 2A adds local-compatible Chat Completions and OpenAI Responses adapters,
-explicit local discovery/test routes, and successful-test activation through the
-existing session owner. Local inference checks read-only model metadata and
-keeps `autoload=false` on the actual request. Complete final text is bounded;
-refused, incomplete, malformed and reasoning-only responses fail safely.
-The backend completion port is tested, but the personal chat HTTP route remains
-deferred to profile/context/history integration. No key-entry UI exists yet.
-Focused checks pass 9 files / 263 tests. Full verification passes 114 files /
-1,653 tests, typechecks, boundaries and the unchanged 116-module frontend build.
-The first audit found one P2: empty tool-call arrays were rejected as actual
-calls. That shape check is corrected, with eight added regressions and real
-HTTP coverage. Independent re-audit returned PASS with all severity counts zero.
-The implementation task verified all 21 file hashes before recording the verdict.
+**Next gate: commit the independently passed chunk 2B, then implement and audit chunk 2C.**
+Chunk 2B adds native Anthropic Messages and Gemini generateContent adapters.
+They reuse the proven session/transport boundary, with provider-specific
+instructions/history/authentication and final-answer extraction. Discovery
+makes one bounded request and reports `hasMore`; no cursor is followed or exposed.
+Refusals, incomplete output and reasoning/tool-only responses fail safely.
+Focused checks pass 10 files / 334 tests. Full verification passes 115 files /
+1,724 tests, all typechecks, import boundaries and the unchanged frontend build.
+Independent audit passed with P0/P1/P2/P3 all zero. The implementation task
+verified all 16 frozen file hashes before recording the verdict.
+The personal chat HTTP route and settings UI remain later integration chunks.
 All provider evidence is synthetic; no real model/provider readiness is claimed.
-Chunk 1C's offline browser evidence and recorded hard-navigation automation
-limitation remain applicable; this backend-only round adds no browser claim.
-After this gate and local commit, chunk 2B adds native Anthropic and Gemini.
+Chunk 1C's browser evidence and automation limitation remain separately recorded.
+After this gate and local commit, chunk 2C adds DeepSeek and both Kimi regions.
 The maintainer authorizes one coherent local commit after
 each chunk passes independent audit and any corrections are rechecked. Do not
 push individual chunks. After all chunks, an independent overall audit must

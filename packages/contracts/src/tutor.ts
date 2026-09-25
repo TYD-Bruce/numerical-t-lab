@@ -162,6 +162,12 @@ export interface TutorModelCandidate {
   readonly availability: "listed" | "loaded" | "loading" | "unloaded" | "unavailable";
 }
 
+export interface TutorModelDiscovery {
+  readonly models: readonly TutorModelCandidate[];
+  /** The bounded first page is incomplete; exact model-ID entry remains available. */
+  readonly hasMore: boolean;
+}
+
 export type TutorConnectionErrorCode =
   | "invalid_configuration" | "invalid_endpoint" | "credential_required" | "model_required"
   | "invalid_session" | "session_expired" | "session_limit"

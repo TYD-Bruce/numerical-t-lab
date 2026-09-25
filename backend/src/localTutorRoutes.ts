@@ -49,9 +49,9 @@ export async function handlePersonalRequest(operation: PersonalOperation, auth: 
       const lease = sessions.begin(auth, { kind: operation, generation: value.generation as number, candidateId: value.candidateId, requestId: value.requestId }, signal);
       try {
         if (operation === "discover") {
-          const models = await discoverModels(lease);
+          const discovery = await discoverModels(lease);
           lease.assertCurrent();
-          return { status: 200, body: { models } };
+          return { status: 200, body: { ...discovery } };
         }
         await testProviderConnection(lease);
         lease.assertCurrent();

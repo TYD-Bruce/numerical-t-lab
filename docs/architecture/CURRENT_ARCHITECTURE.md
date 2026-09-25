@@ -115,10 +115,13 @@ operations also require session ID/proof headers. No frontend key form exists.
 `localTutorPolicy.ts` owns fixed cloud/region presets and strict loopback URL
 validation. `ai/providers/providerTransport.ts` supplies one bounded native HTTP
 attempt with pinned DNS/TLS identity, header credentials and no redirects or
-fallback. `providerAdapters.ts` implements local Chat Completions and OpenAI
-Responses discovery, synthetic testing and bounded final-text extraction.
+fallback. `providerAdapters.ts` implements local Chat Completions, OpenAI
+Responses, native Anthropic Messages and Gemini generateContent discovery,
+synthetic testing and bounded final-text extraction. Native discovery requests
+one page capped at 256 models, sharing `PROVIDER_MODEL_LIMIT` with validation;
+`TutorModelDiscovery` exposes projected models and `hasMore`, never raw cursors.
 The personal API exposes exact `/discover` and `/test` operations with leases;
-bootstrap reports only these two supported providers. Successful testing marks
+bootstrap reports these four supported providers. Successful testing marks
 the current candidate for explicit activation; failure preserves the active
 connection. HTTP caller closure cancels the lease and outgoing request.
 Local inference first reads model metadata and uses policy-owned `autoload=false`

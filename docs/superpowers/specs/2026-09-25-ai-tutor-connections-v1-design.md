@@ -1,7 +1,7 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Chunks 1A/1B/1C committed; chunk 2A independently passed; chunk 2B next**
+Status: **Chunks through 2A committed; chunk 2B independently passed; chunk 2C next**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
@@ -21,6 +21,7 @@ Related documents:
 - [Chunk 1B evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-1b.md)
 - [Chunk 1C evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md)
 - [Chunk 2A evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-2a.md)
+- [Chunk 2B evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-2b.md)
 - [Current architecture](../../architecture/CURRENT_ARCHITECTURE.md)
 - [Numerical contracts](../../contracts/NUMERICAL_CONTRACTS.md)
 - [Linear Systems v1 design](2026-08-10-linear-systems-lab-v1-design.md)
@@ -221,8 +222,8 @@ A failure to reach it produces a local error, never a cloud request.
 
 Use a small backend adapter layer, not a general agent framework.
 
-Implementation checkpoint: chunk 2A implements local-compatible and OpenAI
-adapters; Anthropic/Gemini and DeepSeek/Kimi remain 2B/2C. The table describes
+Implementation checkpoint: 2A implements local-compatible/OpenAI and 2B adds
+native Anthropic/Gemini adapters. DeepSeek/Kimi remain 2C. The table describes
 the full approved scope, not current end-to-end UI availability.
 
 | Provider family | Proposed transport |
@@ -259,6 +260,12 @@ starting it. Background validation must not turn typing a key into a provider ca
 Model discovery lists available chat-capable candidates when the endpoint can
 report them. Support exact model-ID entry when reliable discovery is unavailable.
 Discovery is not proof that a model is usable or loaded.
+
+Implemented native catalogs use one bounded first page, sharing a 256-model
+limit with validation. Discovery returns projected candidates and `hasMore`;
+never follow or expose raw cursors. The settings UI must identify an incomplete
+list and allow exact model-ID entry. Gemini's explicit generation-method
+metadata may exclude unsupported candidates; a bare ID remains only listed.
 
 For llama.cpp router mode, distinguish listed, loaded, unavailable, and loading
 states. Use read-only discovery without a reload parameter or management call.
@@ -439,10 +446,9 @@ alter another client's model state.
 
 ## 12. Review gate and public references
 
-Current gate: chunks 1A/1B/1C are committed after independent audit. Chunk 2A
-(local-compatible/OpenAI adapters and discovery/test) passed independent
-re-audit after the empty-tool-list compatibility correction. After its local commit,
-2B/2C add the remaining providers. Settings and both-Lab integration remain
+Current gate: chunks through 2A are committed after independent audit. Chunk 2B
+(native Anthropic/Gemini) passed independent audit with no findings. After its
+local commit, chunk 2C adds DeepSeek/Kimi. Settings and both-Lab integration remain
 later chunks. Follow the continuing goal through each gate; do not push before
 the final independent overall audit.
 

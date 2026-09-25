@@ -1,10 +1,10 @@
-import type { TutorMessage, TutorModelCandidate, TutorProvider } from "@numerical-t-lab/contracts/tutor";
+import type { TutorMessage, TutorModelCandidate, TutorModelDiscovery, TutorProvider } from "@numerical-t-lab/contracts/tutor";
 import type { LocalTutorLease } from "../../localTutorSession.js";
-import { requireSelectedModel, TutorConnectionError, validateModelId } from "../../localTutorPolicy.js";
+import { PROVIDER_MODEL_LIMIT, requireSelectedModel, TutorConnectionError, validateModelId } from "../../localTutorPolicy.js";
 import { requestProvider } from "./providerTransport.js";
 
-export const SUPPORTED_TUTOR_PROVIDERS: readonly TutorProvider[] = Object.freeze(["local", "openai"]);
-export const PROVIDER_ADAPTER_LIMITS = Object.freeze({ models: 256, messages: 40, inputBytes: 32 * 1024, outputBytes: 32 * 1024 });
+export const SUPPORTED_TUTOR_PROVIDERS: readonly TutorProvider[] = Object.freeze(["local", "openai", "anthropic", "gemini"]);
+export const PROVIDER_ADAPTER_LIMITS = Object.freeze({ models: PROVIDER_MODEL_LIMIT, messages: 40, inputBytes: 32 * 1024, outputBytes: 32 * 1024 });
 export interface ProviderPrompt { readonly instructions: string; readonly messages: readonly TutorMessage[] }
 type Send = typeof requestProvider;
 type JsonRecord = Record<string, unknown>;
@@ -19,17 +19,25 @@ function eligible(lease: LocalTutorLease): void {
 }
 
 function modelList(value: unknown, provider: TutorProvider): TutorModelCandidate[] {
-  const data = record(value).data;
+  const response = record(value);
+  if (response.error != null) throw new TutorConnectionError("response_invalid");
+  // An empty protobuf repeated field may be omitted in Gemini JSON.
+  const data = provider === "gemini" ? (response.models === undefined ? [] : response.models) : response.data;
   if (!Array.isArray(data) || data.length > PROVIDER_ADAPTER_LIMITS.models) throw new TutorConnectionError("response_invalid");
   const seen = new Set<string>();
   return data.map(item => {
     const model = record(item);
     let id: string;
-    try { id = validateModelId(model.id, provider); }
+    try { id = validateModelId(provider === "gemini" ? model.name : model.id, provider); }
     catch { throw new TutorConnectionError("response_invalid"); }
     if (seen.has(id)) throw new TutorConnectionError("response_invalid");
     seen.add(id);
     let availability: TutorModelCandidate["availability"] = "listed";
+    if (provider === "gemini" && model.supportedGenerationMethods !== undefined) {
+      const methods = model.supportedGenerationMethods;
+      if (!Array.isArray(methods) || methods.some(method => typeof method !== "string")) throw new TutorConnectionError("response_invalid");
+      if (!methods.includes("generateContent")) availability = "unavailable";
+    }
     if (provider === "local" && model.status !== undefined) {
       const status = record(model.status);
       availability = status.failed === true ? "unavailable" : status.value === "loaded" ? "loaded"
@@ -48,12 +56,22 @@ function modelList(value: unknown, provider: TutorProvider): TutorModelCandidate
   });
 }
 
-export async function discoverModels(lease: LocalTutorLease, send: Send = requestProvider): Promise<TutorModelCandidate[]> {
+export async function discoverModels(lease: LocalTutorLease, send: Send = requestProvider): Promise<TutorModelDiscovery> {
   eligible(lease);
   if (lease.kind !== "discover") throw new TutorConnectionError("invalid_configuration");
   const response = await send(lease, "discover");
   lease.assertCurrent();
-  return modelList(response, lease.connection.provider);
+  const provider = lease.connection.provider, page = record(response);
+  let hasMore = false;
+  if (provider === "anthropic") {
+    if (typeof page.has_more !== "boolean") throw new TutorConnectionError("response_invalid");
+    hasMore = page.has_more;
+  } else if (provider === "gemini" && page.nextPageToken !== undefined) {
+    if (typeof page.nextPageToken !== "string") throw new TutorConnectionError("response_invalid");
+    hasMore = page.nextPageToken.length > 0;
+  }
+  // Never follow or expose pagination cursors. Discovery is one explicit request.
+  return { models: modelList(response, provider), hasMore };
 }
 
 async function localReadiness(lease: LocalTutorLease, send: Send): Promise<void> {
@@ -113,6 +131,47 @@ function openaiFinal(value: unknown): string {
   return boundedText(parts.join("\n"));
 }
 
+function anthropicFinal(value: unknown): string {
+  const response = record(value);
+  if (response.stop_reason === "refusal" ||
+    (response.stop_details != null && record(response.stop_details).type === "refusal")) throw new TutorConnectionError("response_refused");
+  if (["max_tokens", "model_context_window_exceeded"].includes(response.stop_reason as string)) throw new TutorConnectionError("response_incomplete");
+  if (response.type !== "message" || response.role !== "assistant" || response.stop_reason !== "end_turn" ||
+    response.stop_details != null || !Array.isArray(response.content)) throw new TutorConnectionError("response_invalid");
+  const parts: string[] = [];
+  for (const raw of response.content) {
+    const part = record(raw);
+    if (part.type === "thinking" || part.type === "redacted_thinking") continue;
+    if (part.type !== "text" || typeof part.text !== "string") throw new TutorConnectionError("response_invalid");
+    parts.push(part.text);
+  }
+  return boundedText(parts.join(""));
+}
+
+function geminiFinal(value: unknown): string {
+  const response = record(value);
+  if (response.promptFeedback !== undefined) {
+    const feedback = record(response.promptFeedback);
+    if (feedback.blockReason !== undefined && feedback.blockReason !== "BLOCK_REASON_UNSPECIFIED") throw new TutorConnectionError("response_refused");
+  }
+  if (response.error || !Array.isArray(response.candidates) || response.candidates.length !== 1) throw new TutorConnectionError("response_invalid");
+  const candidate = record(response.candidates[0]);
+  if (candidate.finishReason === "MAX_TOKENS") throw new TutorConnectionError("response_incomplete");
+  if (["SAFETY", "RECITATION", "BLOCKLIST", "PROHIBITED_CONTENT", "SPII", "IMAGE_SAFETY"].includes(candidate.finishReason as string)) throw new TutorConnectionError("response_refused");
+  if (candidate.finishReason !== "STOP") throw new TutorConnectionError("response_invalid");
+  const content = record(candidate.content);
+  if ((content.role !== undefined && content.role !== "model") || !Array.isArray(content.parts)) throw new TutorConnectionError("response_invalid");
+  const parts: string[] = [];
+  for (const raw of content.parts) {
+    const part = record(raw);
+    if (part.thought !== undefined && typeof part.thought !== "boolean") throw new TutorConnectionError("response_invalid");
+    if (part.thought === true) continue;
+    if (typeof part.text !== "string") throw new TutorConnectionError("response_invalid");
+    parts.push(part.text);
+  }
+  return boundedText(parts.join(""));
+}
+
 function boundedPrompt(prompt: ProviderPrompt): ProviderPrompt {
   if (!prompt || typeof prompt.instructions !== "string" || !prompt.instructions.trim() ||
     !Array.isArray(prompt.messages) || !prompt.messages.length || prompt.messages.length > PROVIDER_ADAPTER_LIMITS.messages ||
@@ -135,19 +194,28 @@ async function complete(lease: LocalTutorLease, prompt: ProviderPrompt, testing:
   const local = lease.connection.provider === "local";
   if (local) await localReadiness(lease, send);
   lease.assertCurrent();
+  const provider = lease.connection.provider;
   const body = local ? {
     model, stream: false, max_tokens: testing ? 1024 : 4096,
     messages: [{ role: "system", content: captured.instructions }, ...captured.messages],
-  } : {
+  } : provider === "openai" ? {
     model, stream: false, store: false, max_output_tokens: testing ? 2048 : 4096,
     instructions: captured.instructions,
     // The Tutor retains final answers only, including explicitly transferred
     // history; never present those turns as reasoning or intermediate commentary.
     input: captured.messages.map(message => message.role === "assistant" ? { ...message, phase: "final_answer" } : message),
+  } : provider === "anthropic" ? {
+    model, stream: false, max_tokens: testing ? 2048 : 4096,
+    system: captured.instructions, messages: captured.messages,
+  } : {
+    systemInstruction: { parts: [{ text: captured.instructions }] },
+    contents: captured.messages.map(message => ({ role: message.role === "assistant" ? "model" : "user", parts: [{ text: message.content }] })),
+    generationConfig: { maxOutputTokens: testing ? 2048 : 4096, candidateCount: 1 },
   };
   const response = await send(lease, "complete", body);
   lease.assertCurrent();
-  return local ? localFinal(response) : openaiFinal(response);
+  return local ? localFinal(response) : provider === "openai" ? openaiFinal(response)
+    : provider === "anthropic" ? anthropicFinal(response) : geminiFinal(response);
 }
 
 export async function testProviderConnection(lease: LocalTutorLease, send: Send = requestProvider): Promise<void> {

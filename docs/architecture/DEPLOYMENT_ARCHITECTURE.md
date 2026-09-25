@@ -36,9 +36,11 @@ restart the API. Changing `API_PORT` also requires changing Vite's proxy target.
 Explicit `T_LAB_PERSONAL_TUTOR=true` now enables local-only session routes with
 per-tab proof, JSON schemas, 16 KiB bodies and expiring backend credentials.
 Unset/false leaves those routes absent; invalid flag values fail startup.
-Local/OpenAI model discovery and synthetic connection testing are available
+Local/OpenAI/Anthropic/Gemini discovery and synthetic connection testing are available
 through exact `/api/personal/discover` and `/api/personal/test` POST routes.
 They require the existing local origin, proof and candidate generation checks.
+Native provider catalogs use a bounded first page with an explicit `hasMore`
+marker; pagination does not change the selected destination or trigger more calls.
 Personal chat remains unavailable until profile/context/history integration.
 The hosted adapter has no path to this session owner. No separate local
 production server or complete personal inference workflow has been added yet.

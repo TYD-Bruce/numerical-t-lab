@@ -121,7 +121,7 @@ Direct native CLI JSON requests remain supported on `/api/chat`.
 Personal model connections and strict offline mode are under phased development;
 there is no browser key-entry form yet. See the [Tutor handoff](docs/tutor/HANDOFF.md).
 The backend personal API can be enabled with `T_LAB_PERSONAL_TUTOR=true`;
-it is disabled by default. Local-compatible and OpenAI model discovery and
+it is disabled by default. Local-compatible, OpenAI, Anthropic and Gemini discovery and
 synthetic connection testing are implemented behind per-session proof. Personal
 Tutor chat and the settings UI remain later integration chunks. Personal
 connections never use environment keys.
@@ -203,6 +203,14 @@ See [`docs/INDEX.md`](docs/INDEX.md) for the current architecture, active plan,
 design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
+
+### 2026-09-25 — Native Anthropic and Gemini adapters
+
+- Added native provider requests, model discovery and final-answer extraction
+  through the existing local session and credential boundary.
+- Model lists report incomplete pages explicitly. Synthetic fixtures verify
+  refusals, reasoning filtering, cancellation and no automatic retry; settings
+  and personal Tutor chat remain subsequent integration chunks.
 
 ### 2026-09-25 — Local-compatible and OpenAI connection adapters
 
