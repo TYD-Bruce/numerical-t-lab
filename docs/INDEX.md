@@ -25,7 +25,35 @@
 
 ## Current active milestone
 
-`PLAN.md` points to **Final Production Release Closeout**. Method Teaching
+**AI Tutor Connections v1 — chunk 1A audit passed.** The maintainer
+authorized review incorporation and the first bounded implementation round.
+Listener/request controls are locally verified: 107 files / 1,427 tests,
+typechecks, import boundaries and build pass, with native HTTP/proxy evidence.
+The complete feature scope includes personal connections
+only with local frontend/backend, native Windows, strict offline local models,
+session-only credentials, all requested cloud providers with explicit Kimi
+regions, and Tutor interfaces for both ODE and Linear Systems.
+
+- [Design](superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md)
+- [Repository-grounded implementation plan](superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md)
+- [Feature handoff](tutor/HANDOFF.md)
+- [Review verification and chunk 1A evidence](reviews/2026-09-25-ai-tutor-connections-review-and-chunk-1a.md)
+
+Current closeout: commit chunk 1A locally, then stop before the next bounded
+round, chunk 1B credential sessions/destination policy.
+The first audit identified one HMR token-check bypass; its repair is locally
+verified and the independent GPT-6 Astra / Extra High re-audit returned PASS.
+Personal key UI, providers, offline assets and both-Lab integration remain later
+rounds. Each chunk requires audit/fix/re-audit before its local commit. No chunk
+is pushed individually; all chunks and the final independent overall audit
+must pass before push and Vercel demo update. Live provider calls remain separate.
+Current released-state evidence remains in [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md).
+Older milestone and next-gate statements below describe historical checkpoints;
+the Current active milestone section above governs this feature's next action.
+
+## Previous milestone — Production release closeout
+
+`PLAN.md` previously pointed to **Final Production Release Closeout**. Method Teaching
 Alignment v2 and Cross-Lab Presentation System v1 are **FROZEN** at
 `5ee063bf5d33d872305c46d495a84f4e95e128c5` (tree
 `1fd08e3d2e9c641f3e6fc148606c33484ea320a2`). Cross-Lab Presentation Phase 7
@@ -339,6 +367,7 @@ maintainer acceptance of the F2 review commit.
 
 | Document | Status |
 |---|---|
+| [AI Tutor Connections v1 Design](superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md) | Review incorporated; first bounded implementation authorized; complete local/cloud and both-Lab contract |
 | [Cross-Lab Method Teaching Alignment v2 Design](superpowers/specs/2026-08-22-cross-lab-method-teaching-alignment-v2-design.md) | Frozen at `5ee063bf5d33d872305c46d495a84f4e95e128c5`; final release audit passed P0/P1/P2/P3 = 0; Production release closeout next |
 | [Cross-Lab Presentation System v1 Design](superpowers/specs/2026-08-12-cross-lab-presentation-system-v1-design.md) | Frozen at `5ee063bf5d33d872305c46d495a84f4e95e128c5`; Phase 7 complete/accepted after PASS WITH P3 CARRY-FORWARD; both release P3s closed in release closeout |
 | [Linear Systems Teaching v2 Design](superpowers/specs/2026-08-11-linear-systems-teaching-v2-design.md) | Maintainer-accepted at `484fc9153de33be7949e82b29386c94fe63d19c8`; final teaching-copy audit passed P0/P1/P2/P3 = 0; Motion paused; Tutor later; not deployed |
@@ -354,6 +383,7 @@ maintainer acceptance of the F2 review commit.
 
 | Document | Status |
 |---|---|
+| [AI Tutor Connections v1 Implementation Plan](superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md) | Separate chunks for transport, sessions, offline assets, provider families and Lab integration; independent Astra audit before each local commit; overall audit before push/demo release |
 | [Cross-Lab Method Teaching Alignment v2 Implementation Plan](superpowers/plans/2026-08-22-cross-lab-method-teaching-alignment-v2-implementation-plan.md) | Fully executed and frozen; final Method Teaching release audit passed; Production release closeout next |
 | [Cross-Lab Presentation System v1 Implementation Plan](superpowers/plans/2026-08-12-cross-lab-presentation-system-v1-implementation-plan.md) | Fully executed and frozen; Phases 0–7 complete/accepted; Phase 7 release P3s closed in release closeout |
 | [Linear Systems Teaching v2 Implementation Plan](superpowers/plans/2026-08-11-linear-systems-teaching-v2-implementation-plan.md) | Executed and maintainer-accepted; final teaching-copy audit passed; Motion remount and Tutor remain separate later gates |
@@ -391,6 +421,9 @@ maintainer acceptance of the F2 review commit.
 
 ## Feature handoffs
 
+- [AI Tutor Connections v1 handoff](tutor/HANDOFF.md) — agreed decisions,
+  reviewed design/plan, verified chunk 1A, remaining scope, and exact review
+  gate before credential sessions and destination policy.
 - [Project handoff](PROJECT_HANDOFF.md) — implemented Platform Shell and current
   release baseline.
 - [Numerical notation research handoff](research/HANDOFF.md) — non-canonical

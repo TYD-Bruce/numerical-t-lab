@@ -1,6 +1,6 @@
 # Numerical T Lab Architecture v1
 
-Status: **Implemented locally and behavior-preserving**
+Status: **Implemented architecture; local Tutor transport additions verified separately**
 
 Numerical T Lab is an npm-workspace repository with four explicit runtime
 owners and one deployment adapter:
@@ -56,6 +56,9 @@ Browser ownership is organized as:
 
 `frontend/vite.config.ts` uses the frontend directory as Vite root and emits
 to the repository-root `dist/`. Public base remains `/`.
+Its local dev/preview servers bind to `127.0.0.1` with strict ports and disabled
+CORS. HMR shares the dev listener. Host and same-origin browser metadata are
+checked before API proxy Host rewriting; unsafe listener overrides fail startup.
 
 ### Numerical domain
 
@@ -83,9 +86,16 @@ access. `backend/src/dev.ts` is the local HTTP entry and is launched by the
 root `dev:api` script so `.env.local` and `.env` resolution remains rooted at
 the repository.
 
+`backend/src/localApiServer.ts` owns the local HTTP wrapper, exact loopback
+Host/origin validation, browser Fetch Metadata checks, JSON-only 1 MiB request
+bodies and bounded HTTP receipt timeouts. `dev.ts` binds it to `127.0.0.1`.
+Native CLI requests without browser metadata are accepted only on legacy chat.
+This foundation adds no personal credential/session route or provider adapter;
+those remain planned in the [Tutor design](../superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md).
+
 Root `api/chat.ts` remains the public `/api/chat` Vercel entry. It enforces the
 POST-only adapter contract, delegates to
-`@numerical-t-lab/backend/chat-handler`, and forwards handler status/body
+the relative `../backend/src/ai/chatHandler.js` entry, and forwards handler status/body
 without interpretation.
 
 ### Shared contracts

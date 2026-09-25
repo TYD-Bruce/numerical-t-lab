@@ -1,10 +1,10 @@
 /**
- * Local dev API server — proxies from Vite (/api/chat → http://localhost:3001).
+ * Local dev API server — Vite proxies /api/chat to literal loopback.
  * Production: Vercel serves api/chat.ts as serverless.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import http from "node:http";
+import { createLocalApiServer, LOCAL_API_HOST } from "./localApiServer.js";
 
 function loadEnvFile(filename: string): void {
   const path = resolve(process.cwd(), filename);
@@ -28,50 +28,12 @@ function loadEnvFile(filename: string): void {
 
 loadEnvFile(".env.local");
 loadEnvFile(".env");
-import {
-  handleChatRequest,
-  type ChatHandlerBody,
-} from "./ai/chatHandler.js";
-
 const PORT = Number(process.env.API_PORT ?? 3001);
-
-function readBody(req: http.IncomingMessage): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    req.on("data", (c) => chunks.push(c));
-    req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
-    req.on("error", reject);
-  });
+if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
+  throw new Error("API_PORT must be an integer from 1 to 65535.");
 }
-
-const server = http.createServer(async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  if (req.method === "OPTIONS") {
-    res.writeHead(204);
-    res.end();
-    return;
-  }
-
-  if (req.url !== "/api/chat" || req.method !== "POST") {
-    res.writeHead(404, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "Not found" }));
-    return;
-  }
-
-  try {
-    const raw = await readBody(req);
-    const body = JSON.parse(raw) as ChatHandlerBody;
-    const result = await handleChatRequest(body);
-    res.writeHead(result.status, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(result.body));
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    res.writeHead(400, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: msg }));
-  }
+const server = createLocalApiServer({
+  frontendOrigins: process.env.T_LAB_LOCAL_ORIGINS?.split(",").map((origin) => origin.trim()),
 });
 
 server.on("error", (err: NodeJS.ErrnoException) => {
@@ -80,18 +42,18 @@ server.on("error", (err: NodeJS.ErrnoException) => {
       `[ode-lab-api] Port ${PORT} is already in use.\n` +
         `  • Another "npm run dev:api" may still be running — close that terminal or stop the process.\n` +
         `  • Windows: netstat -ano | findstr :${PORT}   then   taskkill /PID <pid> /F\n` +
-        `  • Or use a different port: set API_PORT=3002 in .env.local and add the same proxy target in vite.config.ts`
+        `  • Or set API_PORT=3002 in .env.local and update the loopback proxy target in frontend/vite.config.ts`
     );
     process.exit(1);
   }
   throw err;
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, LOCAL_API_HOST, () => {
   const mock = process.env.AI_TUTOR_MOCK?.trim().toLowerCase();
   const mockOn =
     mock === "true" || mock === "1" || mock === "yes";
-  console.log(`[ode-lab-api] POST http://localhost:${PORT}/api/chat`);
+  console.log(`[ode-lab-api] POST http://${LOCAL_API_HOST}:${PORT}/api/chat`);
   if (mockOn) {
     console.log("[ode-lab-api] AI_TUTOR_MOCK=true — OpenAI not required");
   }

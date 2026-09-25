@@ -13,13 +13,28 @@ build, preserving the existing Vercel output directory.
 
 `api/chat.ts` remains at repository root for Vercel function discovery and
 continues to own `/api/chat` method handling. It imports the server
-implementation through `@numerical-t-lab/backend/chat-handler`. Provider
+implementation through `../backend/src/ai/chatHandler.js`. Provider
 secrets and environment access remain outside the frontend.
 
 For local development, root `npm run dev:api` launches
 `backend/src/dev.ts` without changing the process working directory. Existing
 root `.env.local`/`.env` discovery and the Vite `/api` proxy contract are
 therefore preserved.
+
+Local transport now binds API, Vite dev and preview to `127.0.0.1`; HMR uses the
+same frontend listener. The proxy targets literal loopback. Frontend Host/Origin
+validation runs before proxy rewriting, while the API independently checks its
+socket, Host, frontend-origin allowlist and browser Fetch Metadata. Wildcard
+CORS is removed. Local chat accepts uncompressed JSON bodies up to 1 MiB.
+Native CLI JSON compatibility applies only to the existing `/api/chat` route.
+The hosted adapter remains independent of this local server owner.
+
+Default frontend/preview ports are 5173/4173 with strict port selection; API
+defaults to 3001. For a deliberately changed frontend port, configure exact
+HTTP loopback origins via `T_LAB_LOCAL_ORIGINS` in the root API environment and
+restart the API. Changing `API_PORT` also requires changing Vite's proxy target.
+No local production server, key/session endpoints, CSP or offline asset support
+is added by this transport foundation.
 
 ## SPA fallback and assets
 

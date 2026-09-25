@@ -98,7 +98,9 @@ npm install
 npm run dev
 ```
 
-Vite normally serves the frontend at `http://localhost:5173/`.
+Vite serves the frontend at `http://127.0.0.1:5173/`. Dev and preview bind only
+to IPv4 loopback and fail if their selected port is occupied. HMR shares the
+dev listener; LAN binding and custom HMR listeners are not supported.
 
 Start the local Tutor API in a second terminal:
 
@@ -107,6 +109,17 @@ npm run dev:api
 ```
 
 Set `AI_TUTOR_MOCK=true` in `.env.local` for deterministic grounded demo replies that require no live model. For live tutoring, set a server-side `OPENAI_API_KEY`. Never give the key a `VITE_` prefix because Vite exposes such variables to browser code. The browser always calls the relative-origin endpoint `/api/chat`.
+
+The local API binds to `127.0.0.1:3001` and validates Host, Origin, browser
+same-origin metadata and JSON bodies (up to 1 MiB). Its default frontend origins
+are HTTP `127.0.0.1` and `localhost` on ports 5173 and 4173. For a different
+frontend port, set the API's `T_LAB_LOCAL_ORIGINS` to a comma-separated list of
+exact HTTP loopback origins with explicit ports, then restart it. Changing
+`API_PORT` also requires updating the proxy target in `frontend/vite.config.ts`.
+Direct native CLI JSON requests remain supported on `/api/chat`.
+
+Personal model connections and strict offline mode are under phased development;
+there is no browser key-entry form yet. See the [Tutor handoff](docs/tutor/HANDOFF.md).
 
 ## Build, preview, and verification
 
@@ -179,6 +192,14 @@ See [`docs/INDEX.md`](docs/INDEX.md) for the current architecture, active plan,
 design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
+
+### 2026-09-25 — Local Tutor transport foundation
+
+- Constrained local API, dev/preview and HMR listeners; added pre-proxy origin
+  checks, JSON/body limits and transport regression tests.
+- Incorporated the connection-design review and split implementation into
+  separate review gates. Credentials, providers, offline assets and both-Lab
+  integration remain later rounds; see [documentation](docs/INDEX.md).
 
 ### 2026-08-21 — Module overview presentation consolidated locally
 

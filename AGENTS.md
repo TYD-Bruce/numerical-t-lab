@@ -295,7 +295,10 @@ Non-negotiable:
 - no arbitrary Tutor Markdown renderer;
 - no raw user LaTeX as authoritative numerical state;
 - no evaluator closure in session state;
-- no browser API key;
+- no retained browser API key or hosted key entry; the maintainer-approved
+  local-connection design permits transient entry only after frontend/backend
+  locality and the local session boundary are verified, immediate transfer to
+  the local backend, and clearing the input without browser persistence;
 - no executable math from rendered Tutor or future Glossary content.
 
 Use the project-owned closed AST and explicit evaluator. Input adapters may normalize documented legacy/MathJSON forms. Core canonicalization must not silently broaden its contract.

@@ -2,7 +2,46 @@
 
 ## Current status
 
-**Active milestone: Final Production Release Closeout. Method Teaching
+**Active milestone: AI Tutor Connections v1 — chunk 1A audit passed.**
+The maintainer has selected local-only personal connections, native
+Windows, strict offline local inference, session-only keys, explicit cloud
+providers/regions, and Tutor interfaces for both ODE and Linear Systems.
+
+The [design](docs/superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md)
+and [repository-grounded implementation plan](docs/superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md)
+incorporate the supplied review after independent verification. The maintainer
+authorized this first bounded implementation round and the existing docs diff. The
+[feature handoff](docs/tutor/HANDOFF.md) records all agreed choices, source
+findings, scope, and continuation rules. The
+[review/evidence record](docs/reviews/2026-09-25-ai-tutor-connections-review-and-chunk-1a.md)
+distinguishes current fixes from future acceptance requirements.
+
+**Current closeout: commit chunk 1A locally, then stop. Next implementation
+round: chunk 1B (credential sessions and destination policy).** Local listener and request
+controls are locally verified: 107 files / 1,427 tests, typechecks, boundaries
+and build pass, with native HTTP/proxy/HMR/startup evidence. The first audit's
+HMR token-check bypass is repaired; independent GPT-6 Astra / Extra High re-audit
+returned PASS with no unresolved in-scope findings. No key UI,
+personal route, provider adapter, offline asset change or Linear Systems Tutor
+is included. The maintainer now authorizes one coherent local commit after
+each chunk passes independent audit and any corrections are rechecked. Do not
+push individual chunks. After all chunks, an independent overall audit must
+pass before pushing and updating the Vercel demo; inspect exact remote and
+deployment targets at that release gate. Live provider calls and model
+management remain unauthorized. Numerical behavior remains
+unchanged. Motion, Glossary-to-Tutor handoff, PDE, LAN, and WSL remain deferred.
+
+The previous release milestone below is historical planning context. Its
+Production recovery is recorded as complete in
+[the latest project handoff](docs/PROJECT_HANDOFF.md); this local work does
+not change that release evidence or production state.
+
+Milestone and next-gate statements below are retained as historical records;
+only the Current status section above governs this task's continuation.
+
+## Previous milestone — Production release closeout
+
+**Historical active milestone: Final Production Release Closeout. Method Teaching
 Alignment v2 and Cross-Lab Presentation System v1 are FROZEN at
 `5ee063bf5d33d872305c46d495a84f4e95e128c5` (tree
 `1fd08e3d2e9c641f3e6fc148606c33484ea320a2`). Cross-Lab Presentation Phase 7
