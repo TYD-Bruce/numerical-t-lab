@@ -1,13 +1,13 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Review incorporated; chunk 1A locally verified; remaining chunks planned**
+Status: **Chunk 1A committed; chunk 1B independently passed; remaining chunks planned**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
 The maintainer's 2026-09-25 follow-up authorizes incorporating the external
-review and starting one bounded implementation chunk. This design governs that
-work; later chunks stop for review under the implementation plan. A subsequent
+review and starting one bounded implementation chunk. The continuing goal now
+authorizes the full sequence, keeping every chunk's independent review boundary. A subsequent
 maintainer instruction requires independent GPT-6 Astra / Extra High audit of
 each chunk and authorizes its local commit only after findings are resolved and
 rechecked. Push and Vercel demo update are gated on completion of every chunk
@@ -18,6 +18,7 @@ Related documents:
 - [Implementation plan](../plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md)
 - [Feature handoff](../../tutor/HANDOFF.md)
 - [Review verification and chunk 1A evidence](../../reviews/2026-09-25-ai-tutor-connections-review-and-chunk-1a.md)
+- [Chunk 1B evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-1b.md)
 - [Current architecture](../../architecture/CURRENT_ARCHITECTURE.md)
 - [Numerical contracts](../../contracts/NUMERICAL_CONTRACTS.md)
 - [Linear Systems v1 design](2026-08-10-linear-systems-lab-v1-design.md)
@@ -138,7 +139,8 @@ integer, octal, hexadecimal, abbreviated and mapped-IP forms cannot normalize
 into acceptance. Reject other 127/8 addresses, trailing-dot aliases, backslashes,
 URL credentials, queries, fragments, LAN/wildcard hosts, and other schemes.
 Restrict paths to the documented API base and read-only discovery/inference
-operations. This outgoing policy is implemented in a later chunk.
+operations. Chunk 1B implements this outgoing policy with a bounded transport;
+public provider operations remain unavailable until adapters exist.
 
 Cloud connections use fixed, reviewed provider/region presets over HTTPS.
 Pin a credential to its selected provider and destination. Reject redirects
@@ -416,10 +418,11 @@ alter another client's model state.
 
 ## 12. Review gate and public references
 
-Current gate: chunk 1A (local listener/request boundary) is locally verified and
-has passed independent re-audit; commit locally and stop before chunk 1B.
-Session/key routes, providers, offline assets,
-settings and both-Lab integration are later chunks, not completed behavior.
+Current gate: chunk 1A is committed after independent re-audit. Chunk 1B
+(credential sessions/destination policy) passed independent re-audit after two
+model-selection/ID corrections and is ready for its local commit. Providers, offline assets, settings
+and both-Lab integration remain later chunks. Follow the continuing goal through
+each gate; do not push before the final independent overall audit.
 
 Primary API/security references consulted during discussion:
 

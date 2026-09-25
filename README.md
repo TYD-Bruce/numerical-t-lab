@@ -120,6 +120,10 @@ Direct native CLI JSON requests remain supported on `/api/chat`.
 
 Personal model connections and strict offline mode are under phased development;
 there is no browser key-entry form yet. See the [Tutor handoff](docs/tutor/HANDOFF.md).
+The backend session foundation can be enabled with `T_LAB_PERSONAL_TUTOR=true`;
+it is disabled by default and exposes no model discovery or inference routes
+until the provider adapters are complete. It never uses environment keys for
+personal connections.
 
 ## Build, preview, and verification
 
@@ -192,6 +196,14 @@ See [`docs/INDEX.md`](docs/INDEX.md) for the current architecture, active plan,
 design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
+
+### 2026-09-25 — Local Tutor credential/session foundation
+
+- Added explicitly enabled local sessions, per-tab proof, expiry and cancellation,
+  plus separate candidate/active connections and fixed destination policies.
+- Added bounded, redirect-rejecting provider transport and privacy/lifecycle
+  fixtures. Provider adapters, key-entry UI and strict offline mode remain later
+  chunks under the independent audit/commit workflow.
 
 ### 2026-09-25 — Local Tutor transport foundation
 

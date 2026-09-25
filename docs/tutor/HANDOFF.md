@@ -1,11 +1,11 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-25
-Phase: **Chunk 1A — local listener and HTTP request boundary**
-Status: **LOCALLY VERIFIED — independent Astra re-audit PASS**
-Canonical status: maintainer authorized review incorporation and this first
-bounded implementation round. Later chunks remain gated.
-Runtime impact: **local HTTP transport only**.
+Phase: **Chunk 1B — credential sessions and destination policy**
+Status: **Independent re-audit PASS — ready for local commit**
+Canonical status: the maintainer's continuing goal authorizes the complete
+feature sequence, with independent audit/fix/re-audit before each local commit.
+Runtime impact: **explicitly enabled local session API and provider transport foundation**.
 
 ## Starting point
 
@@ -18,6 +18,9 @@ The implementation continuation rechecked the same branch/HEAD. Its only
 starting changes were the five proposal documents (PLAN, INDEX, this handoff,
 design and plan), explicitly included by the maintainer's follow-up. No unrelated
 work was discarded. The first independent audit reviewed the uncommitted chunk.
+Chunk 1A subsequently passed independent re-audit and was committed as
+`2e20a3afe37a4183be9ca0e8df006d2bdf236010`. Chunk 1B started from that clean
+`main` revision; its local changes are the current task's work.
 
 The current Tutor is an ODE-specific client of `/api/chat`; its backend uses
 deterministic demo replies or an environment-held OpenAI key with a fixed
@@ -49,6 +52,7 @@ against source and primary documentation; useful constraints were incorporated.
 1. [Design](../superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md)
 2. [Repository-grounded implementation plan](../superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md)
 3. [Review verification and chunk 1A evidence](../reviews/2026-09-25-ai-tutor-connections-review-and-chunk-1a.md)
+4. [Current chunk 1B evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-1b.md)
 
 The new scope deliberately combines provider configuration and Linear Systems
 Tutor integration. It supersedes the older plan's separation of those topics
@@ -75,7 +79,35 @@ lifecycle, and security responsibilities remain binding.
 - A local endpoint can be a proxy; offline claims must describe T-Lab's traffic
   policy accurately.
 
-## Implemented in chunk 1A
+## Implemented in chunk 1B
+
+- An explicitly enabled local process owns origin-bound per-tab session/proof
+  and write-only credentials; `T_LAB_PERSONAL_TUTOR` is unset/false by default.
+- Eight exact personal POST operations bootstrap, inspect, stage, discard,
+  activate, disconnect, cancel and close sessions. Subsequent operations require
+  ID/proof headers; bootstrap permits no credential or provider request.
+- A candidate does not replace the current connection. Only a current backend
+  test lease can authorize activation. Replacement, disconnect and expiry
+  invalidate old work and clear credential references.
+- Model discovery permits an unselected candidate; testing and activation
+  require selection. Local server model IDs preserve opaque Windows/POSIX paths,
+  spaces and Unicode independently of the strict endpoint policy.
+- Sessions expire after 30 minutes idle or 8 hours absolute; timers work without
+  another request. There are bounded sessions, request concurrency and JSON bytes.
+- Strict loopback endpoint normalization and fixed cloud/region presets exclude
+  arbitrary forwarding and environment-key fallback. Native transport pins
+  validated cloud DNS, retains TLS identity, rejects redirects, and has bounded
+  request/response/deadline behavior without retries or provider fallback.
+- Personal discovery/test/chat routes remain absent and capability reports
+  `providerOperations: false`. No key form, model adapter, offline/CSP change or
+  Linear Systems Tutor is present. Transport tests use synthetic sockets/DNS.
+
+The session, policy, transport and wire contract are recorded in the current
+evidence document. Future adapters must release request leases in `finally`,
+propagate client cancellation, validate a final nonempty test response before
+marking a candidate tested, and never call transport from field editing.
+
+## Historical chunk 1A implementation and audit
 
 - Added `backend/src/localApiServer.ts` as a side-effect-free HTTP server factory;
   `dev.ts` loads environment files and binds it to literal IPv4 loopback.
@@ -105,8 +137,8 @@ overall audit pass may the implementation task push and update the Vercel demo,
 after verifying exact Git/deployment targets. Dependency installation, model
 management and paid/live provider calls remain separately gated.
 Before a continuation, repeat preflight and inspect any task-owned diff.
-Never stash/reset or overwrite it automatically. Chunk 1A has passed its
-re-audit and is ready for the authorized local commit boundary.
+Never stash/reset or overwrite it automatically. Chunk 1A passed its audit and
+was committed. Chunk 1B has now passed its own re-audit before the next local commit.
 
 The first audit returned NEEDS_FIXES with one P2: enabling
 `legacy.skipWebSocketTokenCheck` allowed an external-origin, token-free HMR
@@ -121,7 +153,30 @@ documentation checks. All 16 files matched the frozen manifest before and after
 review; the implementation task independently confirmed that match before
 recording this verdict. No further runtime changes followed the pass.
 
-## Validation and limitations
+## Current validation and limitations
+
+Chunk 1B passes `npm.cmd run verify`: 111 files / 1,570 tests, all workspace/API
+typechecks, import boundaries and the unchanged 115-module browser build.
+Four new suites add 143 policy, session, transport and route tests. Existing
+HTTP/proxy/HMR and hosted packaging checks pass. A separate native Windows
+`dev.ts` opt-out/opt-in probe returned 404/201; task-owned processes were stopped.
+No live provider, real browser or deployment validation is claimed.
+
+Local fonts/CSP, complete provider adapters, the key form/history workflow and
+Linear Systems Tutor remain unfinished. Google Fonts still requires external
+traffic. The complete goal is active; chunk 1B does not satisfy the final gate.
+
+The first independent chunk 1B audit returned NEEDS_FIXES for two P2 model
+selection/ID constraints. Both are corrected with new failing-then-passing
+regressions and the auditor's original loopback reproduction. Independent
+re-audit returned **PASS**, with no new in-scope findings. The auditor independently
+passed 223 focused tests, both typechecks, import boundaries and documentation
+checks, and checked the final full-verification log. All 21 source/document
+hashes matched before and after review; the implementation task independently
+confirmed that match before adding this verdict metadata. No runtime edit
+followed the pass.
+
+### Historical chunk 1A evidence
 
 Focused verification passes 4 files / 80 tests: 75 new local transport cases and
 5 existing hosted adapter/packaging tests. Real Windows loopback HTTP, Vite dev
@@ -136,19 +191,16 @@ new files and `git diff --check`. The pre-commit audit snapshot has an empty
 index, `main` at the starting SHA, nine modified tracked files and seven
 untracked task files. Git history records the eventual local commit identity.
 
-No real-browser offline/CSP/layout validation, live model call or provider
-credential was used. Provider support, strict offline behavior, credential
-sessions and Linear Systems Tutor remain unimplemented. Google Fonts still
-requires external traffic. Origin-free CLI compatibility must never be reused
-as personal-route authorization.
+At that historical boundary, no real-browser offline/CSP/layout validation,
+live model call or provider credential was used. Credential sessions were
+unimplemented then and are now covered by chunk 1B above. Origin-free CLI
+compatibility must never be reused as personal-route authorization.
 
 ## Exact next gate
 
-**Commit chunk 1A locally and stop at this boundary. The next bounded
-implementation round is chunk 1B.**
+**Commit the independently passed chunk 1B locally, then continue to chunk 1C
+under the maintainer's continuing goal.**
 
-The next implementation round is chunk 1B: expiring credential sessions,
-per-tab proof/generation and destination-policy tests, before browser key entry.
 Chunk 1C covers offline assets/CSP; provider families, connection/history UI and
 both-Lab Tutor integration follow in separately audited rounds. No per-chunk
 push or deployment. Keep the latest release record separate from this local work.

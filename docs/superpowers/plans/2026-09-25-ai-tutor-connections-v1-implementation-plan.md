@@ -1,16 +1,16 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Chunk 1A locally verified; independent Astra re-audit PASS**
-Runtime scope this round: **local listener and HTTP request boundary only**
-Baseline: `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
+Status: **Chunk 1B independent re-audit PASS; local commit then chunk 1C**
+Runtime scope this round: **credential sessions and destination policy**
+Current chunk baseline: clean `main` at `2e20a3afe37a4183be9ca0e8df006d2bdf236010`
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
 
 The maintainer's follow-up includes the existing five-file documentation diff
 and authorizes review incorporation and bounded implementation rounds. The latest
-instruction establishes the independent audit/commit workflow in section 8:
+continuing goal authorizes all chunks under the independent audit/commit workflow in section 8:
 work on local main and commit each chunk only after its audit passes. Do not
 push individual chunks, install dependencies, run paid inference, or deploy
 before the final overall-audit gate. Finish the current chunk before starting
@@ -36,16 +36,16 @@ another; preserve the separately reviewable boundaries below.
 | `frontend/src/labs/linear-algebra/linearSystemsApp.ts` | Lab header, session updates, solve/reset UI, disposal; currently no Tutor binding |
 | `frontend/src/labs/linear-algebra/linearSystemsRoute.ts` | Must expose the new Lab-owned binding through the existing optional port |
 | `packages/numerics/src/linear-algebra/linearSystemsNumerics.ts` | Existing result/trace types and producer; inspect and consume, do not modify algorithms or trace authority |
-| `packages/contracts/src/tutor.ts` | Existing ODE default DTO; add a validated domain-discriminated request/response contract |
+| `packages/contracts/src/tutor.ts` | ODE DTO and implemented personal session/connection DTOs; domain-discriminated context remains planned |
 | `backend/src/ai/chatHandler.ts` | Validation, ODE prompt/mock, fixed OpenAI invocation, parsing; separate profile and provider responsibilities narrowly |
-| `backend/src/dev.ts` | Local API process and environment loading; chunk 1A adds explicit loopback startup, later chunks add sessions/cancellation |
+| `backend/src/dev.ts` | Local API process, environment loading, loopback startup and explicit personal-session enablement/shutdown |
 | `api/chat.ts` | Hosted adapter; do not expose personal configuration/session routes |
 | `frontend/vite.config.ts` | Frontend root, local API proxy, root-base asset build |
 | `frontend/index.html` | External Google Fonts links and preconnects to replace |
 | `frontend/src/math/ui/readonlyMath.ts` | Bundled MathLive font/static CSS imports; inspect actual emitted and requested assets |
 | `scripts/verify/importBoundaries.mjs` | Existing four-owner import enforcement |
 
-Proposed new owners, not existing APIs:
+Additional owners; unimplemented entries remain proposed:
 
 - `frontend/src/labs/linear-algebra/linearSystemsTutorBinding.ts`: fresh
   eligible Linear Systems evidence projection and suggestions.
@@ -53,9 +53,11 @@ Proposed new owners, not existing APIs:
   and identity; no provider key retention.
 - `frontend/src/tutor/tutorConnectionSettings.ts`: lazy local connection form
   within the existing Tutor presentation, not a competing modal.
-- `backend/src/ai/providers/`: small provider adapters and their focused tests.
-- `backend/src/localTutorSession.ts`: expiring credential/session ownership,
-  independent of serializable Lab/Tutor state.
+- `backend/src/ai/providers/`: bounded native transport is implemented; provider
+  payload/extraction adapters remain planned.
+- `backend/src/localTutorSession.ts`: implemented expiring credential/session
+  ownership, independent of serializable Lab/Tutor state, with policy and scoped
+  HTTP owners in `localTutorPolicy.ts` and `localTutorRoutes.ts`.
 
 Do not add an abstraction just to mirror every provider. Shared transport can
 serve DeepSeek, Kimi, and compatible local chat APIs with explicit provider
@@ -89,7 +91,7 @@ do not create a separate commit merely for this preparation.
 
 ## 3. Phase 1 — Local foundation, in three separate chunks
 
-### Chunk 1A — Listener and HTTP boundary (this round)
+### Chunk 1A — Listener and HTTP boundary (committed at `2e20a3a`)
 
 Write failing behavioral tests, then implement:
 
@@ -122,7 +124,7 @@ personal-connection security or offline readiness.
 Commit boundary after the independent audit passes:
 `Constrain local Tutor HTTP transport`.
 
-### Chunk 1B — Credential sessions and destination policy (next round)
+### Chunk 1B — Credential sessions and destination policy (current chunk)
 
 - Implement per-tab proof, JSON/custom-header personal operations, strictly
   explicit credentials, 30-minute idle / 8-hour absolute expiry, bounded session
@@ -135,7 +137,25 @@ Commit boundary after the independent audit passes:
   unavailable until their adapters exist. No browser key form yet.
 
 Gate: session/destination/HTTP tests, hosted packaging, typechecks, boundaries,
-full suite/build as required. Stop for review.
+full suite/build as required, independent audit/correction/re-audit and local
+commit before the next chunk.
+
+Implemented contract details are in the
+[chunk 1B evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-1b.md).
+The backend uses an explicit enable flag, origin-bound random session/proof,
+strict POST schemas and separate candidate/active connections. Bootstrap accepts
+no key; only an internally successful test can authorize activation. Discovery,
+test and personal chat remain absent until adapters exist. Numeric bounds live
+in the backend session/transport owners; public DTOs carry only safe metadata.
+The native transport is included here so redirects, DNS pinning, header-only
+credentials, cancellation and limits are executable policy rather than promises.
+Tests use synthetic endpoints and DNS; no provider call is authorized by this chunk.
+Candidates can discover without a selected model. Test/activation/completion
+require selection, and local model IDs remain bounded opaque strings separate
+from endpoint validation. These are corrections from the first independent audit.
+
+Commit boundary after the independent audit passes:
+`Add local Tutor credential sessions`.
 
 ### Chunk 1C — Offline assets and browser CSP
 
@@ -176,6 +196,11 @@ Add explicit connection testing with a small synthetic prompt. Editing connectio
 fields invalidates prior test success. Do not send Lab data during the test.
 Discovery must not call model management or reload endpoints. A listed model
 must not be treated as a ready model.
+For llama.cpp router support, also disable automatic loading on each inference
+request (`autoload=false`) and verify loaded state using read-only metadata.
+Test a model becoming unloaded between discovery and inference. A prior loaded
+check alone cannot prevent the router's documented default automatic loading;
+the adapter must carry the explicit opt-out through the scoped transport.
 
 No automatic retries, cross-provider/region fallback, or ambient-key fallback.
 For each adapter, assert exactly one outbound inference on timeout/429/5xx,
@@ -350,12 +375,11 @@ No current documentation or local test changes production status.
 
 ## 9. Current evidence and next gate
 
-The original preparation was documentation-only. The current follow-up verified
-the supplied review against source and primary documentation and implemented
-chunk 1A. Final verification passes 107 files / 1,427 tests, typechecks, import
-boundaries and build; focused tests and native HTTP/proxy/startup checks also
-pass. Detailed evidence and remaining limits are in
-the [review record](../../reviews/2026-09-25-ai-tutor-connections-review-and-chunk-1a.md)
+The original preparation and chunk 1A are committed at `2e20a3a`. The continuing
+goal now advances through separate independent gates. Chunk 1B passes 111 files /
+1,570 tests, typechecks, import boundaries and build, with native Windows startup
+and synthetic transport/session evidence. Detailed evidence and limits are in
+the [current review record](../../reviews/2026-09-25-ai-tutor-connections-chunk-1b.md)
 and [handoff](../../tutor/HANDOFF.md).
 
 The dedicated audit task, `Audit AI Tutor connections`, uses the required model
@@ -365,6 +389,8 @@ regressions, and repeated full verification. Independent re-audit returned PASS
 with no unresolved in-scope findings; the implementation task confirmed that all
 16 files still matched the audited manifest before recording verdict metadata.
 
-Current closeout: commit chunk 1A locally and stop. The next bounded round is
-chunk 1B. All other
+Chunk 1B independent re-audit returned PASS after both P2 corrections. The
+implementation task verified all 21 file hashes against the frozen manifest.
+Current gate: commit chunk 1B locally, then implement and independently audit
+chunk 1C. All other
 provider, offline and both-Lab requirements remain in scope for later rounds.

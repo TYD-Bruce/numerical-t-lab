@@ -1,5 +1,8 @@
 import http from "node:http";
 import { handleChatRequest, type ChatHandlerBody } from "./ai/chatHandler.js";
+import { TutorConnectionError } from "./localTutorPolicy.js";
+import { LOCAL_TUTOR_LIMITS, type LocalTutorAuth, type LocalTutorSessions } from "./localTutorSession.js";
+import { authorizePersonalRequest, handlePersonalRequest, personalOperation } from "./localTutorRoutes.js";
 
 export const LOCAL_API_HOST = "127.0.0.1";
 export const LOCAL_API_MAX_BODY_BYTES = 1024 * 1024;
@@ -39,7 +42,7 @@ function isLocalRequest(req: http.IncomingMessage, origins: ReadonlySet<string>)
   return origin !== undefined && origins.has(origin) && site === "same-origin";
 }
 
-function readBody(req: http.IncomingMessage): Promise<string> {
+function readBody(req: http.IncomingMessage, maxBytes: number): Promise<string> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     let bytes = 0;
@@ -47,7 +50,7 @@ function readBody(req: http.IncomingMessage): Promise<string> {
     req.on("data", (chunk: Buffer) => {
       if (tooLarge) return;
       bytes += chunk.length;
-      if (bytes > LOCAL_API_MAX_BODY_BYTES) {
+      if (bytes > maxBytes) {
         tooLarge = true;
         chunks.length = 0;
         reject(new RangeError("Local request body limit exceeded."));
@@ -65,10 +68,12 @@ function readBody(req: http.IncomingMessage): Promise<string> {
 export function createLocalApiServer(options: {
   frontendOrigins?: readonly string[];
   chatHandler?: typeof handleChatRequest;
+  /** Explicit local-process opt-in. Never supplied by the hosted adapter. */
+  personalTutor?: LocalTutorSessions;
 } = {}): http.Server {
   const origins = approvedOrigins(options.frontendOrigins ?? DEFAULT_FRONTEND_ORIGINS);
   const chatHandler = options.chatHandler ?? handleChatRequest;
-  return http.createServer({ requestTimeout: 30_000, headersTimeout: 10_000 }, async (req, res) => {
+  const server = http.createServer({ requestTimeout: 30_000, headersTimeout: 10_000 }, async (req, res) => {
     const reply = (status: number, body: Record<string, unknown>): void => {
       if (res.destroyed) return;
       res.writeHead(status, {
@@ -84,7 +89,8 @@ export function createLocalApiServer(options: {
       reply(403, { error: "Local request origin is not allowed." });
       return;
     }
-    if (req.url !== "/api/chat") {
+    const operation = options.personalTutor && personalOperation(req.url);
+    if (req.url !== "/api/chat" && !operation) {
       reply(404, { error: "Not found" });
       return;
     }
@@ -93,19 +99,29 @@ export function createLocalApiServer(options: {
       reply(405, { error: "Method not allowed" });
       return;
     }
+    let auth: LocalTutorAuth | undefined;
+    if (operation && options.personalTutor) {
+      try { auth = authorizePersonalRequest(req, operation, options.personalTutor); }
+      catch (error) {
+        if (error instanceof TutorConnectionError) reply(error.status, { error: error.message, code: error.code });
+        else reply(403, { error: "Local session proof is not valid." });
+        return;
+      }
+    }
     if (!/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(req.headers["content-type"] ?? "") ||
       (req.headers["content-encoding"] !== undefined && req.headers["content-encoding"] !== "identity")) {
       reply(415, { error: "An uncompressed JSON request is required." });
       return;
     }
-    if (Number(req.headers["content-length"]) > LOCAL_API_MAX_BODY_BYTES) {
+    const maxBytes = operation ? LOCAL_TUTOR_LIMITS.bodyBytes : LOCAL_API_MAX_BODY_BYTES;
+    if (Number(req.headers["content-length"]) > maxBytes) {
       reply(413, { error: "Request body is too large." });
       return;
     }
-    let body: ChatHandlerBody;
+    let body: unknown;
     try {
-      const raw = await readBody(req);
-      body = JSON.parse(raw) as ChatHandlerBody;
+      const raw = await readBody(req, maxBytes);
+      body = JSON.parse(raw);
     } catch (error) {
       const tooLarge = error instanceof RangeError;
       reply(tooLarge ? 413 : 400, {
@@ -115,10 +131,15 @@ export function createLocalApiServer(options: {
     }
     if (req.aborted || res.destroyed) return;
     try {
-      const result = await chatHandler(body);
+      const result = operation && auth && options.personalTutor
+        ? handlePersonalRequest(operation, auth, body, options.personalTutor)
+        : await chatHandler(body as ChatHandlerBody);
       reply(result.status, result.body);
-    } catch {
-      reply(500, { error: "Local Tutor request failed." });
+    } catch (error) {
+      if (operation && error instanceof TutorConnectionError) reply(error.status, { error: error.message, code: error.code });
+      else reply(500, { error: "Local Tutor request failed." });
     }
   });
+  server.once("close", () => options.personalTutor?.dispose());
+  return server;
 }

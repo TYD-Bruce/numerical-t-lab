@@ -168,6 +168,7 @@ describe("local API HTTP boundary", () => {
     expect(preflight.status).toBe(405);
     expect(preflight.headers["access-control-allow-origin"]).toBeUndefined();
     expect((await send(browserHeaders, "{}", "/api/personal/connections")).status).toBe(404);
+    expect((await send({ ...browserHeaders, "X-T-Lab-Client": "tutor-v1" }, "{}", "/api/personal/session")).status).toBe(404);
     expect((await send(browserHeaders, "", "/api/chat", "GET")).status).toBe(405);
     expect(chatHandler).not.toHaveBeenCalled();
   });

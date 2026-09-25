@@ -33,8 +33,12 @@ Default frontend/preview ports are 5173/4173 with strict port selection; API
 defaults to 3001. For a deliberately changed frontend port, configure exact
 HTTP loopback origins via `T_LAB_LOCAL_ORIGINS` in the root API environment and
 restart the API. Changing `API_PORT` also requires changing Vite's proxy target.
-No local production server, key/session endpoints, CSP or offline asset support
-is added by this transport foundation.
+Explicit `T_LAB_PERSONAL_TUTOR=true` now enables local-only session routes with
+per-tab proof, JSON schemas, 16 KiB bodies and expiring backend credentials.
+Unset/false leaves those routes absent; invalid flag values fail startup.
+Provider discovery/test/chat routes remain unavailable. The hosted adapter has
+no path to this session owner. No local production server, CSP or offline asset
+support has been added yet.
 
 ## SPA fallback and assets
 

@@ -122,3 +122,44 @@ export interface ChatResponse {
 }
 
 export type TutorMessage = ChatRequest["messages"][number];
+
+/** Local-only personal connection DTOs. Credentials are write-only input. */
+export type TutorProvider = "local" | "openai" | "anthropic" | "gemini" | "deepseek" | "kimi";
+export type TutorRegion = "international" | "mainland";
+export type TutorConnectionInput =
+  | { provider: "local"; baseUrl: string; model?: string; apiKey?: string }
+  | { provider: "kimi"; region: TutorRegion; model?: string; apiKey: string }
+  | { provider: "openai" | "anthropic" | "gemini" | "deepseek"; model?: string; apiKey: string };
+
+export interface TutorConnectionMetadata {
+  readonly provider: TutorProvider;
+  readonly region?: TutorRegion;
+  readonly baseUrl: string;
+  /** May be absent on an unselected discovery candidate, never on an active connection. */
+  readonly model?: string;
+  readonly hasCredential: boolean;
+}
+
+export interface LocalTutorSessionSnapshot {
+  readonly sessionId: string;
+  readonly generation: number;
+  readonly idleExpiresAt: number;
+  readonly absoluteExpiresAt: number;
+  readonly active?: TutorConnectionMetadata;
+  readonly candidate?: { readonly id: string; readonly tested: boolean; readonly connection: TutorConnectionMetadata };
+}
+
+export interface LocalTutorSessionCreated {
+  readonly session: LocalTutorSessionSnapshot;
+  /** Per-tab proof, held only in frontend runtime memory. Never a provider key. */
+  readonly proof: string;
+  readonly capabilities: { readonly protocol: 1; readonly providerOperations: boolean };
+}
+
+export type TutorConnectionErrorCode =
+  | "invalid_configuration" | "invalid_endpoint" | "credential_required" | "model_required"
+  | "invalid_session" | "session_expired" | "session_limit"
+  | "connection_changed" | "connection_unverified" | "connection_required"
+  | "request_busy" | "request_cancelled" | "provider_unavailable"
+  | "redirect_rejected" | "response_too_large" | "response_invalid"
+  | "timeout" | "provider_auth" | "provider_busy";

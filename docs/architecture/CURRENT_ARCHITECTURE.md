@@ -90,8 +90,20 @@ the repository.
 Host/origin validation, browser Fetch Metadata checks, JSON-only 1 MiB request
 bodies and bounded HTTP receipt timeouts. `dev.ts` binds it to `127.0.0.1`.
 Native CLI requests without browser metadata are accepted only on legacy chat.
-This foundation adds no personal credential/session route or provider adapter;
-those remain planned in the [Tutor design](../superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md).
+With explicit `T_LAB_PERSONAL_TUTOR=true`, `localTutorRoutes.ts` exposes scoped
+session operations backed by `localTutorSession.ts`. The latter owns origin-bound
+proof, backend-only credentials, candidate/active connections, generations,
+request leases, 30-minute idle/8-hour absolute expiry and cleanup. Personal
+bodies are capped at 16 KiB and authenticated before reading. Session bootstrap
+requires same-origin browser metadata and a custom client marker; subsequent
+operations also require session ID/proof headers. No frontend key form exists.
+
+`localTutorPolicy.ts` owns fixed cloud/region presets and strict loopback URL
+validation. `ai/providers/providerTransport.ts` supplies one bounded native HTTP
+attempt with pinned DNS/TLS identity, header credentials and no redirects or
+fallback. It is tested with fixtures and is not invoked by public routes yet.
+Provider operations report unavailable until the planned adapters exist. See
+the [Tutor design](../superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md).
 
 Root `api/chat.ts` remains the public `/api/chat` Vercel entry. It enforces the
 POST-only adapter contract, delegates to

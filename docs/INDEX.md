@@ -25,10 +25,10 @@
 
 ## Current active milestone
 
-**AI Tutor Connections v1 — chunk 1A audit passed.** The maintainer
-authorized review incorporation and the first bounded implementation round.
-Listener/request controls are locally verified: 107 files / 1,427 tests,
-typechecks, import boundaries and build pass, with native HTTP/proxy evidence.
+**AI Tutor Connections v1 — chunk 1B independent re-audit PASS.**
+The continuing goal retains separate audited chunk commits. Chunk 1A is
+committed at `2e20a3a`. Session/proof, expiry, candidate/active isolation and
+destination transport pass 111 files / 1,570 tests, typechecks, boundaries and build.
 The complete feature scope includes personal connections
 only with local frontend/backend, native Windows, strict offline local models,
 session-only credentials, all requested cloud providers with explicit Kimi
@@ -38,11 +38,11 @@ regions, and Tutor interfaces for both ODE and Linear Systems.
 - [Repository-grounded implementation plan](superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md)
 - [Feature handoff](tutor/HANDOFF.md)
 - [Review verification and chunk 1A evidence](reviews/2026-09-25-ai-tutor-connections-review-and-chunk-1a.md)
+- [Chunk 1B evidence](reviews/2026-09-25-ai-tutor-connections-chunk-1b.md)
 
-Current closeout: commit chunk 1A locally, then stop before the next bounded
-round, chunk 1B credential sessions/destination policy.
-The first audit identified one HMR token-check bypass; its repair is locally
-verified and the independent GPT-6 Astra / Extra High re-audit returned PASS.
+Next gate: local commit for chunk 1B after its GPT-6 Astra / Extra High PASS,
+then chunk 1C offline assets/CSP. The personal session API is explicitly
+enabled locally; public provider operations remain unavailable.
 Personal key UI, providers, offline assets and both-Lab integration remain later
 rounds. Each chunk requires audit/fix/re-audit before its local commit. No chunk
 is pushed individually; all chunks and the final independent overall audit
