@@ -115,8 +115,16 @@ operations also require session ID/proof headers. No frontend key form exists.
 `localTutorPolicy.ts` owns fixed cloud/region presets and strict loopback URL
 validation. `ai/providers/providerTransport.ts` supplies one bounded native HTTP
 attempt with pinned DNS/TLS identity, header credentials and no redirects or
-fallback. It is tested with fixtures and is not invoked by public routes yet.
-Provider operations report unavailable until the planned adapters exist. See
+fallback. `providerAdapters.ts` implements local Chat Completions and OpenAI
+Responses discovery, synthetic testing and bounded final-text extraction.
+The personal API exposes exact `/discover` and `/test` operations with leases;
+bootstrap reports only these two supported providers. Successful testing marks
+the current candidate for explicit activation; failure preserves the active
+connection. HTTP caller closure cancels the lease and outgoing request.
+Local inference first reads model metadata and uses policy-owned `autoload=false`
+on the completion URL. Metadata is server-reported, not lifecycle attestation.
+The backend-only completion port awaits the later profile/context/history-aware
+handler; there is no personal chat HTTP route yet. Other adapters remain planned. See
 the [Tutor design](../superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md).
 
 Root `api/chat.ts` remains the public `/api/chat` Vercel entry. It enforces the

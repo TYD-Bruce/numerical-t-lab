@@ -1,13 +1,73 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-25
-Phase: **Chunk 1C — offline assets and browser CSP**
-Status: **Independently passed — local commit boundary, chunk 2A next**
+Phase: **Chunk 2A — local-compatible and OpenAI adapters**
+Status: **Independently passed — local commit boundary, chunk 2B next**
 Canonical status: the maintainer's continuing goal authorizes the complete
 feature sequence, with independent audit/fix/re-audit before each local commit.
-Runtime impact: **local fonts, MathLive asset policy and browser CSP implemented locally**.
+Runtime impact: **explicit local/OpenAI discovery/test and backend completion adapters implemented locally**.
 
-## Current chunk 1C checkpoint
+## Current chunk 2A checkpoint
+
+- Starting branch `main`, clean HEAD `f36cfc111aa3a44f57335babb6d39ad75909afa2`
+  (`Bundle offline Tutor assets and enforce browser policy`). Chunk 1C passed
+  independent full and scoped follow-up audits before this local commit.
+- `backend/src/ai/providers/providerAdapters.ts` owns local Chat Completions
+  and OpenAI Responses payloads, read-only discovery, synthetic testing and
+  final-answer extraction. The session bootstrap reports only `local`/`openai`
+  as supported. Other provider families remain chunks 2B/2C.
+- Exact local `/api/personal/discover` and `/api/personal/test` POSTs accept only
+  candidate ID, generation and request ID, with existing origin/proof checks.
+  Stage sends no provider request. Test uses a fixed greeting prompt with no
+  caller history/context; only successful current tests permit activation.
+  Reconfiguration, caller closure, explicit cancellation and expiry invalidate
+  pending work. Failure leaves the previous active connection usable.
+- Local inference reads `/v1/models` first. Explicit unloaded/loading/sleeping
+  or unavailable states prevent inference; the policy-owned completion URL
+  retains `autoload=false` through the native transport. An unsupported listing
+  (404/405/501 only) permits an exact manual ID with unknown readiness. Listing
+  without state does not attest loaded weights. T-Lab cannot atomically control
+  a separately administered server's lifecycle or guarantee its compliance.
+- OpenAI uses Responses, `store:false`, complete responses and explicit
+  final-answer phase for assistant history. Both adapters reject incomplete,
+  empty, refused or malformed answers; reasoning/tool fields are not rendered.
+  Recognized inline think tags fail safely. Existing safe Tutor normalization
+  remains a later handler consumer, not a new arbitrary renderer.
+- Adapter limits: 256 model candidates, 40 messages, 32 KiB input/output text;
+  test output budgets 1,024 local / 2,048 OpenAI, internal chat budget 4,096.
+  These are byte/output ceilings, not a tokenizer or model context guarantee.
+- `completeWithProvider` is a tested backend-only port. Personal chat HTTP,
+  profile/context validation, transfer consent, settings UI and Linear Systems
+  binding remain separate integration chunks. Legacy `/api/chat` is unchanged.
+- Focused validation: **9 files / 263 tests**. Full `npm.cmd run verify`:
+  **114 files / 1,653 tests**, all typechecks, import boundaries and build pass.
+  The frontend still builds 116 modules with unchanged entry/Tutor chunk sizes.
+  Native HTTP fixtures and simulated HTTPS sockets cover privacy, auth, exact
+  paths, stale/cancelled work, model-unload races and no retry on timeout/429/5xx.
+  No real provider/model calls or new browser checks were performed.
+- Temporary evidence: `t-lab-chunk-2a-fixed-focused.log`, `t-lab-chunk-2a-fixed-verify.log`,
+  and the adapter/HTTP/phase red-test logs in the OS temporary directory. See
+  [the chunk 2A review](../reviews/2026-09-25-ai-tutor-connections-chunk-2a.md)
+  for exact evidence and source references.
+
+The first independent audit found one P2: normal complete local responses with
+`tool_calls: []` could not pass testing/activation. All original 21 hashes were
+independently verified unchanged before repair. The corrected shape check allows
+omitted/null/empty arrays and rejects nonempty arrays or malformed present values.
+Eight added adapter regressions and actual HTTP fixtures cover the correction;
+the red run had eight failing cases before the fix. Full verification was repeated.
+
+`Audit AI Tutor connections` (GPT-6 Astra, Extra High) returned **PASS** on the
+corrected snapshot, with P0/P1/P2/P3 all zero. It independently passed 263 focused
+tests, API typecheck, boundaries and the original HTTP reproduction. All 21
+hashes matched v2 before/after audit; the implementation task independently
+verified them before recording verdict metadata. No subsequent runtime edits.
+
+Commit boundary: `Add local and OpenAI Tutor adapters`. Then implement chunk 2B, native
+Anthropic/Gemini. Preserve every later chunk and the overall audit before push
+and Vercel demo deployment.
+
+## Historical chunk 1C checkpoint
 
 The maintainer explicitly resumed after the safe pause. The continuing goal
 retains independent audit/fix/re-audit before each local commit, then an overall
@@ -17,7 +77,7 @@ audit before push and deployment.
   (`Add local Tutor credential sessions`). Chunk 1B passed independent re-audit;
   the implementation task verified all 21 hashes before recording verdict metadata
   and committing. The worktree was clean before chunk 1C started.
-- Chunk 1C contains 26 reviewed files; Git history records its local commit.
+- Chunk 1C contains 26 reviewed files; its local commit is `f36cfc1`.
   Owners: `frontend/contentSecurityPolicy.ts`, `frontend/vite.config.ts`,
   `frontend/index.html`, `frontend/src/app/appShell.ts`, local font assets and
   licenses, `frontend/src/math/ui/readonlyMath.ts`, and focused tests.
@@ -73,8 +133,7 @@ hashes matched before/after audit. The implementation task independently checked
 the exact bytes before recording this verdict. Pre-commit follow-up is limited
 to verdict/gate metadata and LF normalization of one license notice, without
 wording or font-byte changes. Commit boundary: `Bundle offline Tutor assets and enforce browser policy`.
-Then advance to 2A; retain all later feature chunks and the final
-overall-audit-before-push/deployment gate.
+That gate is complete; the current checkpoint above governs continuation.
 
 The following sections retain the agreed requirements and chunk 1A/1B evidence;
 the current checkpoint above supersedes their earlier next-gate wording.
@@ -92,8 +151,8 @@ design and plan), explicitly included by the maintainer's follow-up. No unrelate
 work was discarded. The first independent audit reviewed the uncommitted chunk.
 Chunk 1A subsequently passed independent re-audit and was committed as
 `2e20a3afe37a4183be9ca0e8df006d2bdf236010`. Chunk 1B started from that clean
-`main` revision and is now committed at `b9fad94`. Chunk 1C follows that baseline
-at the local commit boundary recorded above.
+`main` revision and is now committed at `b9fad94`. Chunk 1C followed that baseline
+and is committed at `f36cfc1`.
 
 The current Tutor is an ODE-specific client of `/api/chat`; its backend uses
 deterministic demo replies or an environment-held OpenAI key with a fixed

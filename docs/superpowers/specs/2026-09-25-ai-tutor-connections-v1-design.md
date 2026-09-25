@@ -1,7 +1,7 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Chunks 1A/1B committed; chunk 1C independently passed; chunk 2A next**
+Status: **Chunks 1A/1B/1C committed; chunk 2A independently passed; chunk 2B next**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
@@ -20,6 +20,7 @@ Related documents:
 - [Review verification and chunk 1A evidence](../../reviews/2026-09-25-ai-tutor-connections-review-and-chunk-1a.md)
 - [Chunk 1B evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-1b.md)
 - [Chunk 1C evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md)
+- [Chunk 2A evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-2a.md)
 - [Current architecture](../../architecture/CURRENT_ARCHITECTURE.md)
 - [Numerical contracts](../../contracts/NUMERICAL_CONTRACTS.md)
 - [Linear Systems v1 design](2026-08-10-linear-systems-lab-v1-design.md)
@@ -140,8 +141,10 @@ integer, octal, hexadecimal, abbreviated and mapped-IP forms cannot normalize
 into acceptance. Reject other 127/8 addresses, trailing-dot aliases, backslashes,
 URL credentials, queries, fragments, LAN/wildcard hosts, and other schemes.
 Restrict paths to the documented API base and read-only discovery/inference
-operations. Chunk 1B implements this outgoing policy with a bounded transport;
-public provider operations remain unavailable until adapters exist.
+operations. Chunk 1B implements this outgoing policy with a bounded transport.
+Chunk 2A exposes explicit local/OpenAI discovery and synthetic testing behind
+session proof. Personal chat remains deferred to profile/context/history
+integration; the tested completion adapter is a backend-only port.
 
 Cloud connections use fixed, reviewed provider/region presets over HTTPS.
 Pin a credential to its selected provider and destination. Reject redirects
@@ -218,6 +221,10 @@ A failure to reach it produces a local error, never a cloud request.
 
 Use a small backend adapter layer, not a general agent framework.
 
+Implementation checkpoint: chunk 2A implements local-compatible and OpenAI
+adapters; Anthropic/Gemini and DeepSeek/Kimi remain 2B/2C. The table describes
+the full approved scope, not current end-to-end UI availability.
+
 | Provider family | Proposed transport |
 |---|---|
 | OpenAI | Responses API |
@@ -257,6 +264,15 @@ For llama.cpp router mode, distinguish listed, loaded, unavailable, and loading
 states. Use read-only discovery without a reload parameter or management call.
 Never start, download, load, unload, or switch the server's active model.
 Describe congestion or readiness failures without disrupting another client.
+
+Implemented local protection combines read-only metadata before each inference
+with policy-owned `autoload=false` on the actual completion URL. Reject explicit
+unloaded/loading/sleeping/unavailable states. A listing without status remains
+only server-reported availability. When discovery is unsupported (404/405/501),
+allow an exact manual ID with unknown readiness; never mask auth/network or
+malformed-data errors. A separately administered server may control sleep/wake
+or ignore compatibility parameters; T-Lab cannot attest or atomically enforce
+that server's internal lifecycle. It sends no management/reload request.
 
 The explicit Test connection action may issue a small synthetic inference
 request to the selected destination, with a visible notice of possible cloud
@@ -423,11 +439,12 @@ alter another client's model state.
 
 ## 12. Review gate and public references
 
-Current gate: chunks 1A/1B are committed after independent re-audit. Chunk 1C
-(offline assets and browser CSP) passed independent audit with no findings;
-chunk 2A follows its local commit. Providers, settings
-and both-Lab integration remain later chunks. Follow the continuing goal through
-each gate; do not push before the final independent overall audit.
+Current gate: chunks 1A/1B/1C are committed after independent audit. Chunk 2A
+(local-compatible/OpenAI adapters and discovery/test) passed independent
+re-audit after the empty-tool-list compatibility correction. After its local commit,
+2B/2C add the remaining providers. Settings and both-Lab integration remain
+later chunks. Follow the continuing goal through each gate; do not push before
+the final independent overall audit.
 
 Primary API/security references consulted during discussion:
 

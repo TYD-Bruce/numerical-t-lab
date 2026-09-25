@@ -21,6 +21,12 @@ const ERRORS: Record<TutorConnectionErrorCode, readonly [number, string]> = {
   timeout: [504, "The model request timed out."],
   provider_auth: [401, "The selected model server rejected the credential."],
   provider_busy: [429, "The selected model server is busy or has reached its limit."],
+  provider_unsupported: [400, "This provider is not available in this version."],
+  discovery_unsupported: [422, "This server does not provide model discovery. Enter an exact model ID."],
+  model_unavailable: [409, "The selected model is not reported as available. Load it in your model server before testing."],
+  response_refused: [422, "The model declined this request or its safety filter blocked the answer."],
+  response_incomplete: [422, "The model did not finish its answer within the output limit. No partial answer was accepted."],
+  input_too_large: [413, "The conversation and context exceed the supported input size. Start a shorter conversation."],
 };
 
 /** Fixed public messages only: never capture a URL, credential, body or cause. */
@@ -47,7 +53,7 @@ export function localModelBase(value: unknown): string {
   return `http://${match[1] === "localhost" ? "127.0.0.1" : match[1]}:${match[2]}/v1`;
 }
 
-function modelId(value: unknown, provider: TutorProvider): string {
+export function validateModelId(value: unknown, provider: TutorProvider): string {
   if (provider === "local") {
     // llama.cpp may return a Windows/POSIX file path. It is opaque JSON data,
     // never an endpoint, filesystem operation or executable expression.
@@ -83,7 +89,7 @@ export function normalizeConnection(input: unknown): ServerConnection {
   const allowed = ["provider", "model", "apiKey", ...(provider === "local" ? ["baseUrl"] : provider === "kimi" ? ["region"] : [])];
   if (Object.keys(data).some(key => !allowed.includes(key))) throw new TutorConnectionError("invalid_configuration");
   const baseUrl = baseFor(provider, data.region as TutorRegion | undefined, data.baseUrl);
-  const model = data.model === undefined ? undefined : modelId(data.model, provider);
+  const model = data.model === undefined ? undefined : validateModelId(data.model, provider);
   const credential = provider === "local" && (data.apiKey === undefined || data.apiKey === "") ? undefined : data.apiKey;
   if (credential !== undefined && (typeof credential !== "string" || !/^[\x21-\x7e]{1,4096}$/.test(credential))) {
     throw new TutorConnectionError("credential_required");
@@ -95,24 +101,28 @@ export function normalizeConnection(input: unknown): ServerConnection {
   };
 }
 
-export type ProviderOperation = "discover" | "complete";
+export type ProviderOperation = "discover" | "readiness" | "complete";
 
 export function requireSelectedModel(connection: TutorConnectionMetadata): string {
   if (connection.model === undefined) throw new TutorConnectionError("model_required");
-  return modelId(connection.model, connection.provider);
+  return validateModelId(connection.model, connection.provider);
 }
 
 /** Only these read-only discovery / inference paths can leave the backend. */
 export function providerRequestTarget(connection: TutorConnectionMetadata, operation: ProviderOperation): { url: string; method: "GET" | "POST" } {
   const base = baseFor(connection.provider, connection.region, connection.baseUrl);
-  if (base !== connection.baseUrl || (operation !== "discover" && operation !== "complete")) throw new TutorConnectionError("invalid_configuration");
+  if (base !== connection.baseUrl || !["discover", "readiness", "complete"].includes(operation) ||
+    (operation === "readiness" && connection.provider !== "local")) throw new TutorConnectionError("invalid_configuration");
   let path = "/models";
   if (operation === "complete") {
     const model = requireSelectedModel(connection);
     path = connection.provider === "openai" ? "/responses" : connection.provider === "anthropic" ? "/messages"
       : connection.provider === "gemini" ? `/models/${encodeURIComponent(model.replace(/^models\//, ""))}:generateContent` : "/chat/completions";
   }
-  return { url: `${base}${path}`, method: operation === "discover" ? "GET" : "POST" };
+  // This query is owned by policy, never user input. Disable router process
+  // autoload even when state changes after the adapter's readiness check.
+  const query = connection.provider === "local" && operation === "complete" ? "?autoload=false" : "";
+  return { url: `${base}${path}${query}`, method: operation === "complete" ? "POST" : "GET" };
 }
 
 const nonPublicV4 = new BlockList();

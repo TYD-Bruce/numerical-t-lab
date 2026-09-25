@@ -153,7 +153,13 @@ export interface LocalTutorSessionCreated {
   readonly session: LocalTutorSessionSnapshot;
   /** Per-tab proof, held only in frontend runtime memory. Never a provider key. */
   readonly proof: string;
-  readonly capabilities: { readonly protocol: 1; readonly providerOperations: boolean };
+  readonly capabilities: { readonly protocol: 1; readonly providerOperations: boolean; readonly providers: readonly TutorProvider[] };
+}
+
+/** Server-reported candidates; listed does not mean loaded or connection-tested. */
+export interface TutorModelCandidate {
+  readonly id: string;
+  readonly availability: "listed" | "loaded" | "loading" | "unloaded" | "unavailable";
 }
 
 export type TutorConnectionErrorCode =
@@ -162,4 +168,6 @@ export type TutorConnectionErrorCode =
   | "connection_changed" | "connection_unverified" | "connection_required"
   | "request_busy" | "request_cancelled" | "provider_unavailable"
   | "redirect_rejected" | "response_too_large" | "response_invalid"
-  | "timeout" | "provider_auth" | "provider_busy";
+  | "timeout" | "provider_auth" | "provider_busy"
+  | "provider_unsupported" | "discovery_unsupported" | "model_unavailable"
+  | "response_refused" | "response_incomplete" | "input_too_large";

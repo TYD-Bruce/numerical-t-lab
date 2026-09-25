@@ -1,11 +1,11 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Chunk 1C independently passed; chunk 2A next**
-Runtime scope this round: **offline assets and browser CSP**
-Current chunk baseline: clean `main` at `b9fad94ae46c9ea89bd1d481739d8f610ba471e7`
+Status: **Chunk 2A independently passed; chunk 2B next**
+Runtime scope this round: **local-compatible/OpenAI adapters and explicit discovery/test**
+Current chunk baseline: clean `main` at `f36cfc111aa3a44f57335babb6d39ad75909afa2`
 The maintainer explicitly resumed after a safe pause. Current evidence is in
-[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md).
+[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-2a.md).
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
@@ -43,7 +43,7 @@ another; preserve the separately reviewable boundaries below.
 | `backend/src/dev.ts` | Local API process, environment loading, loopback startup and explicit personal-session enablement/shutdown |
 | `api/chat.ts` | Hosted adapter; do not expose personal configuration/session routes |
 | `frontend/vite.config.ts` | Frontend root, local API proxy, root-base asset build |
-| `frontend/index.html` | External Google Fonts links and preconnects to replace |
+| `frontend/index.html` | Bundled fonts and build CSP meta; external Google Fonts links removed in 1C |
 | `frontend/src/math/ui/readonlyMath.ts` | Bundled MathLive font/static CSS imports; inspect actual emitted and requested assets |
 | `scripts/verify/importBoundaries.mjs` | Existing four-owner import enforcement |
 
@@ -55,8 +55,8 @@ Additional owners; unimplemented entries remain proposed:
   and identity; no provider key retention.
 - `frontend/src/tutor/tutorConnectionSettings.ts`: lazy local connection form
   within the existing Tutor presentation, not a competing modal.
-- `backend/src/ai/providers/`: bounded native transport is implemented; provider
-  payload/extraction adapters remain planned.
+- `backend/src/ai/providers/`: bounded native transport and local/OpenAI
+  payload/extraction adapters implemented; other provider adapters remain planned.
 - `backend/src/localTutorSession.ts`: implemented expiring credential/session
   ownership, independent of serializable Lab/Tutor state, with policy and scoped
   HTTP owners in `localTutorPolicy.ts` and `localTutorRoutes.ts`.
@@ -142,7 +142,7 @@ Gate: session/destination/HTTP tests, hosted packaging, typechecks, boundaries,
 full suite/build as required, independent audit/correction/re-audit and local
 commit before the next chunk.
 
-Implemented contract details are in the
+Historical chunk 1B contract details are in the
 [chunk 1B evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-1b.md).
 The backend uses an explicit enable flag, origin-bound random session/proof,
 strict POST schemas and separate candidate/active connections. Bootstrap accepts
@@ -159,7 +159,7 @@ from endpoint validation. These are corrections from the first independent audit
 Commit boundary after the independent audit passes:
 `Add local Tutor credential sessions`.
 
-### Chunk 1C — Offline assets and browser CSP
+### Chunk 1C — Offline assets and browser CSP (committed at `f36cfc1`)
 
 - Bundle approved fonts and licenses; remove remote font links/preconnects.
 - Audit deferred MathLive and other resources; fit enforced CSP to the actual
@@ -188,6 +188,21 @@ Split into separately reviewed rounds: **2A** local compatible + OpenAI,
 **2B** native Anthropic + Gemini, **2C** DeepSeek + both Kimi regions. Reuse
 transport only where the actual protocols agree. Retain the complete requested
 provider scope; completing 2A does not finish phase 2.
+
+Chunk 2A implements the adapters and exact local discovery/test routes, with
+test-gated candidate activation. Its tested `completeWithProvider` port remains
+backend-only until Phase 3 supplies profile/context/history validation; there
+is no public personal chat proxy. Bootstrap advertises only local/OpenAI.
+Limits are owned by `PROVIDER_ADAPTER_LIMITS`: 256 models, 40 messages, 32 KiB
+prompt and final text. Test budgets are 1,024 local / 2,048 OpenAI output tokens;
+internal completion is capped at 4,096. No automatic truncation or context-fit
+claim. OpenAI assistant history explicitly represents final answers.
+
+Readiness is read-only metadata, not attestation. Local unloaded/loading/sleeping
+states block inference; a bare listing is only a candidate. Only unsupported
+discovery (404/405/501) permits exact manual IDs without metadata. The explicit
+autoload query protects the documented router process-loading path, but T-Lab
+does not control an arbitrary server's wake/sleep behavior or policy compliance.
 
 Use recorded synthetic fixtures and injected HTTP transports. Do not contact
 real providers as part of normal tests.
@@ -406,7 +421,13 @@ with no unresolved in-scope findings; the implementation task confirmed that all
 Chunk 1B independent re-audit returned PASS after both P2 corrections. The
 implementation task verified all 21 file hashes against the frozen manifest.
 Chunk 1B is committed locally at `b9fad94`. After explicit maintainer resume,
-chunk 1C completed local verification and independent audit with no findings.
-Current gate after its local commit: implement 2A, then independently audit,
-correct/re-audit and commit. All other
-provider, offline and both-Lab requirements remain in scope for later rounds.
+chunk 1C completed local verification and independent audit with no findings,
+then committed at `f36cfc1`. Chunk 2A now passes 9 focused files / 263 tests and
+full verification with 114 files / 1,653 tests, typechecks, boundaries and build.
+Its first audit's P2 empty-tool-call-list compatibility finding is corrected
+with eight added adapter cases and real HTTP coverage. Independent re-audit
+returned PASS with all severity counts zero; the implementation task verified
+all 21 frozen hashes before recording verdict metadata. Current gate:
+commit 2A before implementing and auditing native
+Anthropic/Gemini in 2B. All remaining provider, complete offline workflow and
+both-Lab requirements remain in scope for later rounds.

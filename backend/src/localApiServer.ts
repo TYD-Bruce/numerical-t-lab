@@ -130,14 +130,22 @@ export function createLocalApiServer(options: {
       return;
     }
     if (req.aborted || res.destroyed) return;
+    const caller = new AbortController();
+    const abort = () => caller.abort();
+    const close = () => { if (!res.writableEnded) abort(); };
+    req.once("aborted", abort);
+    res.once("close", close);
     try {
       const result = operation && auth && options.personalTutor
-        ? handlePersonalRequest(operation, auth, body, options.personalTutor)
+        ? await handlePersonalRequest(operation, auth, body, options.personalTutor, caller.signal)
         : await chatHandler(body as ChatHandlerBody);
       reply(result.status, result.body);
     } catch (error) {
       if (operation && error instanceof TutorConnectionError) reply(error.status, { error: error.message, code: error.code });
       else reply(500, { error: "Local Tutor request failed." });
+    } finally {
+      req.off("aborted", abort);
+      res.off("close", close);
     }
   });
   server.once("close", () => options.personalTutor?.dispose());

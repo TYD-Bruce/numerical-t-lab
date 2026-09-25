@@ -120,10 +120,11 @@ Direct native CLI JSON requests remain supported on `/api/chat`.
 
 Personal model connections and strict offline mode are under phased development;
 there is no browser key-entry form yet. See the [Tutor handoff](docs/tutor/HANDOFF.md).
-The backend session foundation can be enabled with `T_LAB_PERSONAL_TUTOR=true`;
-it is disabled by default and exposes no model discovery or inference routes
-until the provider adapters are complete. It never uses environment keys for
-personal connections.
+The backend personal API can be enabled with `T_LAB_PERSONAL_TUTOR=true`;
+it is disabled by default. Local-compatible and OpenAI model discovery and
+synthetic connection testing are implemented behind per-session proof. Personal
+Tutor chat and the settings UI remain later integration chunks. Personal
+connections never use environment keys.
 
 Interface and math fonts are bundled locally with notices in `/licenses/`.
 Local dev/preview enforce a browser content security policy; production HTML
@@ -202,6 +203,14 @@ See [`docs/INDEX.md`](docs/INDEX.md) for the current architecture, active plan,
 design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
+
+### 2026-09-25 — Local-compatible and OpenAI connection adapters
+
+- Added explicit local/OpenAI model discovery, synthetic connection testing and
+  activation of successfully tested candidates, with bounded final-answer parsing.
+- Local inference checks server-reported readiness and disables llama.cpp router
+  autoload. Cancellation and failures preserve the active connection. Personal
+  chat/UI and other providers remain later chunks; validation uses synthetic fixtures.
 
 ### 2026-09-25 — Offline assets and browser resource policy
 

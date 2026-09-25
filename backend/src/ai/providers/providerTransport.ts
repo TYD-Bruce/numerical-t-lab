@@ -12,7 +12,7 @@ export const PROVIDER_TRANSPORT_LIMITS = Object.freeze({
 /** Exactly one native HTTP attempt. Never follows redirects or ambient proxies. */
 export async function requestProvider(lease: LocalTutorLease, operation: ProviderOperation, body?: unknown): Promise<unknown> {
   lease.assertCurrent();
-  if ((operation === "discover") !== (lease.kind === "discover") || (operation === "discover" && body !== undefined)) {
+  if ((operation === "discover") !== (lease.kind === "discover") || (operation !== "complete" && body !== undefined)) {
     throw new TutorConnectionError("invalid_configuration");
   }
   const target = providerRequestTarget(lease.connection, operation);
@@ -30,7 +30,7 @@ export async function requestProvider(lease: LocalTutorLease, operation: Provide
   const cancel = () => controller.abort();
   lease.signal.addEventListener("abort", cancel, { once: true });
   if (lease.signal.aborted) cancel();
-  const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, operation === "discover" ? PROVIDER_TRANSPORT_LIMITS.discoverMs : PROVIDER_TRANSPORT_LIMITS.completeMs);
+  const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, operation !== "complete" ? PROVIDER_TRANSPORT_LIMITS.discoverMs : PROVIDER_TRANSPORT_LIMITS.completeMs);
   timeout.unref();
   const cancelled = () => new TutorConnectionError(timedOut ? "timeout" : "request_cancelled");
   let rejectAbort!: () => void;
@@ -65,11 +65,12 @@ export async function requestProvider(lease: LocalTutorLease, operation: Provide
       const req = send({
         hostname: address, family: isIP(address), port: url.port || (url.protocol === "https:" ? 443 : 80),
         servername: url.hostname, rejectUnauthorized: true, agent: false,
-        path: url.pathname, method: target.method, headers, signal: controller.signal, maxHeaderSize: 16 * 1024,
+        path: url.pathname + url.search, method: target.method, headers, signal: controller.signal, maxHeaderSize: 16 * 1024,
       }, (res) => {
         const fail = (error: TutorConnectionError) => { reject(error); res.destroy(); req.destroy(); };
         const status = res.statusCode ?? 0;
         if (status >= 300 && status < 400) return fail(new TutorConnectionError("redirect_rejected"));
+        if (operation !== "complete" && [404, 405, 501].includes(status)) return fail(new TutorConnectionError("discovery_unsupported"));
         if (status < 200 || status >= 400) return fail(new TutorConnectionError(status === 401 || status === 403 ? "provider_auth" : status === 429 ? "provider_busy" : "provider_unavailable"));
         if (!/^application\/json(?:\s*;|$)/i.test(res.headers["content-type"] ?? "") || (res.headers["content-encoding"] !== undefined && res.headers["content-encoding"] !== "identity")) {
           return fail(new TutorConnectionError("response_invalid"));

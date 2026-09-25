@@ -14,7 +14,7 @@ describe("personal Tutor destination policy", () => {
   it.each(["D:\\Models\\Local model.gguf", "/models/Local model.gguf", "本地模型 Q4", "http://other.invalid/models/load?x=1#fragment"])("preserves opaque local model ID %s separately from its fixed request path", model => {
     const connection = normalizeConnection({ provider: "local", baseUrl: "http://localhost:8080", model });
     expect(connection.metadata.model).toBe(model);
-    expect(providerRequestTarget(connection.metadata, "complete").url).toBe("http://127.0.0.1:8080/v1/chat/completions");
+    expect(providerRequestTarget(connection.metadata, "complete").url).toBe("http://127.0.0.1:8080/v1/chat/completions?autoload=false");
   });
 
   it.each(["", "   ", "model\n", "model\u0000", "model\u007f", "x".repeat(1025)])("bounds local IDs and rejects controls: %j", model => {
@@ -29,7 +29,7 @@ describe("personal Tutor destination policy", () => {
     const connection = normalizeConnection({ provider: "local", baseUrl, model: "fixture/model" });
     expect(connection.metadata.baseUrl).toBe(expected);
     expect(providerRequestTarget(connection.metadata, "discover").url).toBe(`${expected}/models`);
-    expect(providerRequestTarget(connection.metadata, "complete").url).toBe(`${expected}/chat/completions`);
+    expect(providerRequestTarget(connection.metadata, "complete").url).toBe(`${expected}/chat/completions?autoload=false`);
   });
 
   it.each([

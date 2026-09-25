@@ -53,7 +53,7 @@ describe("explicitly enabled local personal session routes", () => {
   it("bootstraps a private no-store capability and returns no cookie", async () => {
     const result = await send("/api/personal/session");
     expect(result.status).toBe(201);
-    expect(JSON.parse(result.text).capabilities).toEqual({ protocol: 1, providerOperations: false });
+    expect(JSON.parse(result.text).capabilities).toEqual({ protocol: 1, providerOperations: true, providers: ["local", "openai"] });
     expect(result.headers["cache-control"]).toBe("no-store");
     expect(result.headers["access-control-allow-origin"]).toBeUndefined();
     expect(result.headers["set-cookie"]).toBeUndefined();
@@ -106,9 +106,9 @@ describe("explicitly enabled local personal session routes", () => {
     expect((await send("/api/personal/status", {}, tab.proofHeaders)).status).toBe(401);
   });
 
-  it("does not expose forwarding, discovery, inference or model management before adapters exist", async () => {
+  it("does not expose arbitrary forwarding, ungrounded chat or model management", async () => {
     const tab = await newTab();
-    for (const path of ["chat", "test", "discover", "models/load", "proxy", "connections"]) {
+    for (const path of ["chat", "models/load", "proxy", "connections"]) {
       expect((await send(`/api/personal/${path}`, {}, tab.proofHeaders)).status).toBe(404);
     }
     expect(chatHandler).not.toHaveBeenCalled();

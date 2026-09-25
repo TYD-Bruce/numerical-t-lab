@@ -58,7 +58,7 @@ describe("bounded personal provider transport", () => {
     testing.markTested(); testing.finish();
     expect(store.activate(auth, 0, chosen.candidate!.id).active?.model).toBe(model);
     expect(sentModel).toBe(model);
-    expect(paths).toEqual(["/v1/models", "/v1/chat/completions"]);
+    expect(paths).toEqual(["/v1/models", "/v1/chat/completions?autoload=false"]);
   });
 
   it("uses the literal local destination, header credentials and exactly one inference", async () => {
@@ -72,7 +72,7 @@ describe("bounded personal provider transport", () => {
     vi.stubEnv("HTTP_PROXY", "http://attacker.invalid:1234");
     const owned = lease({ provider: "local", baseUrl: baseUrl.replace("127.0.0.1", "localhost"), model: "fixture", apiKey: "explicit-fixture-key" });
     await expect(requestProvider(owned, "complete", { messages: [] })).resolves.toEqual({ fixture: true });
-    expect(seen).toEqual([{ url: "/v1/chat/completions", method: "POST", key: "Bearer explicit-fixture-key" }]);
+    expect(seen).toEqual([{ url: "/v1/chat/completions?autoload=false", method: "POST", key: "Bearer explicit-fixture-key" }]);
     expect(lookup).not.toHaveBeenCalled();
   });
 

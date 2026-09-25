@@ -1,8 +1,9 @@
 import type { IncomingMessage } from "node:http";
 import { TutorConnectionError } from "./localTutorPolicy.js";
 import type { LocalTutorAuth, LocalTutorSessions } from "./localTutorSession.js";
+import { discoverModels, testProviderConnection, SUPPORTED_TUTOR_PROVIDERS } from "./ai/providers/providerAdapters.js";
 
-const OPERATIONS = ["session", "status", "stage", "discard", "activate", "disconnect", "cancel", "close"] as const;
+const OPERATIONS = ["session", "status", "stage", "discard", "activate", "disconnect", "cancel", "close", "discover", "test"] as const;
 type PersonalOperation = typeof OPERATIONS[number];
 
 export function personalOperation(path: string | undefined): PersonalOperation | undefined {
@@ -29,17 +30,34 @@ function fields(body: unknown, names: readonly string[]): Record<string, unknown
   return record;
 }
 
-export function handlePersonalRequest(operation: PersonalOperation, auth: LocalTutorAuth, body: unknown, sessions: LocalTutorSessions): { status: number; body: Record<string, unknown> } {
+export async function handlePersonalRequest(operation: PersonalOperation, auth: LocalTutorAuth, body: unknown, sessions: LocalTutorSessions, signal?: AbortSignal): Promise<{ status: number; body: Record<string, unknown> }> {
   switch (operation) {
     case "session":
       fields(body, []);
-      return { status: 201, body: { ...sessions.create(auth.origin) } };
+      return { status: 201, body: { ...sessions.create(auth.origin), capabilities: { protocol: 1, providerOperations: true, providers: SUPPORTED_TUTOR_PROVIDERS } } };
     case "status":
       fields(body, []);
       return { status: 200, body: { ...sessions.status(auth) } };
     case "stage": {
       const value = fields(body, ["generation", "connection"]);
       return { status: 200, body: { ...sessions.stage(auth, value.generation as number, value.connection) } };
+    }
+    case "discover":
+    case "test": {
+      const value = fields(body, ["generation", "candidateId", "requestId"]);
+      if (typeof value.candidateId !== "string" || typeof value.requestId !== "string") throw new TutorConnectionError("invalid_configuration");
+      const lease = sessions.begin(auth, { kind: operation, generation: value.generation as number, candidateId: value.candidateId, requestId: value.requestId }, signal);
+      try {
+        if (operation === "discover") {
+          const models = await discoverModels(lease);
+          lease.assertCurrent();
+          return { status: 200, body: { models } };
+        }
+        await testProviderConnection(lease);
+        lease.assertCurrent();
+        lease.markTested();
+        return { status: 200, body: { session: sessions.status(auth) } };
+      } finally { lease.finish(); }
     }
     case "discard":
     case "activate": {

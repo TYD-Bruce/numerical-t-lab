@@ -2,11 +2,11 @@
 
 ## Current status
 
-**Active milestone: AI Tutor Connections v1 — chunk 1C independently passed; chunk 2A next.**
+**Active milestone: AI Tutor Connections v1 — chunk 2A independently passed; chunk 2B next.**
 The maintainer explicitly resumed the continuing implementation goal.
-Chunks 1A and 1B are committed locally at `2e20a3a` and `b9fad94` after
-independent audit. Chunk 1C also passed with no in-scope findings. Its checkpoint is in
-[the feature handoff](docs/tutor/HANDOFF.md#current-chunk-1c-checkpoint).
+Chunks 1A, 1B and 1C are committed locally at `2e20a3a`, `b9fad94` and
+`f36cfc1` after independent audit. Chunk 2A started from that clean local main.
+Its checkpoint is in [the feature handoff](docs/tutor/HANDOFF.md#current-chunk-2a-checkpoint).
 The maintainer has selected local-only personal connections, native
 Windows, strict offline local inference, session-only keys, explicit cloud
 providers/regions, and Tutor interfaces for both ODE and Linear Systems.
@@ -18,24 +18,27 @@ authorized the continuing implementation sequence with independent audit before
 every chunk commit. The
 [feature handoff](docs/tutor/HANDOFF.md) records all agreed choices, source
 findings, scope, and continuation rules. The
-[current review/evidence record](docs/reviews/2026-09-25-ai-tutor-connections-chunk-1c.md)
+[current review/evidence record](docs/reviews/2026-09-25-ai-tutor-connections-chunk-2a.md)
 distinguishes current fixes from future acceptance requirements.
 
-**Next gate: chunk 2A implementation, independent audit and any correction/re-audit before its local commit.**
-Chunk 1C bundles interface and math fonts, disables implicit MathLive asset
-fetching, and enforces browser resource policy through local headers and built
-HTML. Full verification passes 112 files / 1,579 tests, typechecks, boundaries
-and build. Browser checks cover both Labs, themes, math editing, synthetic
-Tutor replies and deliberate CSP violations with external traffic blocked.
-The review records the automation limitation reproduced on a separate minimal
-beforeunload fixture; it does not claim that hard-navigation check passed.
-Provider operations remain unavailable and no browser key form is exposed.
-The independent 1C audit passed 80 focused tests, typechecks, boundaries, an
-external-directory build and browser spot checks. All 26 files matched the
-frozen audit snapshot; the implementation task independently rechecked their
-bytes before recording this verdict. Pre-commit follow-up is limited to
-verdict/gate metadata and LF normalization of one license notice.
-Chunk 2A, local-compatible and OpenAI adapters, follows this local 1C commit.
+**Next gate: commit the independently passed chunk 2A, then implement and audit chunk 2B.**
+Chunk 2A adds local-compatible Chat Completions and OpenAI Responses adapters,
+explicit local discovery/test routes, and successful-test activation through the
+existing session owner. Local inference checks read-only model metadata and
+keeps `autoload=false` on the actual request. Complete final text is bounded;
+refused, incomplete, malformed and reasoning-only responses fail safely.
+The backend completion port is tested, but the personal chat HTTP route remains
+deferred to profile/context/history integration. No key-entry UI exists yet.
+Focused checks pass 9 files / 263 tests. Full verification passes 114 files /
+1,653 tests, typechecks, boundaries and the unchanged 116-module frontend build.
+The first audit found one P2: empty tool-call arrays were rejected as actual
+calls. That shape check is corrected, with eight added regressions and real
+HTTP coverage. Independent re-audit returned PASS with all severity counts zero.
+The implementation task verified all 21 file hashes before recording the verdict.
+All provider evidence is synthetic; no real model/provider readiness is claimed.
+Chunk 1C's offline browser evidence and recorded hard-navigation automation
+limitation remain applicable; this backend-only round adds no browser claim.
+After this gate and local commit, chunk 2B adds native Anthropic and Gemini.
 The maintainer authorizes one coherent local commit after
 each chunk passes independent audit and any corrections are rechecked. Do not
 push individual chunks. After all chunks, an independent overall audit must

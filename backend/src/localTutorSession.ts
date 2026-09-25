@@ -125,7 +125,7 @@ export function createLocalTutorSessions() {
   }
 
   return {
-    create(origin: string): LocalTutorSessionCreated {
+    create(origin: string): Omit<LocalTutorSessionCreated, "capabilities"> {
       if (disposed) throw new TutorConnectionError("invalid_session");
       for (const entry of entries.values()) if (expired(entry)) remove(entry);
       if (entries.size >= LOCAL_TUTOR_LIMITS.maxSessions) throw new TutorConnectionError("session_limit");
@@ -135,7 +135,7 @@ export function createLocalTutorSessions() {
       };
       entries.set(entry.id, entry);
       arm(entry);
-      return { session: snapshot(entry), proof: entry.proof, capabilities: { protocol: 1, providerOperations: false } };
+      return { session: snapshot(entry), proof: entry.proof };
     },
     /** Authenticate before accepting a body; does not extend the idle deadline. */
     authorize(auth: LocalTutorAuth): void { authenticate(auth); },
