@@ -1,12 +1,17 @@
 import type { ChatRequest, ChatResponse } from "@numerical-t-lab/contracts/tutor";
+import type { TutorPromptProfile } from "../app/contracts";
 
 export const PUBLIC_TUTOR_UNAVAILABLE_MESSAGE =
   "AI Tutor is temporarily unavailable. Please try again later.";
 
 export async function sendTutorMessage(
-  request: ChatRequest,
-  signal?: AbortSignal
+  request: ChatRequest<object>,
+  signal?: AbortSignal,
+  profile: TutorPromptProfile = "ode"
 ): Promise<ChatResponse> {
+  // The legacy hosted route currently accepts only ODE. Additional profiles
+  // need the separate validated handler before they may use this transport.
+  if (profile !== "ode") throw new Error(PUBLIC_TUTOR_UNAVAILABLE_MESSAGE);
   const response = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

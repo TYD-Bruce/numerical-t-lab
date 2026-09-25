@@ -1,11 +1,11 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Chunk 2C independently passed; chunk 3A next**
-Runtime scope this round: **DeepSeek and explicit regional Kimi adapters**
-Current chunk baseline: clean `main` at `fd14abcff6a2192a95248d30a5446b89d37af1f6`
+Status: **Chunk 3A1 independently passed; local commit boundary, then 3A2**
+Runtime scope this round: **Lab-owned ODE context and stale-response protection**
+Current chunk baseline: clean `main` at `2e6f3319739d448d0a4bb2a6359619c2126ad26c`
 The maintainer explicitly resumed after a safe pause. Current evidence is in
-[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-2c.md).
+[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md).
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
@@ -22,16 +22,16 @@ another; preserve the separately reviewable boundaries below.
 
 | Existing owner | Verified responsibility and planned seam |
 |---|---|
-| `frontend/src/app/contracts.ts` | Generic optional Lab Tutor binding, prompt profile, pure per-module transcript; evolve ready/unavailable context and nonsecret conversation provenance |
+| `frontend/src/app/contracts.ts` | Generic optional Lab Tutor binding with ready/unavailable context, evidence revision and pure transcript revision; nonsecret connection provenance remains 3A2 |
 | `frontend/src/app/labRouteAdapter.ts` | Connects an exposed Tutor binding and live session access; already owns reset/request invalidation and disposal order |
 | `frontend/src/app/platformTutorHost.ts` | Inserts the launcher in Lab header actions, lazily mounts the panel, owns presentation and cancellation hooks |
 | `frontend/src/app/platformBootstrap.ts` | Platform Host construction; wire only lightweight connection access if needed |
 | `frontend/src/app/appSessionStore.ts` | Pure per-module Lab/Tutor sessions; no credentials, network handles, or provider secrets |
-| `frontend/src/tutor/platformTutorPanel.ts` | ODE-specific context conversion and copy currently inside the shared panel; replace with Lab-authored data and profile-aware UI |
+| `frontend/src/tutor/platformTutorPanel.ts` | Shared opaque context/copy consumer with revision and binding guards; personal connection UI remains 3B |
 | `frontend/src/tutor/tutorClient.ts` | Same-origin chat fetch and safe public failure boundary |
 | `frontend/src/tutor/moduleTutorSession.ts` | Transcript/draft/reset helpers and history serialization |
-| `frontend/src/tutor/aiTutor.ts` | Existing ODE context builder plus presentation/transport helpers; preserve callers while relocating only domain interpretation needed by the new binding |
-| `frontend/src/labs/ode/odeTutorBinding.ts` | ODE source binding, suggestions, chart delegation, reset subscriptions |
+| `frontend/src/tutor/aiTutor.ts` | Compatibility reexports; pure ODE builder now lives in `labs/ode/odeTutorContext.ts`, shared display helpers in `tutorPresentation.ts` |
+| `frontend/src/labs/ode/odeTutorBinding.ts` | ODE evidence eligibility/projection, revision, suggestions/copy, chart delegation and reset/context subscriptions |
 | `frontend/src/labs/ode/odeApp.ts` | Current result, Run/reset, chart application, and disposal owner |
 | `frontend/src/labs/ode/initialValueProblemsRoute.ts` | Existing complete-Lab binding export |
 | `frontend/src/labs/linear-algebra/linearSystemsSession.ts` | Current/stale status, input fingerprint, immutable latest success |
@@ -267,7 +267,25 @@ Suggested commit boundary: `Add Tutor provider adapters`.
 ## 5. Phase 3 — Shared connection UI and ODE compatibility
 
 Split **3A** connection-generation/history-consent state and Lab-authored ODE
-context from **3B** settings/panel wiring and browser QA. Each ends at review.
+context from **3B** settings/panel wiring and browser QA. Repository inspection
+subdivides 3A into two coherent, independently audited commits:
+
+- **3A1** moves the existing ODE projection to a pure Lab owner, exposes a
+  ready/unavailable snapshot with a binding-local revision, and makes the shared
+  panel consume opaque context and Lab-owned copy. Separate shared presentation
+  helpers from ODE interpretation so Linear Systems will not import ODE runtime.
+  Add pure transcript revisions and reject stale responses/chart actions after
+  context/transcript changes. Reuse the Host lifecycle for context refresh.
+  Preserve successful-Run reset, failed-Run successful-output retention, Compare
+  exclusion and existing Convergence evidence eligibility. No personal chat/key UI.
+- **3A2** adds session/connection provenance, one-use per-Lab transfer decisions,
+  and validated profile-aware personal chat through the tested backend adapters.
+  Reconcile personal-chat body/prompt limits without silently dropping evidence.
+  Preserve the hosted ODE API and keep unsupported profiles from using its route.
+
+3B integrates the settings and connection controls with these owners and runs
+the full connection/history browser workflows. Each subchunk ends at review;
+3A1 also receives focused browser/lifecycle and lazy-boundary evidence.
 
 Tests first for:
 
@@ -460,6 +478,13 @@ returned PASS with P0/P1/P2/P3 all zero; the implementation task verified all
 with 116 files / 1,827 tests, typechecks, boundaries and build. Independent audit
 returned PASS with P0/P1/P2/P3 all zero, independently repeating focused/API/
 boundary checks. The implementation task verified all 15 frozen hashes before
-recording the verdict. Current gate: the local commit
-`Add DeepSeek and regional Kimi Tutor adapters`, then implement and audit 3A.
+recording the verdict. Chunk 2C is committed at `2e6f331`.
+Chunk 3A1 passes 16 focused files / 168 tests; its review records full verification,
+emitted module ownership and desktop/mobile lifecycle evidence. Independent
+audit returned PASS with P0/P1/P2/P3 all zero; the implementation task verified
+all 33 frozen paths/hashes and the unchanged main baseline before recording
+verdict metadata. Current gate: local commit
+`Move Tutor context ownership into Labs`. Chunk 3A2 follows with provenance,
+transfer consent and validated personal chat; settings and Linear Systems stay
+at their separate later boundaries.
 The complete offline workflow and both-Lab requirements remain in scope.

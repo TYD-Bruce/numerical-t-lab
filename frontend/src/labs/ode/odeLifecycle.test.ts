@@ -494,12 +494,9 @@ describe("mounted ODE lifecycle", () => {
       metric: "max_global",
     });
     expect(recordMeaningfulInteraction).not.toHaveBeenCalled();
-    const tutorContext = mounted.getTutorBinding().getContext() as {
-      enabled: boolean;
-      result: { points: ReadonlyArray<{ t: number; y: number }> };
-    };
-    expect(tutorContext.enabled).toBe(true);
-    expect(tutorContext.result.points.at(-1)).toMatchObject({ t: 0.2, y: 0.8 });
+    expect(mounted.getTutorBinding().getContext()).toMatchObject({
+      status: "ready", context: { result: { finalT: 0.2, finalY: 0.8 } },
+    });
     mounted.dispose();
     mounted.dispose();
     expect(target.childElementCount).toBe(0);
@@ -858,7 +855,7 @@ describe("mounted ODE lifecycle", () => {
     expect(
       target.querySelectorAll("[data-evidence-chart] canvas#plot")
     ).toHaveLength(1);
-    expect(mounted.getTutorBinding().getContext()).toEqual({ enabled: false });
+    expect(mounted.getTutorBinding().getContext()).toMatchObject({ status: "unavailable", message: expect.stringContaining("comparison output") });
     expect(mounted.getSession().output.single).toBeUndefined();
     expect(mounted.getSession().output.comparison?.resultB).toBe(second);
     mounted.dispose();
@@ -988,11 +985,9 @@ describe("mounted ODE lifecycle", () => {
       target.querySelector<HTMLButtonElement>("[data-workflow-step='output']")
         ?.disabled
     ).toBe(false);
-    expect(
-      (mounted.getTutorBinding().getContext() as {
-        result: { points: readonly unknown[] };
-      }).result.points
-    ).toBe(points);
+    expect(mounted.getTutorBinding().getContext()).toMatchObject({
+      status: "ready", context: { result: { pointCount: points.length, finalY: points.at(-1)!.y } },
+    });
     target.querySelector<HTMLButtonElement>("[data-return-output]")!.click();
     await Promise.resolve();
     expect(
@@ -1139,6 +1134,7 @@ describe("mounted ODE lifecycle", () => {
     );
 
     expect(store.getTutor("ode")).toEqual({
+      revision: 2,
       items: [],
       draftMessage: "",
       desktopOpen: true,

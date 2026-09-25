@@ -19,11 +19,12 @@ interface TestLabSession {
   readonly value: string;
 }
 
-const TEST_BINDING: LabTutorBinding<unknown> = {
+const TEST_BINDING: LabTutorBinding = {
   moduleId: "ode",
   promptProfile: "ode",
   suggestedQuestions: [],
-  getContext: () => ({ enabled: false }),
+  description: "Fixture Tutor",
+  getContext: () => ({ status: "unavailable", revision: 0, message: "Run a method first." }),
 };
 
 function testLabModule(options: {

@@ -59,6 +59,8 @@ export type TutorTranscriptItem =
 
 export interface ModuleTutorSession {
   readonly items: readonly TutorTranscriptItem[];
+  /** Changes with transcript content, independently of draft and placement. */
+  readonly revision: number;
   readonly draftMessage: string;
   readonly desktopOpen: boolean;
 }
@@ -73,14 +75,21 @@ export interface TutorSessionAccess {
 
 export type TutorPromptProfile = "ode" | "linear_algebra" | "pde";
 
-export interface LabTutorBinding<TContext> {
+export type LabTutorContext<TContext extends object = object> =
+  | { readonly status: "ready"; readonly revision: number; readonly context: TContext }
+  | { readonly status: "unavailable"; readonly revision: number; readonly message: string };
+
+export interface LabTutorBinding<TContext extends object = object> {
   readonly moduleId: LabModuleId;
   readonly promptProfile: TutorPromptProfile;
   readonly suggestedQuestions: readonly string[];
-  getContext(): TContext | undefined;
+  readonly description: string;
+  /** The Lab owns evidence eligibility and a monotonic revision within this binding. */
+  getContext(): LabTutorContext<TContext>;
   prepareForOpen?(): void;
   applyChartInstruction?(instruction: unknown): void;
   subscribeConversationReset?(listener: () => void): () => void;
+  subscribeContextChange?(listener: () => void): () => void;
 }
 
 export interface ConfirmedLabReset<TSession> {
@@ -102,7 +111,7 @@ export interface LabLifecycleCallbacks<TSession> {
 export interface MountedLabRoute<TSession> extends MountedRoute {
   getSession(): TSession;
   getResumeSummary(): ResumeSummary | undefined;
-  getTutorBinding?(): LabTutorBinding<unknown>;
+  getTutorBinding?(): LabTutorBinding;
   getGlossaryBinding?(): LabGlossaryBinding;
 }
 

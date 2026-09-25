@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createAppSessionStore } from "../app/appSessionStore";
 import type { LabTutorBinding } from "../app/contracts";
 import type { ChatRequest } from "@numerical-t-lab/contracts/tutor";
-import type { OdeTutorSource } from "../labs/ode/odeTutorBinding";
+import { buildOdeLabContext } from "../labs/ode/odeTutorContext";
 import { createReadonlySolverResult } from "../labs/ode/odeSession";
 import { createBeginnerStarterSession, createOdeResumeSummary } from "../labs/ode/odeSession";
 import { mountPlatformTutorPanel } from "./platformTutorPanel";
@@ -27,18 +27,18 @@ const RESULT = createReadonlySolverResult({
   },
 });
 
-function source(): OdeTutorSource {
+function source() {
   return {
-    enabled: true,
-    result: RESULT,
-    problem: {
+    status: "ready" as const,
+    revision: 0,
+    context: buildOdeLabContext(RESULT, {
       kind: "first_order",
       equationDisplay: "y' = -y",
       t0: 0,
       tEnd: 0.1,
       h: 0.1,
       y0: 1,
-    },
+    }),
   };
 }
 
@@ -65,6 +65,7 @@ describe("shared Tutor panel", () => {
         moduleId: "ode",
         promptProfile: "ode",
         suggestedQuestions: ["Explain this result."],
+        description: "ODE fixture context",
         getContext: source,
       },
       sessionAccess: store.createTutorSessionAccess("ode"),
@@ -101,6 +102,7 @@ describe("shared Tutor panel", () => {
         moduleId: "ode",
         promptProfile: "ode",
         suggestedQuestions: ["Explain this result.", "What does the graph show?"],
+        description: "ODE fixture context",
         getContext: source,
       },
       sessionAccess: store.createTutorSessionAccess("ode"),
@@ -130,6 +132,7 @@ describe("shared Tutor panel", () => {
         moduleId: "ode",
         promptProfile: "ode",
         suggestedQuestions: [],
+        description: "ODE fixture context",
         getContext: source,
       },
       sessionAccess: store.createTutorSessionAccess("ode"),
@@ -159,11 +162,12 @@ describe("shared Tutor panel", () => {
     const store = createAppSessionStore();
     const access = store.createTutorSessionAccess("ode");
     let current = source();
-    const requests: ChatRequest[] = [];
-    const binding: LabTutorBinding<unknown> = {
+    const requests: ChatRequest<object>[] = [];
+    const binding: LabTutorBinding = {
       moduleId: "ode",
       promptProfile: "ode",
       suggestedQuestions: [],
+      description: "ODE fixture context",
       getContext: () => current,
     };
     const mounted = mountPlatformTutorPanel(host, {
@@ -181,10 +185,12 @@ describe("shared Tutor panel", () => {
     store.updateTutor("ode", (session) =>
       appendTutorMessage(session, "assistant", "External update")
     );
-    current = { ...current };
+    current = { ...current, revision: 1, context: { ...current.context, result: { ...current.context.result, finalY: 0.8 } } };
     await submit(host, "After external update");
 
     expect(requests).toHaveLength(2);
+    expect(requests[0]!.context).toMatchObject({ result: { finalY: 0.9 } });
+    expect(requests[1]!.context).toMatchObject({ result: { finalY: 0.8 } });
     expect(requests[1]!.messages.map((item) => item.content)).toContain("External update");
     expect(store.getTutor("ode").items.map((item) => item.kind)).not.toContain("divider-only");
     mounted.dispose();
@@ -196,10 +202,11 @@ describe("shared Tutor panel", () => {
     const store = createAppSessionStore();
     let resolve!: (value: { message: string }) => void;
     const response = new Promise<{ message: string }>((done) => { resolve = done; });
-    const binding: LabTutorBinding<unknown> = {
+    const binding: LabTutorBinding = {
       moduleId: "ode",
       promptProfile: "ode",
       suggestedQuestions: [],
+      description: "ODE fixture context",
       getContext: source,
     };
     const mounted = mountPlatformTutorPanel(host, {
@@ -238,6 +245,7 @@ describe("shared Tutor panel", () => {
         moduleId: "ode",
         promptProfile: "ode",
         suggestedQuestions: [],
+        description: "ODE fixture context",
         getContext: source,
       },
       sessionAccess: store.createTutorSessionAccess("ode"),
@@ -275,6 +283,7 @@ describe("shared Tutor panel", () => {
         moduleId: "ode",
         promptProfile: "ode",
         suggestedQuestions: [],
+        description: "ODE fixture context",
         getContext: source,
       },
       sessionAccess: store.createTutorSessionAccess("ode"),
@@ -298,12 +307,13 @@ describe("shared Tutor panel", () => {
         body: "The starter state is ready.",
       })
     );
-    let request: ChatRequest | undefined;
+    let request: ChatRequest<object> | undefined;
     const mounted = mountPlatformTutorPanel(host, {
       binding: {
         moduleId: "ode",
         promptProfile: "ode",
         suggestedQuestions: [],
+        description: "ODE fixture context",
         getContext: source,
       },
       sessionAccess: store.createTutorSessionAccess("ode"),
@@ -340,6 +350,7 @@ describe("shared Tutor panel", () => {
           moduleId: "ode",
           promptProfile: "ode",
           suggestedQuestions: [],
+          description: "ODE fixture context",
           getContext: source,
         },
         sessionAccess: store.createTutorSessionAccess("ode"),

@@ -42,6 +42,15 @@ function eagerGraph(entry: string): Set<string> {
 }
 
 describe("public route bundle ownership", () => {
+  it("keeps shared Tutor interpretation independent of ODE and route loads free of Tutor networking", () => {
+    const panel = [...eagerGraph("tutor/platformTutorPanel.ts")];
+    expect(panel.filter(file => file.startsWith("labs/"))).toEqual([]);
+    for (const route of ["labs/ode/initialValueProblemsRoute.ts", "labs/linear-algebra/linearSystemsRoute.ts"]) {
+      const graph = eagerGraph(route);
+      expect(graph.has("tutor/platformTutorPanel.ts")).toBe(false);
+      expect(graph.has("tutor/tutorClient.ts")).toBe(false);
+    }
+  });
   it("keeps the production entry and bootstrap eager graph platform-only", () => {
     const graph = eagerGraph("main.ts");
     expect([...graph]).toContain("app/platformBootstrap.ts");

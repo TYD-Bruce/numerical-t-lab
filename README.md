@@ -207,6 +207,13 @@ design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
 
+### 2026-09-25 — Lab-owned Tutor context
+
+- Moved ODE evidence and availability into its Lab binding; the shared Tutor
+  now rejects outdated replies and chart actions after context/conversation changes.
+- Preserved successful/failed Run behavior, Compare exclusion and safe rendering.
+  Personal chat, connection settings and Linear Systems Tutor remain later chunks.
+
 ### 2026-09-25 — DeepSeek and regional Kimi adapters
 
 - Added direct provider discovery and synthetic testing with explicit regional

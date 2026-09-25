@@ -19,7 +19,7 @@ export interface TutorPanelModule {
 }
 
 export interface PlatformTutorHost {
-  connect(binding: LabTutorBinding<unknown>, sessionAccess: TutorSessionAccess): void;
+  connect(binding: LabTutorBinding, sessionAccess: TutorSessionAccess): void;
   disconnect(): void;
   open(trigger: HTMLElement): Promise<void>;
   close(options?: { restoreFocus?: boolean }): void;
@@ -48,9 +48,10 @@ export interface CreatePlatformTutorHostOptions {
 }
 
 type Connection = {
-  binding: LabTutorBinding<unknown>;
+  binding: LabTutorBinding;
   sessionAccess: TutorSessionAccess;
   unsubscribeReset?: () => void;
+  unsubscribeContext?: () => void;
 };
 
 export function createPlatformTutorHost(
@@ -302,8 +303,13 @@ export function createPlatformTutorHost(
       }
       const next: Connection = { binding, sessionAccess };
       next.unsubscribeReset = binding.subscribeConversationReset?.(() => {
+        if (disposed || connection !== next) return;
         panel?.cancelPending?.();
         sessionAccess.updateSession(clearTutorConversation);
+        panel?.refresh?.();
+      });
+      next.unsubscribeContext = binding.subscribeContextChange?.(() => {
+        if (disposed || connection !== next) return;
         panel?.refresh?.();
       });
       connection = next;
@@ -320,6 +326,7 @@ export function createPlatformTutorHost(
       stopLabTargetObservation();
       generation += 1;
       connection?.unsubscribeReset?.();
+      connection?.unsubscribeContext?.();
       connection = undefined;
       panel?.dispose();
       panel = undefined;

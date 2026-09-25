@@ -16,7 +16,7 @@ describe("Module Tutor session values", () => {
     const drafted = updateTutorDraft(opened, "Explain Euler");
     const messaged = appendTutorMessage(drafted, "user", "Why is it first order?");
 
-    expect(empty).toEqual({ items: [], draftMessage: "", desktopOpen: false });
+    expect(empty).toEqual({ items: [], draftMessage: "", desktopOpen: false, revision: 0 });
     expect(messaged.items).toEqual([
       { kind: "message", role: "user", content: "Why is it first order?" },
     ]);
@@ -25,7 +25,19 @@ describe("Module Tutor session values", () => {
       items: [],
       draftMessage: "",
       desktopOpen: true,
+      revision: 2,
     });
+  });
+
+  it("advances transcript revision on messages/dividers/clear, not draft or placement", () => {
+    const empty = createEmptyModuleTutorSession();
+    const message = appendTutorMessage(empty, "user", "Question");
+    const draft = updateTutorDraft(setTutorDesktopOpen(message, true), "Next question");
+    const divider = appendNewExperimentDivider(draft, { id: "next", body: "New experiment" });
+    const cleared = clearTutorConversation(divider);
+    expect([empty.revision, message.revision, draft.revision, divider.revision, cleared.revision]).toEqual([0, 1, 1, 2, 3]);
+    expect(clearTutorConversation(cleared)).toBe(cleared);
+    expect(message.items).toEqual([{ kind: "message", role: "user", content: "Question" }]);
   });
 
   it("retains dividers for rendering but excludes them from API messages", () => {

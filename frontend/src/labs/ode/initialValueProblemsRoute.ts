@@ -29,7 +29,7 @@ export interface InitialValueProblemsMountOptions {
 export interface MountedInitialValueProblemsRoute {
   getSession(): OdeSessionState;
   getResumeSummary(): ResumeSummary | undefined;
-  getTutorBinding(): LabTutorBinding<unknown>;
+  getTutorBinding(): LabTutorBinding;
   getGlossaryBinding(): LabGlossaryBinding;
   dispose(): void;
 }

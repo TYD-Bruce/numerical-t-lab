@@ -18,11 +18,12 @@ import {
   type ScrollRestoration,
 } from "./scrollRestoration";
 
-const binding: LabTutorBinding<unknown> = {
+const binding: LabTutorBinding = {
   moduleId: "ode",
   promptProfile: "ode",
   suggestedQuestions: [],
-  getContext: () => undefined,
+  description: "Fixture Tutor",
+  getContext: () => ({ status: "unavailable", revision: 0, message: "Run a method first." }),
 };
 
 function summary(timestamp = 0): ResumeSummary {

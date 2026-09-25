@@ -1,13 +1,56 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-25
-Phase: **Chunk 2C — DeepSeek and regional Kimi adapters**
-Status: **Independently passed — local commit boundary, chunk 3A next**
+Phase: **Chunk 3A1 — Lab-owned context and stale-response protection**
+Status: **Independently passed — local commit boundary, chunk 3A2 next**
 Canonical status: the maintainer's continuing goal authorizes the complete
 feature sequence, with independent audit/fix/re-audit before each local commit.
-Runtime impact: **DeepSeek/Kimi added to local personal discovery/test and backend completion adapters**.
+Runtime impact: **ODE owns Tutor context; shared panel and Host guard context/transcript changes**.
 
-## Current chunk 2C checkpoint
+## Current chunk 3A1 checkpoint
+
+- Starting branch `main`, clean HEAD `2e6f3319739d448d0a4bb2a6359619c2126ad26c`
+  (`Add DeepSeek and regional Kimi Tutor adapters`). All six earlier chunk
+  commits passed independent review and remain local.
+- The ODE context builder moved to `labs/ode/odeTutorContext.ts`; the binding
+  now owns ready/unavailable context, copy, evidence revisions and notifications.
+  It reads the current successful Run and existing Convergence eligibility,
+  caches only unchanged immutable evidence and starts projection on first read.
+- Shared panel/Host runtime has no ODE interpretation. The pure transcript has
+  a separate revision. Abort, generation, binding, context and transcript checks
+  prevent stale sends/replies/errors/chart actions/focus, including synchronous
+  Store mutations. Draft/placement-only updates preserve valid replies.
+- An unavailable panel retains its transcript/composer, explains why sending is
+  disabled, and refreshes when eligible evidence appears. Successful Run still
+  resets conversation; failed Run and navigation preserve it. Compare remains
+  unavailable; stale/blocked/mismatched Convergence evidence stays excluded.
+- Focused verification: **16 files / 168 tests**. Full verification and build
+  details are in the [3A1 review](../reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md).
+  New Rollup-module ownership checks preserve real dynamic boundaries despite
+  changed emitted chunk names. The panel has no static ODE/numerics dependency.
+- Native Windows browser fixtures, with external proxy forwarding disabled,
+  cover 1440 x 1000 and 390 x 844, ready/unavailable transitions, synthetic chat,
+  failed/successful Run, clearing a pending request, Compare, in-app Home/Resume,
+  mobile focus trap/Escape, theme and containment. No live provider or key was used.
+- Temporary evidence: `t-lab-chunk-3a1-final-focused.log`,
+  `t-lab-chunk-3a1-final-verify.log`, red-test logs and
+  `t-lab-chunk-3a1-browser/`. No app dependency, numerical algorithm, backend
+  provider protocol, key form, personal chat route or deployment changed.
+
+`Audit AI Tutor connections` (GPT-6 Astra, Extra High) returned **PASS**, with
+P0/P1/P2/P3 all zero. Independent execution passed the 168 focused tests,
+typechecks, import boundaries, emitted-graph build and diff/doc checks. The
+auditor inspected full verification and browser evidence without repeating the
+browser run. All 33 paths/hashes matched before and after review; the implementation
+task independently confirmed those bytes, main HEAD and empty index before
+recording this verdict. No runtime change followed the pass.
+
+Next gate: local commit `Move Tutor context ownership into Labs`.
+Then 3A2 adds connection/history provenance, one-use
+per-Lab transfer consent and validated personal chat; 3B settings and phase 4
+Linear Systems follow. The overall audit remains mandatory before push/demo update.
+
+## Historical chunk 2C checkpoint
 
 - Starting branch `main`, clean HEAD `fd14abcff6a2192a95248d30a5446b89d37af1f6`
   (`Add native Anthropic and Gemini Tutor adapters`). All previous chunk commits
@@ -46,10 +89,9 @@ boundaries and diff/doc checks. All 15 paths/hashes matched before/after audit;
 the implementation task independently verified the frozen bytes, main HEAD and
 empty index before recording the verdict. No runtime change followed that pass.
 
-Next: commit `Add DeepSeek and regional Kimi Tutor adapters` locally. Chunk 3A follows with
-connection/history state and Lab-authored context; personal chat and settings
-are still unavailable. The final overall audit remains mandatory before push
-and Vercel demo update.
+Committed locally as `2e6f331` (`Add DeepSeek and regional Kimi Tutor adapters`).
+Personal chat and settings remain unavailable until their integration chunks.
+The final overall audit remains mandatory before push and Vercel demo update.
 
 ## Historical chunk 2B checkpoint
 

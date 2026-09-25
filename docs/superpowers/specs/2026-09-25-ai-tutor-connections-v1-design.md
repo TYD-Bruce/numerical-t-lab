@@ -1,7 +1,7 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Chunks through 2B committed; chunk 2C independently passed; chunk 3A next**
+Status: **Chunks through 2C committed; chunk 3A1 independently passed; chunk 3A2 next**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
@@ -23,6 +23,7 @@ Related documents:
 - [Chunk 2A evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-2a.md)
 - [Chunk 2B evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-2b.md)
 - [Chunk 2C evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-2c.md)
+- [Chunk 3A1 evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md)
 - [Current architecture](../../architecture/CURRENT_ARCHITECTURE.md)
 - [Numerical contracts](../../contracts/NUMERICAL_CONTRACTS.md)
 - [Linear Systems v1 design](2026-08-10-linear-systems-lab-v1-design.md)
@@ -101,6 +102,17 @@ The shared panel must stop importing domain interpretation as its own authority.
 Evolve the existing binding to return a Lab-authored ready/unavailable snapshot
 and, when ready, a profile-discriminated serializable request context. Do not
 introduce a second authoritative result or duplicate eligibility state.
+
+Chunk 3A1 implements the Lab-owned ready/unavailable snapshot with a monotonic
+binding-local evidence revision. The Lab reads current owners on each request;
+unchanged immutable evidence may reuse its derived context. The pure per-Lab
+transcript has an independent revision, unchanged by draft or placement updates.
+Both revisions, binding identity and request generation protect outgoing work,
+reply/error acceptance, chart actions and focus. ODE keeps its existing last
+successful Run evidence after input edits or a failed Run, while its existing
+Convergence helper excludes stale/blocked/mismatched study evidence. This does
+not relax Linear Systems' later current-success-only contract.
+Connection provenance and cross-boundary profile/context validation remain 3A2.
 
 Request profiles are limited to ODE and Linear Systems in this feature.
 Validate the profile/context pairing on the backend before constructing a prompt.

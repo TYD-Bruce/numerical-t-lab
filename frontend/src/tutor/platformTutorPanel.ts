@@ -1,13 +1,13 @@
 import type {
   LabTutorBinding,
+  LabTutorContext,
+  TutorPromptProfile,
   TutorSessionAccess,
   TutorTranscriptItem,
 } from "../app/contracts";
 import type { ChatRequest, ChatResponse } from "@numerical-t-lab/contracts/tutor";
-import { buildOdeLabContext, isChartInstruction, sanitizeTutorText } from "./aiTutor";
-import { getTutorConvergenceStudy } from "../labs/ode/convergenceTutor";
+import { isChartInstruction, sanitizeTutorText } from "./tutorPresentation";
 import { renderTutorMessageContent } from "../math/ui/tutorMath";
-import type { OdeTutorSource } from "../labs/ode/odeTutorBinding";
 import {
   appendTutorMessage,
   clearTutorConversation,
@@ -21,14 +21,15 @@ import {
 import "./tutor.css";
 
 export interface PlatformTutorPanelOptions {
-  readonly binding: LabTutorBinding<unknown>;
+  readonly binding: LabTutorBinding;
   readonly sessionAccess: TutorSessionAccess;
   readonly onClose: () => void;
   readonly isCurrent: () => boolean;
   readonly isPresentationVisible?: () => boolean;
   readonly sendMessage?: (
-    request: ChatRequest,
-    signal: AbortSignal
+    request: ChatRequest<object>,
+    signal: AbortSignal,
+    profile: TutorPromptProfile
   ) => Promise<ChatResponse>;
 }
 
@@ -47,7 +48,7 @@ function renderTranscript(
   if (items.length === 0) {
     const empty = document.createElement("p");
     empty.className = "ai-tutor-empty";
-    empty.textContent = "Ask a question about this run, method, or plot.";
+    empty.textContent = "Ask a question about this result.";
     container.append(empty);
     return;
   }
@@ -84,17 +85,6 @@ function renderTranscript(
   container.scrollTop = container.scrollHeight;
 }
 
-function odeRequestContext(binding: LabTutorBinding<unknown>) {
-  if (binding.promptProfile !== "ode") return undefined;
-  const source = binding.getContext() as OdeTutorSource | undefined;
-  if (!source?.enabled || !source.result || !source.problem) return undefined;
-  return buildOdeLabContext(
-    source.result as never,
-    source.problem,
-    getTutorConvergenceStudy(source.convergenceState)
-  );
-}
-
 export function mountPlatformTutorPanel(
   target: HTMLElement,
   options: PlatformTutorPanelOptions
@@ -106,6 +96,12 @@ export function mountPlatformTutorPanel(
   let cancelPending = (): void => undefined;
   const bindingIdentity = options.binding;
   const moduleId = options.sessionAccess.moduleId;
+  const readContext = (): LabTutorContext => {
+    if (options.binding.moduleId !== moduleId || options.binding.promptProfile !== moduleId) {
+      return { status: "unavailable", revision: -1, message: "This Tutor is unavailable for the current Lab." };
+    }
+    return options.binding.getContext();
+  };
 
   target.innerHTML = `
     <aside class="ai-tutor-panel" aria-label="AI Method Tutor">
@@ -115,22 +111,18 @@ export function mountPlatformTutorPanel(
           <span class="ai-demo-badge" data-tutor-demo hidden>Demo mode</span>
           <button type="button" class="btn ghost ai-tutor-close" data-tutor-close aria-label="Close AI Tutor">Close</button>
         </div>
-        <p class="ai-tutor-sub">Ask about the method, variables, coefficients, error, convergence evidence, or graph behavior.</p>
+        <p class="ai-tutor-sub"></p>
       </header>
       <div class="ai-tutor-content" data-tutor-content></div>
     </aside>`;
 
   const content = target.querySelector<HTMLElement>("[data-tutor-content]")!;
-  const source = options.binding.getContext() as OdeTutorSource | undefined;
-  if (!source?.enabled) {
+  target.querySelector<HTMLElement>(".ai-tutor-sub")!.textContent = options.binding.description;
+  {
     const unavailable = document.createElement("p");
     unavailable.className = "ai-tutor-disabled";
-    unavailable.textContent =
-      source && !source.enabled
-        ? "Tutor is unavailable for comparison output. Run one method to ask about its result."
-        : "Run a method first, then ask the AI Tutor about the result.";
+    unavailable.setAttribute("role", "status");
     content.append(unavailable);
-  } else {
     const suggestionDisclosure = document.createElement("details");
     suggestionDisclosure.className = "ai-suggestion-disclosure";
     const suggestionSummary = document.createElement("summary");
@@ -182,6 +174,17 @@ export function mountPlatformTutorPanel(
     actions.append(clear, send);
     form.append(label, input, actions);
     content.append(suggestionDisclosure, messages, error, form);
+    let loading = false;
+    let pendingContextRevision: number | undefined;
+    const syncAvailability = (): void => {
+      const context = readContext();
+      const ready = context.status === "ready";
+      unavailable.hidden = ready;
+      unavailable.textContent = context.status === "unavailable" ? context.message : "";
+      suggestionDisclosure.hidden = !ready;
+      send.disabled = input.disabled = loading || !ready;
+      for (const button of suggestions.querySelectorAll<HTMLButtonElement>("button")) button.disabled = loading || !ready;
+    };
 
     let suggestionsCollapsedForConversation = false;
     const syncSuggestions = (): void => {
@@ -207,6 +210,9 @@ export function mountPlatformTutorPanel(
 
     const render = (): void => {
       if (disposed || !options.isCurrent()) return;
+      const context = readContext();
+      if (pendingContextRevision !== undefined && (context.status !== "ready" || context.revision !== pendingContextRevision)) cancelPending();
+      syncAvailability();
       renderTranscript(messages, options.sessionAccess.getSession().items);
       syncSuggestions();
       if (document.activeElement !== input) {
@@ -215,10 +221,10 @@ export function mountPlatformTutorPanel(
       }
     };
     refresh = render;
-    const setLoading = (loading: boolean): void => {
+    const setLoading = (next: boolean): void => {
       if (disposed) return;
-      send.disabled = loading;
-      input.disabled = loading;
+      loading = next;
+      syncAvailability();
       send.textContent = loading ? "Thinking…" : "Send";
       target.classList.toggle("ai-loading", loading);
     };
@@ -226,13 +232,17 @@ export function mountPlatformTutorPanel(
       requestGeneration += 1;
       requestController?.abort();
       requestController = undefined;
+      pendingContextRevision = undefined;
       error.hidden = true;
       setLoading(false);
     };
     const submit = async (text: string): Promise<void> => {
       const trimmed = text.trim();
       if (!trimmed || disposed || !options.isCurrent()) return;
+      const context = readContext();
+      if (context.status !== "ready") { render(); return; }
       error.hidden = true;
+      let conversationRevision = options.sessionAccess.getSession().revision + 1;
       options.sessionAccess.updateSession((current) =>
         updateTutorDraft(appendTutorMessage(current, "user", trimmed), "")
       );
@@ -243,38 +253,47 @@ export function mountPlatformTutorPanel(
       const controller = new AbortController();
       requestController = controller;
       const request = ++requestGeneration;
-      const context = odeRequestContext(options.binding);
-      if (!context) return;
+      pendingContextRevision = context.revision;
+      const currentContext = (): boolean => {
+        const latest = readContext();
+        return latest.status === "ready" && latest.revision === context.revision;
+      };
+      const currentRequest = (): boolean => !disposed && !controller.signal.aborted && request === requestGeneration &&
+        options.isCurrent() && bindingIdentity === options.binding && moduleId === options.sessionAccess.moduleId &&
+        currentContext() && options.sessionAccess.getSession().revision === conversationRevision;
+      let restoreFocus = false;
       setLoading(true);
       try {
+        if (!currentRequest()) return;
         const response = await (options.sendMessage ?? sendTutorMessage)(
-          { messages: messagesForTutorRequest(options.sessionAccess.getSession()), context },
-          controller.signal
+          { messages: messagesForTutorRequest(options.sessionAccess.getSession()), context: context.context },
+          controller.signal,
+          options.binding.promptProfile
         );
-        if (
-          disposed ||
-          controller.signal.aborted ||
-          request !== requestGeneration ||
-          !options.isCurrent() ||
-          bindingIdentity !== options.binding ||
-          moduleId !== options.sessionAccess.moduleId
-        ) return;
+        if (!currentRequest()) return;
+        restoreFocus = true;
+        conversationRevision += 1;
         options.sessionAccess.updateSession((current) =>
           appendTutorMessage(current, "assistant", sanitizeTutorText(response.message))
         );
+        if (!currentRequest()) return;
         target.querySelector<HTMLElement>("[data-tutor-demo]")!.hidden = !response.demoMode;
         render();
-        if (response.chartInstruction && isChartInstruction(response.chartInstruction)) {
+        if (currentRequest() && response.chartInstruction && isChartInstruction(response.chartInstruction)) {
           options.binding.applyChartInstruction?.(response.chartInstruction);
         }
       } catch {
-        if (disposed || controller.signal.aborted || request !== requestGeneration || !options.isCurrent()) return;
+        if (!currentRequest()) return;
+        restoreFocus = true;
         error.textContent = PUBLIC_TUTOR_UNAVAILABLE_MESSAGE;
         error.hidden = false;
       } finally {
         if (!disposed && request === requestGeneration && options.isCurrent()) {
+          requestController = undefined;
+          pendingContextRevision = undefined;
           setLoading(false);
-          if (options.isPresentationVisible?.() !== false) input.focus();
+          render();
+          if (restoreFocus && currentRequest() && input.isConnected && options.isPresentationVisible?.() !== false) input.focus({ preventScroll: true });
         }
       }
     };
@@ -288,12 +307,11 @@ export function mountPlatformTutorPanel(
       void submit(input.value);
     });
     clear.addEventListener("click", () => {
-      requestController?.abort();
-      requestGeneration += 1;
+      cancelPending();
       options.sessionAccess.updateSession(clearTutorConversation);
       error.hidden = true;
       render();
-      input.focus();
+      if (!input.disabled) input.focus({ preventScroll: true });
     });
     suggestions.addEventListener("click", (event) => {
       const button = (event.target as Element).closest<HTMLButtonElement>("[data-tutor-suggestion]");

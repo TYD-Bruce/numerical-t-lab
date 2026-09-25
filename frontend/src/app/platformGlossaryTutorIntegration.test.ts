@@ -119,12 +119,13 @@ function connectedTrigger(): HTMLButtonElement {
   return trigger;
 }
 
-function tutorBinding(): LabTutorBinding<unknown> {
+function tutorBinding(): LabTutorBinding {
   return {
     moduleId: "ode",
     promptProfile: "ode",
     suggestedQuestions: [],
-    getContext: () => ({ enabled: false }),
+    description: "Fixture Tutor",
+    getContext: () => ({ status: "unavailable", revision: 0, message: "Run a method first." }),
   };
 }
 

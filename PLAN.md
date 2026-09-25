@@ -2,13 +2,13 @@
 
 ## Current status
 
-**Active milestone: AI Tutor Connections v1 — chunk 2C independently passed; chunk 3A next.**
+**Active milestone: AI Tutor Connections v1 — chunk 3A1 independently passed; chunk 3A2 next.**
 The maintainer explicitly resumed the continuing implementation goal.
 Chunks 1A, 1B and 1C are committed locally at `2e20a3a`, `b9fad94` and
 `f36cfc1` after independent audit. Chunks 2A and 2B are committed at `74a0773`
-and `fd14abc` after independent review. Chunk 2C started from clean local main
-at `fd14abc`; its checkpoint is in
-[the feature handoff](docs/tutor/HANDOFF.md#current-chunk-2c-checkpoint).
+and `fd14abc` after independent review; 2C is committed at `2e6f331`.
+Chunk 3A1 started from that clean local main. Its checkpoint is in
+[the feature handoff](docs/tutor/HANDOFF.md#current-chunk-3a1-checkpoint).
 The maintainer has selected local-only personal connections, native
 Windows, strict offline local inference, session-only keys, explicit cloud
 providers/regions, and Tutor interfaces for both ODE and Linear Systems.
@@ -20,27 +20,23 @@ authorized the continuing implementation sequence with independent audit before
 every chunk commit. The
 [feature handoff](docs/tutor/HANDOFF.md) records all agreed choices, source
 findings, scope, and continuation rules. The
-[current review/evidence record](docs/reviews/2026-09-25-ai-tutor-connections-chunk-2c.md)
+[current review/evidence record](docs/reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md)
 distinguishes current fixes from future acceptance requirements.
 
-**Next gate: commit the independently passed chunk 2C, then implement and audit chunk 3A.**
-Chunk 2C adds DeepSeek and standard Kimi international/mainland adapters with
-provider-specific output limits, fixed destinations and header-only credentials.
-They reuse the existing final-text, session and transport boundaries. Discovery
-and synthetic testing now cover every requested provider family. Known Kimi
-models requiring preserved reasoning history are explicitly unavailable in this
-final-text-only version; manual testing fails before inference. The review records
-the exact model limitations and official protocol evidence.
-Focused checks pass 11 files / 437 tests. Full verification passes 116 files /
-1,827 tests, all typechecks, import boundaries and the unchanged frontend build.
-Independent chunk 2C audit passed with P0/P1/P2/P3 all zero. The implementation
-task independently verified all 15 frozen paths and hashes before recording
-the verdict. No runtime change followed that pass.
-The personal chat HTTP route and settings UI remain later integration chunks.
-All provider evidence is synthetic; no real model/provider readiness is claimed.
-Chunk 1C's browser evidence and automation limitation remain separately recorded.
-After this gate and local commit, chunk 3A adds connection/history state and
-Lab-owned context integration.
+**Next gate: local commit of independently passed 3A1, then implement and audit 3A2.**
+The ODE Lab now owns its ready/unavailable Tutor context and evidence revision.
+The shared panel consumes opaque context, and guards replies, chart actions and
+focus against changed context/transcripts or disconnected bindings. Draft and
+placement changes do not invalidate an otherwise current answer. Successful-Run
+reset, failed-Run output retention and Compare/Convergence boundaries are preserved.
+Focused checks pass 16 files / 168 tests. The review records full verification,
+emitted dependency graphs and native Windows desktop/mobile browser evidence.
+Independent audit returned PASS with P0/P1/P2/P3 all zero. The implementation
+task independently rechecked all 33 paths/hashes, main HEAD and empty index
+before recording the verdict; no runtime change followed the pass.
+Chunk 3A2 follows with connection/history provenance, one-use per-Lab transfer
+decisions and validated personal chat. Settings UI remains 3B; Linear Systems
+Tutor remains phase 4. Provider evidence is synthetic; no live readiness is claimed.
 The maintainer authorizes one coherent local commit after
 each chunk passes independent audit and any corrections are rechecked. Do not
 push individual chunks. After all chunks, an independent overall audit must

@@ -251,6 +251,7 @@ describe("New experiment", () => {
     });
     expect(notifications).toHaveBeenCalledTimes(2);
     expect(store.getTutor("ode")).toEqual({
+      revision: 3,
       items: [],
       draftMessage: "",
       desktopOpen: true,

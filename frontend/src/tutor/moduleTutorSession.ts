@@ -6,17 +6,19 @@ import type {
 function freezeSession(
   items: readonly TutorTranscriptItem[],
   draftMessage: string,
-  desktopOpen: boolean
+  desktopOpen: boolean,
+  revision: number
 ): ModuleTutorSession {
   return Object.freeze({
     items: Object.freeze([...items]),
     draftMessage,
     desktopOpen,
+    revision,
   });
 }
 
 export function createEmptyModuleTutorSession(): ModuleTutorSession {
-  return freezeSession([], "", false);
+  return freezeSession([], "", false, 0);
 }
 
 export function appendTutorMessage(
@@ -25,7 +27,7 @@ export function appendTutorMessage(
   content: string
 ): ModuleTutorSession {
   const item = Object.freeze({ kind: "message" as const, role, content });
-  return freezeSession([...session.items, item], session.draftMessage, session.desktopOpen);
+  return freezeSession([...session.items, item], session.draftMessage, session.desktopOpen, session.revision + 1);
 }
 
 export function updateTutorDraft(
@@ -33,7 +35,7 @@ export function updateTutorDraft(
   draftMessage: string
 ): ModuleTutorSession {
   if (session.draftMessage === draftMessage) return session;
-  return freezeSession(session.items, draftMessage, session.desktopOpen);
+  return freezeSession(session.items, draftMessage, session.desktopOpen, session.revision);
 }
 
 export function setTutorDesktopOpen(
@@ -41,14 +43,14 @@ export function setTutorDesktopOpen(
   desktopOpen: boolean
 ): ModuleTutorSession {
   if (session.desktopOpen === desktopOpen) return session;
-  return freezeSession(session.items, session.draftMessage, desktopOpen);
+  return freezeSession(session.items, session.draftMessage, desktopOpen, session.revision);
 }
 
 export function clearTutorConversation(
   session: ModuleTutorSession
 ): ModuleTutorSession {
   if (session.items.length === 0 && session.draftMessage === "") return session;
-  return freezeSession([], "", session.desktopOpen);
+  return freezeSession([], "", session.desktopOpen, session.revision + 1);
 }
 
 export function appendNewExperimentDivider(
@@ -61,7 +63,7 @@ export function appendNewExperimentDivider(
     title: "New experiment started" as const,
     body: divider.body,
   });
-  return freezeSession([...session.items, item], session.draftMessage, session.desktopOpen);
+  return freezeSession([...session.items, item], session.draftMessage, session.desktopOpen, session.revision + 1);
 }
 
 export function hasUserTutorMessage(session: ModuleTutorSession): boolean {

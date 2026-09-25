@@ -9,12 +9,13 @@ import { appendTutorMessage, updateTutorDraft } from "../tutor/moduleTutorSessio
 import { createOdeTutorBinding } from "../labs/ode/odeTutorBinding";
 import { mountPlatformTutorPanel } from "../tutor/platformTutorPanel";
 
-function binding(moduleId: "ode" = "ode"): LabTutorBinding<unknown> {
+function binding(moduleId: "ode" = "ode"): LabTutorBinding {
   return {
     moduleId,
     promptProfile: "ode",
     suggestedQuestions: [],
-    getContext: () => ({ enabled: true }),
+    description: "Fixture Tutor",
+    getContext: () => ({ status: "ready", revision: 0, context: {} }),
   };
 }
 
@@ -41,6 +42,36 @@ function labDom(label: string): {
 describe("Platform Tutor Host", () => {
   beforeEach(() => document.body.replaceChildren());
   afterEach(() => vi.unstubAllGlobals());
+
+  it("subscribes without eagerly reading context and ignores disconnected context callbacks", async () => {
+    const target = document.createElement("div");
+    document.body.append(target);
+    const store = createAppSessionStore();
+    const refresh = vi.fn();
+    let contextChanged!: () => void;
+    const unsubscribe = vi.fn();
+    const getContext = vi.fn(binding().getContext);
+    const host = createPlatformTutorHost({
+      target, isMobile: () => false,
+      loadPanel: async () => ({ mountPlatformTutorPanel: () => ({ dispose: vi.fn(), focus: vi.fn(), refresh }) }),
+    });
+    host.connect({ ...binding(), getContext, subscribeContextChange(listener) { contextChanged = listener; return unsubscribe; } }, store.createTutorSessionAccess("ode"));
+    contextChanged();
+    expect(getContext).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
+    await host.open(target.querySelector<HTMLElement>("[data-tutor-open]")!);
+    contextChanged();
+    expect(refresh).toHaveBeenCalledOnce();
+
+    host.connect(binding(), store.createTutorSessionAccess("ode"));
+    expect(unsubscribe).toHaveBeenCalledOnce();
+    await host.open(target.querySelector<HTMLElement>("[data-tutor-open]")!);
+    refresh.mockClear();
+    contextChanged();
+    expect(refresh).not.toHaveBeenCalled();
+    host.dispose(); host.dispose();
+    expect(unsubscribe).toHaveBeenCalledOnce();
+  });
 
   it("preserves the shell-owned placement class when it renders", () => {
     const target = document.createElement("aside");
@@ -299,9 +330,7 @@ describe("Platform Tutor Host", () => {
     await host.open(target.querySelector<HTMLElement>("[data-tutor-open]")!);
     const firstPanel = target.querySelector<HTMLElement>(".ai-tutor-panel")!;
     expect(firstPanel.querySelector(".ai-tutor-content > .ai-compose")).not.toBeNull();
-    expect(firstPanel.textContent).toContain(
-      "Ask about the method, variables, coefficients, error, convergence evidence, or graph behavior."
-    );
+    expect(firstPanel.textContent).toContain("Fixture Tutor");
     expect(firstPanel.textContent).not.toContain(
       "Ask about the method, variables, coefficients, stability, accuracy, or graph behavior."
     );
@@ -409,7 +438,7 @@ describe("Platform Tutor Host", () => {
     await host.open(target.querySelector<HTMLElement>("[data-tutor-open]")!);
     control.requestConversationReset();
 
-    expect(store.getTutor("ode")).toEqual({ items: [], draftMessage: "", desktopOpen: true });
+    expect(store.getTutor("ode")).toEqual({ revision: 2, items: [], draftMessage: "", desktopOpen: true });
     expect(store.getTutor("pde").items).toHaveLength(1);
     expect(cancelPending).toHaveBeenCalledOnce();
     expect(refresh).toHaveBeenCalledOnce();

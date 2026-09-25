@@ -231,7 +231,7 @@ export interface MountOdeAppOptions {
 export interface MountedOdeApp {
   getSession(): OdeSessionState;
   getResumeSummary(): ResumeSummary | undefined;
-  getTutorBinding(): LabTutorBinding<unknown>;
+  getTutorBinding(): LabTutorBinding;
   getGlossaryBinding(): LabGlossaryBinding;
   dispose(): void;
 }
@@ -333,7 +333,8 @@ export function mountOdeApp(options: MountOdeAppOptions): MountedOdeApp {
 
   const tutorBindingControl = createOdeTutorBinding({
     getSource: () => {
-      if (!lastResult || !lastProblemInputs || session.mode === "compare") {
+      if (session.mode === "compare") return { enabled: false, reason: "comparison" };
+      if (!lastResult || !lastProblemInputs) {
         return { enabled: false };
       }
       const convergenceState = lastFirstOrderRunSnapshot
@@ -3590,7 +3591,9 @@ export function mountOdeApp(options: MountOdeAppOptions): MountedOdeApp {
   }
 
   function emitSessionUpdate(): void {
-    if (disposed || !options.lifecycle) return;
+    if (disposed) return;
+    tutorBindingControl.refreshContext();
+    if (!options.lifecycle) return;
     const snapshot = createSessionSnapshot(false);
     const labMeaningful = computeOdeLabMeaningful(snapshot);
     const metadata: LabSessionMetadata = {
@@ -3621,7 +3624,7 @@ export function mountOdeApp(options: MountOdeAppOptions): MountedOdeApp {
         lastMeaningfulInteraction ?? 0
       );
     },
-    getTutorBinding(): LabTutorBinding<unknown> {
+    getTutorBinding(): LabTutorBinding {
       return tutorBindingControl.binding;
     },
     getGlossaryBinding(): LabGlossaryBinding {

@@ -74,6 +74,26 @@ boundary, with implicit font/sound path discovery disabled. Browser assets have
 been checked with external traffic blocked; full local inference remains a
 later adapter/UI milestone. See [chunk 1C evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md).
 
+`labs/ode/odeTutorContext.ts` now owns the ODE request projection formerly in
+`tutor/aiTutor.ts`. `odeTutorBinding.ts` reads the current successful Run and the
+existing Convergence eligibility helper, returning a ready/unavailable snapshot
+with a binding-local revision. Unchanged immutable evidence reuses its derived
+snapshot; presentation-only Convergence changes do not invalidate it. Projection
+begins with the first panel read. Lab updates publish context-change notifications
+through the Host, whose subscriptions are released on disconnect.
+
+The lazy shared panel consumes opaque Lab context and copy. Pure Tutor sessions
+have a transcript revision independent of draft/placement changes. Request
+generation, abort, binding identity, context and transcript revisions guard
+outgoing work, replies/errors, chart actions and focus, including synchronous
+Store callbacks. The panel keeps its composer/transcript while unavailable and
+disables sending with Lab-owned explanatory text. `tutorPresentation.ts` owns
+shared sanitization/chart-discriminator helpers; `aiTutor.ts` retains compatibility
+reexports. The shared panel no longer imports ODE source or numerical runtime.
+The existing client permits only the ODE profile on legacy `/api/chat`; personal
+profile validation, connection/history provenance and settings remain later
+chunks. See [chunk 3A1 evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md).
+
 ### Numerical domain
 
 `packages/numerics` is DOM-free and exposes deliberate subpaths rather than an

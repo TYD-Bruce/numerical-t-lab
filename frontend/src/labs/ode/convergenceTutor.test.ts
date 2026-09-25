@@ -15,6 +15,8 @@ import {
 import { getTutorConvergenceStudy } from "./convergenceTutor";
 import { ConvergenceStudyFailure } from "@numerical-t-lab/numerics/convergence";
 import { createMathExpressionFromLegacy } from "@numerical-t-lab/numerics/expressions/legacy-adapter";
+import { createOdeTutorBinding } from "./odeTutorBinding";
+import { createReadonlySolverResult } from "./odeSession";
 
 function state(): ConvergenceUiState {
   return createConvergenceUiState(
@@ -104,6 +106,41 @@ function currentState(): ConvergenceUiState {
 }
 
 describe("Tutor convergence DTO", () => {
+  it("revises the Lab context only when eligible Convergence evidence changes", () => {
+    const current = currentState();
+    let convergenceState = current;
+    const run = createReadonlySolverResult({
+      points: [{ t: 0, y: 1 }, { t: 1, y: 0.37 }],
+      metadata: { family: "rk4", displayName: "Runge-Kutta 4", order: 4,
+        isImplicit: false, formulaType: "one-step-explicit", formulaDisplay: "RK4", notes: [] },
+    });
+    const problem = { kind: "first_order" as const, equationDisplay: "y' = -y", t0: 0, tEnd: 1, h: 0.25, y0: 1 };
+    const control = createOdeTutorBinding({ getSource: () => ({ enabled: true, result: run, problem, convergenceState }) });
+    const first = control.binding.getContext();
+    expect(first).toMatchObject({ status: "ready", context: { convergenceStudy: getTutorConvergenceStudy(current) } });
+
+    convergenceState = setConvergenceMetric(setConvergenceDrawerOpen(current, true), "final_time");
+    expect(control.binding.getContext()).toBe(first);
+    convergenceState = recordConvergenceFailure(current, new ConvergenceStudyFailure("level_integration_failure", "Level failed."));
+    expect(control.binding.getContext()).toBe(first);
+
+    convergenceState = { ...current, resultStatus: "stale" };
+    const stale = control.binding.getContext();
+    expect(stale.revision).toBe(first.revision + 1);
+    expect(stale).not.toHaveProperty("context.convergenceStudy");
+    convergenceState = { ...current, runFingerprint: "other" };
+    expect(control.binding.getContext()).toBe(stale);
+    convergenceState = { ...current, result: { ...current.result!, consistencyCheck: { ...current.result!.consistencyCheck, status: "blocked" } } };
+    expect(control.binding.getContext()).toBe(stale);
+
+    convergenceState = current;
+    const restored = control.binding.getContext();
+    expect(restored.revision).toBe(stale.revision + 1);
+    expect(restored).toMatchObject({ context: { convergenceStudy: getTutorConvergenceStudy(current) } });
+    expect(first).toMatchObject({ context: { convergenceStudy: getTutorConvergenceStudy(current) } });
+    control.dispose();
+  });
+
   it("copies only finite computed evidence from a current owned result", () => {
     const dto = getTutorConvergenceStudy(currentState());
 

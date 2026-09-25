@@ -43,6 +43,7 @@ describe("AppSessionStore", () => {
     expect(first.getLab("ode")).toBeUndefined();
     expect(first.getLabMetadata("ode")).toBeUndefined();
     expect(first.getTutor("ode")).toEqual({
+      revision: 0,
       items: [],
       draftMessage: "",
       desktopOpen: false,
@@ -217,7 +218,7 @@ describe("Module Tutor session operations", () => {
       true
     );
     const cleared = clearTutorConversation(updateTutorDraft(opened, "draft"));
-    expect(cleared).toEqual({ items: [], draftMessage: "", desktopOpen: true });
+    expect(cleared).toEqual({ revision: 2, items: [], draftMessage: "", desktopOpen: true });
 
     const divided = appendNewExperimentDivider(cleared, {
       id: "experiment-2",

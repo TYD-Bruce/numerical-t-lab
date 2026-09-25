@@ -13,6 +13,31 @@ let manifest: Record<
 > = {};
 let emittedCss = "";
 let emittedJavaScript = "";
+const chunks: Record<string, { modules: string[]; imports: string[] }> = {};
+
+function chunkKeyForSource(path: string): string {
+  const moduleId = resolve(process.cwd(), "frontend", path).replaceAll("\\", "/");
+  const owners = Object.entries(chunks).filter(([, chunk]) => chunk.modules.includes(moduleId));
+  expect(owners, `${path} must have exactly one emitted owner`).toHaveLength(1);
+  const key = Object.keys(manifest).find(candidate => manifest[candidate]?.file === owners[0]![0]);
+  expect(key, `${path} must have a manifest entry`).toBeDefined();
+  return key!;
+}
+
+function staticChunkModules(key: string): string[] {
+  const visited = new Set<string>();
+  const modules = new Set<string>();
+  const pending = [manifest[key]!.file];
+  while (pending.length) {
+    const file = pending.pop()!;
+    if (visited.has(file)) continue;
+    visited.add(file);
+    const chunk = chunks[file]!;
+    for (const moduleId of chunk.modules) modules.add(moduleId);
+    pending.push(...chunk.imports);
+  }
+  return [...modules];
+}
 
 describe("Vite root-base deployment contract", () => {
   beforeAll(async () => {
@@ -24,6 +49,14 @@ describe("Vite root-base deployment contract", () => {
     await build({
       configFile,
       logLevel: "silent",
+      plugins: [{
+        name: "record-verification-chunk-owners",
+        generateBundle(_options, bundle) {
+          for (const [file, asset] of Object.entries(bundle)) {
+            if (asset.type === "chunk") chunks[file] = { modules: Object.keys(asset.modules), imports: asset.imports };
+          }
+        },
+      }],
       build: {
         emptyOutDir: true,
         manifest: true,
@@ -112,7 +145,7 @@ describe("Vite root-base deployment contract", () => {
     const entry = manifest["index.html"];
     expect(entry?.file).toMatch(/^assets\//);
     expect(entry?.dynamicImports).toContain(
-      "src/labs/ode/initialValueProblemsRoute.ts",
+      chunkKeyForSource("src/labs/ode/initialValueProblemsRoute.ts"),
     );
     expect(entry?.dynamicImports).toContain("src/tutor/platformTutorPanel.ts");
     expect(entry?.dynamicImports).toContain(
@@ -123,9 +156,21 @@ describe("Vite root-base deployment contract", () => {
     );
   });
 
+  it("keeps Tutor free of ODE code and both Labs free of first-open Tutor networking in emitted graphs", () => {
+    const entryModules = staticChunkModules("index.html");
+    expect(entryModules.filter(path => /\/labs\/|\/tutor\/(platformTutorPanel|tutorClient)\.ts$/.test(path))).toEqual([]);
+    const tutorModules = staticChunkModules(chunkKeyForSource("src/tutor/platformTutorPanel.ts"));
+    expect(tutorModules.filter(path => /\/labs\/|\/packages\/numerics\//.test(path))).toEqual([]);
+    for (const path of ["src/labs/ode/initialValueProblemsRoute.ts", "src/labs/linear-algebra/linearSystemsRoute.ts"]) {
+      const modules = staticChunkModules(chunkKeyForSource(path));
+      expect(modules.filter(moduleId => /\/tutor\/(platformTutorPanel|tutorClient)\.ts$/.test(moduleId))).toEqual([]);
+      expect(modules.filter(moduleId => /\/node_modules\/(mathlive|@cortex-js\/compute-engine)\//.test(moduleId))).toEqual([]);
+    }
+  });
+
   it("emits Lab presentation as a shared lazy child of both complete Labs", () => {
     const entry = manifest["index.html"];
-    const ode = manifest["src/labs/ode/initialValueProblemsRoute.ts"];
+    const ode = manifest[chunkKeyForSource("src/labs/ode/initialValueProblemsRoute.ts")];
     const linearSystems =
       manifest["src/labs/linear-algebra/linearSystemsRoute.ts"];
     const sharedCandidates = (linearSystems?.imports ?? []).filter(
