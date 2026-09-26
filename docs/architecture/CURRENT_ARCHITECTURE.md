@@ -91,8 +91,9 @@ disables sending with Lab-owned explanatory text. `tutorPresentation.ts` owns
 shared sanitization/chart-discriminator helpers; `aiTutor.ts` retains compatibility
 reexports. The shared panel no longer imports ODE source or numerical runtime.
 The existing client permits only the ODE profile on legacy `/api/chat`; personal
-profile validation, connection/history provenance and settings remain later
-chunks. See [chunk 3A1 evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md).
+chat client, connection/history provenance and settings remain later chunks;
+the backend profile boundary is described below. See
+[chunk 3A1 evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md).
 
 ### Numerical domain
 
@@ -128,7 +129,8 @@ With explicit `T_LAB_PERSONAL_TUTOR=true`, `localTutorRoutes.ts` exposes scoped
 session operations backed by `localTutorSession.ts`. The latter owns origin-bound
 proof, backend-only credentials, candidate/active connections, generations,
 request leases, 30-minute idle/8-hour absolute expiry and cleanup. Personal
-bodies are capped at 16 KiB and authenticated before reading. Session bootstrap
+bodies are authenticated before reading: configuration operations are capped
+at 16 KiB and personal chat at 64 KiB. Session bootstrap
 requires same-origin browser metadata and a custom client marker; subsequent
 operations also require session ID/proof headers. No frontend key form exists.
 
@@ -144,14 +146,29 @@ unavailable and rejected before testing/completion; no reasoning cache exists.
 Native discovery requests
 one page capped at 256 models, sharing `PROVIDER_MODEL_LIMIT` with validation;
 `TutorModelDiscovery` exposes projected models and `hasMore`, never raw cursors.
-The personal API exposes exact `/discover` and `/test` operations with leases;
-bootstrap reports all six provider families. Successful testing marks
+The personal API exposes exact `/discover`, `/test` and `/chat` operations with leases;
+bootstrap reports all six provider families and only the implemented ODE chat profile. Successful testing marks
 the current candidate for explicit activation; failure preserves the active
 connection. HTTP caller closure cancels the lease and outgoing request.
 Local inference first reads model metadata and uses policy-owned `autoload=false`
 on the completion URL. Metadata is server-reported, not lifecycle attestation.
-The backend-only completion port awaits the later profile/context/history-aware
-handler; there is no personal chat HTTP route yet. See
+`ai/personalTutorChat.ts` accepts a closed request with ODE profile, generation,
+request ID, user/assistant history and context. `tutorContextValidation.ts`
+checks its bounded finite DTO without numerical execution. ODE projection and
+validation share the existing 20-preview/80-full-point budgets. The immutable
+server-owned ODE prompt is reused from the legacy handler without invoking its
+environment/provider path. Fresh context is attached to the latest user message;
+the full normalized prompt, including server instructions, is capped at 32 KiB
+and 40 messages. No evidence or history is silently removed. Complete final text
+is inert presentation data; valid optional chart fields are accepted separately.
+Unknown or malformed chart instructions are dropped without losing usable text.
+The same final-text reasoning-marker predicate runs before and after model JSON
+decoding, including accepted chart strings/keys. Invalid required text fails;
+invalid optional charts are dropped intact, without removing segments from an answer.
+Session leases reject output/errors after cancellation, replacement or expiry.
+Personal chat is still unavailable from the browser: runtime connection/provenance,
+history consent and settings are the next chunks. Schema validation cannot
+attest numerical correctness, freshness or a browser consent decision. See
 the [Tutor design](../superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md).
 
 Root `api/chat.ts` remains the public `/api/chat` Vercel entry. It enforces the

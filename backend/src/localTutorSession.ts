@@ -8,6 +8,7 @@ export const LOCAL_TUTOR_LIMITS = Object.freeze({
   maxSessions: 32,
   maxRequests: 8,
   bodyBytes: 16 * 1024,
+  chatBodyBytes: 64 * 1024,
 });
 
 export interface LocalTutorAuth { sessionId: string; proof: string; origin: string }

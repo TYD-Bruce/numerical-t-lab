@@ -113,7 +113,8 @@ export function createLocalApiServer(options: {
       reply(415, { error: "An uncompressed JSON request is required." });
       return;
     }
-    const maxBytes = operation ? LOCAL_TUTOR_LIMITS.bodyBytes : LOCAL_API_MAX_BODY_BYTES;
+    const maxBytes = operation === "chat" ? LOCAL_TUTOR_LIMITS.chatBodyBytes
+      : operation ? LOCAL_TUTOR_LIMITS.bodyBytes : LOCAL_API_MAX_BODY_BYTES;
     if (Number(req.headers["content-length"]) > maxBytes) {
       reply(413, { error: "Request body is too large." });
       return;

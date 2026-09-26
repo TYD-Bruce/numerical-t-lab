@@ -28,6 +28,9 @@ const ERRORS: Record<TutorConnectionErrorCode, readonly [number, string]> = {
   response_refused: [422, "The model declined this request or its safety filter blocked the answer."],
   response_incomplete: [422, "The model did not finish its answer. No partial answer was accepted."],
   input_too_large: [413, "The conversation and context exceed the supported input size. Start a shorter conversation."],
+  invalid_chat_request: [400, "The Tutor request is invalid. Reopen the Tutor and try again."],
+  invalid_context: [400, "The Lab context is invalid or unsupported. Run a valid experiment before sending."],
+  profile_unsupported: [400, "This Lab does not yet support personal Tutor chat."],
 };
 
 /** Fixed public messages only: never capture a URL, credential, body or cause. */

@@ -1,9 +1,11 @@
 import type { IncomingMessage } from "node:http";
+import type { PersonalTutorChatResponse } from "@numerical-t-lab/contracts/tutor";
 import { TutorConnectionError } from "./localTutorPolicy.js";
 import type { LocalTutorAuth, LocalTutorSessions } from "./localTutorSession.js";
-import { discoverModels, testProviderConnection, SUPPORTED_TUTOR_PROVIDERS } from "./ai/providers/providerAdapters.js";
+import { completeWithProvider, discoverModels, testProviderConnection, SUPPORTED_TUTOR_PROVIDERS } from "./ai/providers/providerAdapters.js";
+import { preparePersonalChat, normalizePersonalTutorResponse } from "./ai/personalTutorChat.js";
 
-const OPERATIONS = ["session", "status", "stage", "discard", "activate", "disconnect", "cancel", "close", "discover", "test"] as const;
+const OPERATIONS = ["session", "status", "stage", "discard", "activate", "disconnect", "cancel", "close", "discover", "test", "chat"] as const;
 type PersonalOperation = typeof OPERATIONS[number];
 
 export function personalOperation(path: string | undefined): PersonalOperation | undefined {
@@ -34,10 +36,23 @@ export async function handlePersonalRequest(operation: PersonalOperation, auth: 
   switch (operation) {
     case "session":
       fields(body, []);
-      return { status: 201, body: { ...sessions.create(auth.origin), capabilities: { protocol: 1, providerOperations: true, providers: SUPPORTED_TUTOR_PROVIDERS } } };
+      return { status: 201, body: { ...sessions.create(auth.origin), capabilities: { protocol: 1, providerOperations: true, providers: SUPPORTED_TUTOR_PROVIDERS, chatProfiles: ["ode"] } } };
     case "status":
       fields(body, []);
       return { status: 200, body: { ...sessions.status(auth) } };
+    case "chat": {
+      const { profile, generation, requestId, prompt } = preparePersonalChat(body);
+      const lease = sessions.begin(auth, { kind: "chat", generation, requestId }, signal);
+      try {
+        const text = await completeWithProvider(lease, prompt);
+        lease.assertCurrent();
+        return { status: 200, body: { profile, generation, requestId, response: normalizePersonalTutorResponse(text) } satisfies PersonalTutorChatResponse };
+      } catch (error) {
+        // A late provider error cannot become the result of a replaced/cancelled request.
+        lease.assertCurrent();
+        throw error;
+      } finally { lease.finish(); }
+    }
     case "stage": {
       const value = fields(body, ["generation", "connection"]);
       return { status: 200, body: { ...sessions.stage(auth, value.generation as number, value.connection) } };

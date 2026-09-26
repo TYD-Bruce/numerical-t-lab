@@ -111,7 +111,7 @@ npm run dev:api
 Set `AI_TUTOR_MOCK=true` in `.env.local` for deterministic grounded demo replies that require no live model. For live tutoring, set a server-side `OPENAI_API_KEY`. Never give the key a `VITE_` prefix because Vite exposes such variables to browser code. The browser always calls the relative-origin endpoint `/api/chat`.
 
 The local API binds to `127.0.0.1:3001` and validates Host, Origin, browser
-same-origin metadata and JSON bodies (up to 1 MiB). Its default frontend origins
+same-origin metadata and JSON bodies (legacy chat up to 1 MiB). Its default frontend origins
 are HTTP `127.0.0.1` and `localhost` on ports 5173 and 4173. For a different
 frontend port, set the API's `T_LAB_LOCAL_ORIGINS` to a comma-separated list of
 exact HTTP loopback origins with explicit ports, then restart it. Changing
@@ -125,9 +125,12 @@ it is disabled by default. Local-compatible, OpenAI, Anthropic, Gemini, DeepSeek
 and standard Kimi discovery/testing are implemented behind per-session proof.
 Kimi requires an explicit international/mainland destination. Known models requiring
 preserved reasoning history are unavailable in this final-text-only version;
-see the [model limitations](docs/reviews/2026-09-25-ai-tutor-connections-chunk-2c.md#model-compatibility-boundary). Personal
-Tutor chat and the settings UI remain later integration chunks. Personal
-connections never use environment keys.
+see the [model limitations](docs/reviews/2026-09-25-ai-tutor-connections-chunk-2c.md#model-compatibility-boundary).
+The local API also supports grounded ODE chat through an activated connection;
+the browser personal-chat client, history-transfer consent and settings UI remain
+later integration chunks. Configuration bodies are capped at 16 KiB; personal
+chat bodies at 64 KiB, with a 32 KiB full-prompt budget and no silent truncation.
+Personal connections never use environment keys.
 
 Interface and math fonts are bundled locally with notices in `/licenses/`.
 Local dev/preview enforce a browser content security policy; production HTML
@@ -206,6 +209,13 @@ See [`docs/INDEX.md`](docs/INDEX.md) for the current architecture, active plan,
 design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
+
+### 2026-09-25 — Validated personal Tutor chat API
+
+- Added opt-in local ODE chat through a tested connection, with closed evidence
+  validation, explicit input limits, safe final replies and request cancellation.
+- Browser connection/history consent, settings and Linear Systems Tutor remain
+  subsequent chunks. Verification uses synthetic providers and loopback fixtures.
 
 ### 2026-09-25 — Lab-owned Tutor context
 

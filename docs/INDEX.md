@@ -25,16 +25,19 @@
 
 ## Current active milestone
 
-**AI Tutor Connections v1 — chunk 3A1 independently passed; chunk 3A2 next.**
+**AI Tutor Connections v1 — chunk 3A2 independently passed; chunk 3A3 next.**
 Chunks 1A, 1B and 1C passed independent audit and are committed locally at
 `2e20a3a`, `b9fad94` and `f36cfc1`; 2A/2B are committed at `74a0773`/`fd14abc`
-after independent review; 2C is committed at `2e6f331` after a clean audit.
-See the [current checkpoint](tutor/HANDOFF.md#current-chunk-3a1-checkpoint).
-Chunk 3A1 moves ODE context projection into its Lab, gives evidence/transcripts
-separate revisions and rejects stale work in the shared panel and Host.
-Focused checks pass 16 files / 168 tests; full and browser evidence is in its review.
-Independent audit passed with all severity counts zero; the implementation
-task rechecked all 33 frozen paths/hashes. Provider evidence remains synthetic.
+after independent review; 2C is committed at `2e6f331` and 3A1 at `43f6701`
+after clean audits. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-3a2-checkpoint).
+Chunk 3A2 adds the opt-in ODE personal chat HTTP operation with a closed context
+schema, full-prompt limits, complete text/chart normalization and request leases.
+Focused checks pass 15 files / 597 tests; full and native loopback evidence is
+in its review. Provider evidence remains synthetic. Browser history consent and
+personal sending remain unimplemented; this API work does not imply that consent.
+The initial audit's P2 JSON decoding gap has a bounded correction and failing-then-
+passing regressions. Independent re-audit passed with all severity counts zero;
+the implementation task rechecked all 21 frozen paths/hashes before recording it.
 Chunk 1C retains the browser evidence and minimal beforeunload automation limitation.
 The complete feature scope includes personal connections
 only with local frontend/backend, native Windows, strict offline local models,
@@ -51,11 +54,12 @@ regions, and Tutor interfaces for both ODE and Linear Systems.
 - [Chunk 2B evidence](reviews/2026-09-25-ai-tutor-connections-chunk-2b.md)
 - [Chunk 2C evidence](reviews/2026-09-25-ai-tutor-connections-chunk-2c.md)
 - [Chunk 3A1 evidence](reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md)
+- [Chunk 3A2 evidence](reviews/2026-09-25-ai-tutor-connections-chunk-3a2.md)
 
-Next gate: commit the independently passed 3A1 locally, then implement and audit 3A2.
+Next gate: commit the independently passed 3A2 locally, then implement and audit 3A3.
 The explicitly enabled local personal API supports all six provider families
-for discovery and synthetic testing, subject to documented model limitations.
-Personal chat/history consent is 3A2, settings UI is 3B, and Linear Systems
+for discovery, synthetic testing and ODE chat, subject to documented model limitations.
+Browser connection/history consent and client integration are 3A3, settings UI is 3B, and Linear Systems
 Tutor is phase 4. Each chunk requires audit/fix/re-audit before its local commit. No chunk
 is pushed individually; all chunks and the final independent overall audit
 must pass before push and Vercel demo update. Live provider calls remain separate.
@@ -434,7 +438,7 @@ maintainer acceptance of the F2 review commit.
 ## Feature handoffs
 
 - [AI Tutor Connections v1 handoff](tutor/HANDOFF.md) — agreed decisions,
-  reviewed design/plan, committed chunks 1A–2C, current 3A1 evidence, remaining
+  reviewed design/plan, committed chunks through 3A1, current 3A2 evidence, remaining
   scope, and the exact independent audit gate.
 - [Project handoff](PROJECT_HANDOFF.md) — implemented Platform Shell and current
   release baseline.

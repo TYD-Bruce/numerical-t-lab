@@ -1,13 +1,80 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-25
-Phase: **Chunk 3A1 — Lab-owned context and stale-response protection**
-Status: **Independently passed — local commit boundary, chunk 3A2 next**
+Phase: **Chunk 3A2 — Validated personal chat HTTP boundary**
+Status: **Independent re-audit PASS — local commit boundary, chunk 3A3 next**
 Canonical status: the maintainer's continuing goal authorizes the complete
 feature sequence, with independent audit/fix/re-audit before each local commit.
-Runtime impact: **ODE owns Tutor context; shared panel and Host guard context/transcript changes**.
+Runtime impact: **Opt-in local API supports bounded ODE personal chat through an activated connection**.
 
-## Current chunk 3A1 checkpoint
+## Current chunk 3A2 checkpoint
+
+- Starting branch `main`, clean HEAD `43f6701dd234638aa88c4c8b90e01207fedc4536`
+  (`Move Tutor context ownership into Labs`). All previous chunk commits passed
+  independent review and remain local.
+- Split the original 3A2 scope at its backend/browser boundary. This chunk owns
+  the chat HTTP contract; 3A3 owns runtime connection/provenance, per-Lab one-use
+  history-transfer decisions and the guarded browser client. Settings remain
+  3B and Linear Systems context/prompt/integration remain phase 4.
+- Exact opt-in `/api/personal/chat` requires origin-bound session proof, the
+  active tested connection and current generation. Bootstrap advertises ODE
+  chat only. The request cannot choose provider, model, key or system authority.
+  The endpoint is absent on the default local server and from the hosted adapter.
+- `ai/personalTutorChat.ts` validates envelope/history and captures the full
+  ODE prompt before an async boundary. `ai/tutorContextValidation.ts` validates
+  closed, bounded, finite data; it performs no numerical execution and cannot
+  attest freshness, correctness or browser consent. The Lab still owns those
+  evidence decisions. Configuration remains 16 KiB; chat receipt is 64 KiB.
+  The complete normalized prompt is 32 KiB / 40 messages, with no silent loss.
+- ODE projection and validation now share the unchanged 20-preview/80-full-point
+  budgets. Actual-producer tests cover all eight methods, signed implicit
+  residuals, second-order velocity, 80/81 points and a six-level Convergence Study.
+  Initial validation incorrectly required a nonnegative final residual; the
+  failing Backward Euler producer test caught this and the validator was corrected.
+- Only a completed adapter answer can be normalized. Plain text remains inert;
+  a recognized JSON response needs a nonempty message. Optional chart data has
+  a closed schema, bounded tables and finite ordered zoom endpoints. Invalid
+  chart data is dropped without rejecting otherwise usable explanatory text.
+- Leases release in `finally`. Cancellation, replacement, disconnect, expiry and
+  HTTP socket closure reject late answers/errors. Synthetic fixtures exercise all
+  six families and both Kimi regions; a native loopback server verifies the
+  readiness request followed by completion with `autoload=false`, without a key.
+- Focused: **15 files / 597 tests**. Final full verification and bundle results
+  are in the [3A2 review](../reviews/2026-09-25-ai-tutor-connections-chunk-3a2.md).
+  Temporary evidence: `t-lab-chunk-3a2-red.log`, initial correction logs,
+  `t-lab-chunk-3a2-corrected-focused.log` and `t-lab-chunk-3a2-corrected-verify.log`.
+  No real provider/model/key, browser workflow, install, Git remote or deployment
+  is exercised. Browser personal sending is still unavailable.
+
+The first independent audit returned **NEEDS_FIXES**, P0 0 / P1 0 / P2 1 / P3 0.
+It confirmed the parent-supplied JSON Unicode reasoning-marker counterexample
+through real loopback HTTP, including optional charts, and independently passed
+586 focused / 1,956 full tests, typechecks, boundaries and an external build.
+All 21 frozen paths/hashes and the starting HEAD/index matched before/after audit;
+the implementation task independently rechecked them before editing.
+
+Correction: reuse the existing marker predicate for decoded required message
+text and accepted chart labels, keys and cells. Reject invalid required text;
+discard invalid optional charts intact. Do not strip reasoning segments. Eleven
+regressions failed before the fix and pass after it, with expanded native HTTP
+coverage. The unchanged auditor reproduction now returns controlled failures
+for escaped message/closing markers and clean explanations without contaminated
+charts. Evidence is `t-lab-chunk-3a2-correction-red.log` and
+`t-lab-chunk-3a2-corrected-independent-probes.jsonl`. No external model/key was used.
+
+Independent re-audit returned **PASS**, P0/P1/P2/P3 all zero; the original P2 is
+closed. It independently passed 597 focused and 1,967 full tests, API typecheck,
+boundaries, the native HTTP reproduction and an additional 156-case decoding
+matrix. It inspected the corrected full verification log; standalone frontend
+typecheck/build and browser evidence were not repeated by the re-auditor.
+All 21 paths/hashes matched at both ends. The implementation task independently
+rechecked the frozen bytes, main HEAD and empty index before verdict metadata.
+No runtime change followed the pass. No real provider API key or cloud call was used.
+
+Next gate: local commit `Add validated personal Tutor chat`.
+Do not start 3A3 before that gate. Overall audit remains mandatory before push/demo update.
+
+## Historical chunk 3A1 checkpoint
 
 - Starting branch `main`, clean HEAD `2e6f3319739d448d0a4bb2a6359619c2126ad26c`
   (`Add DeepSeek and regional Kimi Tutor adapters`). All six earlier chunk
@@ -45,10 +112,8 @@ browser run. All 33 paths/hashes matched before and after review; the implementa
 task independently confirmed those bytes, main HEAD and empty index before
 recording this verdict. No runtime change followed the pass.
 
-Next gate: local commit `Move Tutor context ownership into Labs`.
-Then 3A2 adds connection/history provenance, one-use
-per-Lab transfer consent and validated personal chat; 3B settings and phase 4
-Linear Systems follow. The overall audit remains mandatory before push/demo update.
+Committed locally as `43f6701` (`Move Tutor context ownership into Labs`).
+The current checkpoint above supersedes the earlier combined 3A2 scope and gate.
 
 ## Historical chunk 2C checkpoint
 
@@ -464,9 +529,8 @@ compatibility must never be reused as personal-route authorization.
 
 ## Exact next gate
 
-**Commit the independently passed chunk 2C locally, then implement and
-independently audit chunk 3A before its next local commit.**
+**Commit the independently passed 3A2 locally, then implement and audit 3A3.**
 
 Provider adapters are locally implemented with documented model limitations;
-connection/history UI and both-Lab Tutor integration follow in separate rounds. No per-chunk
+connection/history/client work is 3A3, settings 3B and Linear Systems phase 4. No per-chunk
 push or deployment. Keep the latest release record separate from this local work.

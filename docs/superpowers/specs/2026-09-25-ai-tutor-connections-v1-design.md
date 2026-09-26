@@ -1,7 +1,7 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Chunks through 2C committed; chunk 3A1 independently passed; chunk 3A2 next**
+Status: **Chunks through 3A1 committed; chunk 3A2 independently passed; chunk 3A3 next**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
@@ -24,6 +24,7 @@ Related documents:
 - [Chunk 2B evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-2b.md)
 - [Chunk 2C evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-2c.md)
 - [Chunk 3A1 evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md)
+- [Chunk 3A2 evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-3a2.md)
 - [Current architecture](../../architecture/CURRENT_ARCHITECTURE.md)
 - [Numerical contracts](../../contracts/NUMERICAL_CONTRACTS.md)
 - [Linear Systems v1 design](2026-08-10-linear-systems-lab-v1-design.md)
@@ -112,7 +113,9 @@ reply/error acceptance, chart actions and focus. ODE keeps its existing last
 successful Run evidence after input edits or a failed Run, while its existing
 Convergence helper excludes stale/blocked/mismatched study evidence. This does
 not relax Linear Systems' later current-success-only contract.
-Connection provenance and cross-boundary profile/context validation remain 3A2.
+Chunk 3A2 implements cross-boundary ODE profile/context validation and a scoped
+personal chat HTTP operation. Connection provenance, one-use history decisions
+and the guarded browser client are separately audited in 3A3 before settings UI.
 
 Request profiles are limited to ODE and Linear Systems in this feature.
 Validate the profile/context pairing on the backend before constructing a prompt.
@@ -144,8 +147,9 @@ strict frontend ports. The backend's explicit frontend-origin allowlist may
 contain only canonical HTTP `127.0.0.1`/`localhost` origins with a port. Direct
 JSON CLI calls without browser Origin/Fetch Metadata remain supported only for
 the existing `/api/chat`; this exception must never authorize personal routes.
-The local HTTP body cap is 1 MiB, with 30-second request-receipt and 10-second
-header timeouts. These are transport limits, not model/context budgets.
+Legacy chat has a 1 MiB HTTP body cap; personal configuration has 16 KiB and
+personal chat 64 KiB. Request-receipt and header timeouts are 30 and 10 seconds.
+These are transport limits, separate from the assembled model/context budget.
 
 For outgoing local-model endpoints, accept only explicit HTTP ports at
 `127.0.0.1`, `[::1]`, or `localhost`. Normalize `localhost` to `127.0.0.1` for
@@ -157,8 +161,8 @@ URL credentials, queries, fragments, LAN/wildcard hosts, and other schemes.
 Restrict paths to the documented API base and read-only discovery/inference
 operations. Chunk 1B implements this outgoing policy with a bounded transport.
 Chunk 2A exposes explicit local/OpenAI discovery and synthetic testing behind
-session proof. Personal chat remains deferred to profile/context/history
-integration; the tested completion adapter is a backend-only port.
+session proof. Chunk 3A2 adds ODE personal chat through the tested completion
+adapter. Browser provenance/history consent and settings remain subsequent work.
 
 Cloud connections use fixed, reviewed provider/region presets over HTTPS.
 Pin a credential to its selected provider and destination. Reject redirects
@@ -237,7 +241,8 @@ Use a small backend adapter layer, not a general agent framework.
 
 Implementation checkpoint: 2A implements local-compatible/OpenAI, 2B adds native
 Anthropic/Gemini, and 2C adds DeepSeek/Kimi. The provider-family adapters are
-locally implemented; personal chat and settings remain later integration chunks.
+locally implemented; 3A2 connects ODE personal chat to them through the local API.
+Browser personal-chat/history consent and settings remain later integration chunks.
 The table describes approved protocols, not end-to-end UI or every-model readiness.
 
 | Provider family | Proposed transport |
@@ -403,6 +408,32 @@ Propagate cancellation through the local API to the provider request where
 supported. Cancellation does not guarantee a provider stops billing instantly.
 
 ## 9. Progress, failures, and resource limits
+
+The 3A2 ODE wire contract accepts only profile, generation, request ID,
+user/assistant messages and a closed Lab context. It never accepts caller-owned
+system instructions, destination, model, credentials or tools. Unsupported Lab
+profiles fail before provider access. The backend reuses the existing ODE prompt
+and attaches the entire validated context to the latest question, preserving
+other conversation text. The normalized prompt, including system instructions,
+is limited to 32 KiB and 40 messages. Reject overflow explicitly; never trim
+history or drop full-series/Convergence evidence to make it fit.
+
+Context validation shares the existing 20-point preview and 80-point full-series
+budgets with the Lab projection. Other wire ceilings are 16 coefficient values,
+16 notes, 16 Convergence levels/pairs and bounded text fields. These limits bound
+transport evidence only; they do not expand numerical study/method budgets.
+All numerical fields must be finite; the final algebraic residual remains signed.
+Eligibility, freshness and numerical truth remain owned by the Lab. The server
+cannot attest those properties or a history-transfer click from JSON alone.
+
+The reply echoes profile/generation/request ID and contains only normalized
+Tutor content. Usable final plain text survives optional JSON failure. A recognized
+JSON message must contain nonempty text; malformed or unknown chart data is
+discarded without losing the valid explanation. Reapply the adapter's existing
+reasoning-marker check after JSON decoding: contaminated required text fails;
+contaminated optional chart strings/keys discard the whole chart. Never strip
+reasoning segments and present the remainder as a successful complete answer.
+Never execute model instructions.
 
 Use complete-response delivery. Provide Connecting, Testing, Ready, Waiting,
 Cancelled, and Failed feedback with accessible status/error relationships.

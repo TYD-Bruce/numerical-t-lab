@@ -94,8 +94,13 @@ async function localReadiness(lease: LocalTutorLease, send: Send): Promise<void>
   if (!selected || (selected.availability !== "loaded" && selected.availability !== "listed")) throw new TutorConnectionError("model_unavailable");
 }
 
+/** Also applies to accepted text after optional model JSON has been decoded. */
+export function containsReasoningMarker(value: string): boolean {
+  return /<\/?think(?:\s|>)/i.test(value);
+}
+
 function boundedText(value: unknown): string {
-  if (typeof value !== "string" || !value.trim() || /<\/?think(?:\s|>)/i.test(value)) throw new TutorConnectionError("response_invalid");
+  if (typeof value !== "string" || !value.trim() || containsReasoningMarker(value)) throw new TutorConnectionError("response_invalid");
   if (Buffer.byteLength(value) > PROVIDER_ADAPTER_LIMITS.outputBytes) throw new TutorConnectionError("response_too_large");
   return value.trim();
 }
@@ -181,7 +186,7 @@ function geminiFinal(value: unknown): string {
   return boundedText(parts.join(""));
 }
 
-function boundedPrompt(prompt: ProviderPrompt): ProviderPrompt {
+export function boundedPrompt(prompt: ProviderPrompt): ProviderPrompt {
   if (!prompt || typeof prompt.instructions !== "string" || !prompt.instructions.trim() ||
     !Array.isArray(prompt.messages) || !prompt.messages.length || prompt.messages.length > PROVIDER_ADAPTER_LIMITS.messages ||
     prompt.messages.at(-1)?.role !== "user") throw new TutorConnectionError("invalid_configuration");
@@ -236,7 +241,7 @@ export async function testProviderConnection(lease: LocalTutorLease, send: Send 
     messages: [{ role: "user", content: "Reply with a short greeting to confirm this connection." }] }, true, send);
 }
 
-/** Backend-only port for the subsequent profile-aware Tutor handler. */
+/** Backend-only port used after personal profile/context validation. */
 export function completeWithProvider(lease: LocalTutorLease, prompt: ProviderPrompt, send: Send = requestProvider): Promise<string> {
   if (lease.kind !== "chat") return Promise.reject(new TutorConnectionError("invalid_configuration"));
   return complete(lease, prompt, false, send);

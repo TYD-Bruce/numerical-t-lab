@@ -2,13 +2,14 @@
 
 ## Current status
 
-**Active milestone: AI Tutor Connections v1 — chunk 3A1 independently passed; chunk 3A2 next.**
+**Active milestone: AI Tutor Connections v1 — chunk 3A2 independently passed; chunk 3A3 next.**
 The maintainer explicitly resumed the continuing implementation goal.
 Chunks 1A, 1B and 1C are committed locally at `2e20a3a`, `b9fad94` and
 `f36cfc1` after independent audit. Chunks 2A and 2B are committed at `74a0773`
 and `fd14abc` after independent review; 2C is committed at `2e6f331`.
-Chunk 3A1 started from that clean local main. Its checkpoint is in
-[the feature handoff](docs/tutor/HANDOFF.md#current-chunk-3a1-checkpoint).
+Chunk 3A1 is committed at `43f6701` after independent audit. Chunk 3A2 started
+from that clean local main. Its checkpoint is in
+[the feature handoff](docs/tutor/HANDOFF.md#current-chunk-3a2-checkpoint).
 The maintainer has selected local-only personal connections, native
 Windows, strict offline local inference, session-only keys, explicit cloud
 providers/regions, and Tutor interfaces for both ODE and Linear Systems.
@@ -20,23 +21,31 @@ authorized the continuing implementation sequence with independent audit before
 every chunk commit. The
 [feature handoff](docs/tutor/HANDOFF.md) records all agreed choices, source
 findings, scope, and continuation rules. The
-[current review/evidence record](docs/reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md)
+[current review/evidence record](docs/reviews/2026-09-25-ai-tutor-connections-chunk-3a2.md)
 distinguishes current fixes from future acceptance requirements.
 
-**Next gate: local commit of independently passed 3A1, then implement and audit 3A2.**
-The ODE Lab now owns its ready/unavailable Tutor context and evidence revision.
-The shared panel consumes opaque context, and guards replies, chart actions and
-focus against changed context/transcripts or disconnected bindings. Draft and
-placement changes do not invalidate an otherwise current answer. Successful-Run
-reset, failed-Run output retention and Compare/Convergence boundaries are preserved.
-Focused checks pass 16 files / 168 tests. The review records full verification,
-emitted dependency graphs and native Windows desktop/mobile browser evidence.
-Independent audit returned PASS with P0/P1/P2/P3 all zero. The implementation
-task independently rechecked all 33 paths/hashes, main HEAD and empty index
-before recording the verdict; no runtime change followed the pass.
-Chunk 3A2 follows with connection/history provenance, one-use per-Lab transfer
-decisions and validated personal chat. Settings UI remains 3B; Linear Systems
-Tutor remains phase 4. Provider evidence is synthetic; no live readiness is claimed.
+**Next gate: local commit of independently passed 3A2, then implement and audit 3A3.**
+The opt-in personal API now accepts bounded ODE chat only through an activated
+connection and its session proof. Closed context/history schemas, the full
+prompt budget and complete-response validation run before evidence is accepted;
+no history or numerical evidence is silently truncated. Cancellation, replacement,
+expiry and socket closure reject late output. Valid optional charts are projected
+separately from inert final text. The hosted legacy handler remains separate.
+Focused checks pass 15 files / 597 tests. Full verification, synthetic provider
+contracts and native loopback HTTP evidence are recorded in the review.
+The first audit confirmed one P2 at the model JSON decoding boundary. The existing
+reasoning-marker check now also covers decoded message/chart strings and keys;
+11 failing regressions and the original independent HTTP probe now pass.
+Independent re-audit returned PASS with P0/P1/P2/P3 all zero, including 156
+additional decoding cases. The implementation task rechecked all 21 frozen
+paths/hashes, starting HEAD and empty index before recording the verdict.
+No runtime change followed the pass.
+The original 3A2 scope is split at the backend/browser boundary: connection and
+history provenance, one-use per-Lab transfer decisions and the guarded browser
+client are 3A3. Settings UI remains 3B; Linear Systems Tutor remains phase 4.
+Personal browser sending is not enabled at this gate. Provider evidence is
+synthetic; no live readiness is claimed. The existing 3A1 browser evidence
+remains historical, with no new browser-workflow claim for this backend chunk.
 The maintainer authorizes one coherent local commit after
 each chunk passes independent audit and any corrections are rechecked. Do not
 push individual chunks. After all chunks, an independent overall audit must

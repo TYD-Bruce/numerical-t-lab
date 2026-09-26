@@ -1,10 +1,8 @@
 import type { SeriesPoint } from "@numerical-t-lab/numerics/ode/solvers";
 import type { OdeLabContext, TutorConvergenceStudy } from "@numerical-t-lab/contracts/tutor";
+import { ODE_TUTOR_SERIES_LIMITS } from "@numerical-t-lab/contracts/tutor";
 import type { OdeTutorProblemInputs } from "./odeTutorTypes";
 import type { ReadonlySolverResult } from "./odeSession";
-
-const SERIES_FULL_THRESHOLD = 80;
-const SERIES_PREVIEW_COUNT = 20;
 
 function sampleSeries(points: readonly SeriesPoint[], max: number): readonly SeriesPoint[] {
   if (points.length <= max) return points;
@@ -50,13 +48,13 @@ export function buildOdeLabContext(
   const series = result.points;
   const last = series[series.length - 1]!;
   const bounds = seriesBounds(series);
-  const small = series.length <= SERIES_FULL_THRESHOLD;
+  const small = series.length <= ODE_TUTOR_SERIES_LIMITS.full;
 
   const resultBlock: OdeLabContext["result"] = {
     finalT: last.t,
     finalY: last.y,
     pointCount: series.length,
-    seriesPreview: sampleSeries(series, SERIES_PREVIEW_COUNT).map(toSeriesRow),
+    seriesPreview: sampleSeries(series, ODE_TUTOR_SERIES_LIMITS.preview).map(toSeriesRow),
     ...bounds,
   };
   if (last.v !== undefined) resultBlock.finalV = last.v;
