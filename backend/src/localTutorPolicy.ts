@@ -1,6 +1,6 @@
 import { BlockList, isIP } from "node:net";
 import type { TutorConnectionErrorCode, TutorConnectionMetadata, TutorProvider, TutorRegion } from "@numerical-t-lab/contracts/tutor";
-import { TUTOR_MODEL_DISCOVERY_LIMIT } from "@numerical-t-lab/contracts/tutor";
+import { TUTOR_MODEL_DISCOVERY_LIMIT, TUTOR_CLOUD_BASES as CLOUD_BASES, TUTOR_KIMI_BASES as KIMI_BASES } from "@numerical-t-lab/contracts/tutor";
 
 const ERRORS: Record<TutorConnectionErrorCode, readonly [number, string]> = {
   invalid_configuration: [400, "Invalid connection configuration."],
@@ -42,14 +42,6 @@ export class TutorConnectionError extends Error {
     this.status = ERRORS[code][0];
   }
 }
-
-const CLOUD_BASES = {
-  openai: "https://api.openai.com/v1",
-  anthropic: "https://api.anthropic.com/v1",
-  gemini: "https://generativelanguage.googleapis.com/v1beta",
-  deepseek: "https://api.deepseek.com",
-} as const;
-const KIMI_BASES = { international: "https://api.moonshot.ai/v1", mainland: "https://api.moonshot.cn/v1" } as const;
 
 export function localModelBase(value: unknown): string {
   // Inspect original spelling; URL parsers normalize many unsafe host aliases.

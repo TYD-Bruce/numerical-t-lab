@@ -1,7 +1,7 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Chunks through 3A2 committed; corrected 3A3 independently passed**
+Status: **Chunks through 3A3 committed; 3B independently passed, local commit next**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
@@ -118,7 +118,10 @@ personal chat HTTP operation. Chunk 3A3 implements nonsecret conversation
 provenance, runtime single-use per-Lab decisions and the guarded browser client;
 its three initial audit findings (late errors, accepted-failure idle accounting
 and optional-chart fields) are corrected, locally verified and independently passed.
-Production settings/panel wiring remains 3B.
+Chunk 3B wires these owners into the lazy settings and ODE panel. The Host creates
+one runtime on first open, retains it across Lab navigation, and disposes it on
+tab teardown. Settings require a compatible local capability before key entry;
+they remain reachable before a solve while grounded sending needs eligible evidence.
 The tab runtime performs no import-time networking and holds proof/controllers
 outside pure state. Unknown actions cannot imply transfer. An uncertain activation
 reply fails closed; a changed transcript cannot be retroactively authorized or
@@ -175,7 +178,8 @@ Restrict paths to the documented API base and read-only discovery/inference
 operations. Chunk 1B implements this outgoing policy with a bounded transport.
 Chunk 2A exposes explicit local/OpenAI discovery and synthetic testing behind
 session proof. Chunk 3A2 adds ODE personal chat through the tested completion
-adapter. Browser runtime provenance/history decisions are implemented in 3A3; settings wiring remains 3B.
+adapter. Browser runtime provenance/history decisions are implemented in 3A3;
+settings and ODE panel wiring are implemented in 3B.
 
 Cloud connections use fixed, reviewed provider/region presets over HTTPS.
 Pin a credential to its selected provider and destination. Reject redirects
@@ -255,7 +259,16 @@ Use a small backend adapter layer, not a general agent framework.
 Implementation checkpoint: 2A implements local-compatible/OpenAI, 2B adds native
 Anthropic/Gemini, and 2C adds DeepSeek/Kimi. The provider-family adapters are
 locally implemented; 3A2 connects ODE personal chat to them through the local API.
-Browser personal-chat/history runtime is implemented in 3A3; settings and panel integration remain 3B.
+Browser personal-chat/history runtime is implemented in 3A3; settings and ODE
+panel integration are implemented in 3B and independently passed.
+
+Selecting a model from discovery must not require retaining or retransmitting a
+cleared browser key. The authenticated `/api/personal/model` operation accepts
+only the expected generation, exact candidate ID and validated model ID. It keeps
+the candidate's provider/region/destination and credential on the backend, creates
+a new untested candidate, cancels its old metadata/test work, and leaves active
+chat untouched. It makes no provider request. Any destination or credential edit
+still requires a new explicit Save; testing and activation use the new identity.
 The table describes approved protocols, not end-to-end UI or every-model readiness.
 
 | Provider family | Proposed transport |
@@ -520,9 +533,10 @@ alter another client's model state.
 
 ## 12. Review gate and public references
 
-Current gate: chunks through 3A2 are committed after independent audit. Chunk
-3A3's three initial P2 issues are closed by independent re-audit (all severities
-zero); its local commit is next. Settings/panel wiring is 3B and Linear Systems Tutor is phase 4.
+Current gate: chunks through 3A3 are committed after independent audit. Chunk
+3B settings/ODE panel integration passed independent audit with all severities
+zero; its local commit is next. Linear Systems Tutor
+remains phase 4.
 Follow the continuing goal through each gate; do not push before the final
 independent overall audit.
 

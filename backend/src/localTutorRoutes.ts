@@ -5,7 +5,7 @@ import type { LocalTutorAuth, LocalTutorSessions } from "./localTutorSession.js"
 import { completeWithProvider, discoverModels, testProviderConnection, SUPPORTED_TUTOR_PROVIDERS } from "./ai/providers/providerAdapters.js";
 import { preparePersonalChat, normalizePersonalTutorResponse } from "./ai/personalTutorChat.js";
 
-const OPERATIONS = ["session", "status", "stage", "discard", "activate", "disconnect", "cancel", "close", "discover", "test", "chat"] as const;
+const OPERATIONS = ["session", "status", "stage", "model", "discard", "activate", "disconnect", "cancel", "close", "discover", "test", "chat"] as const;
 type PersonalOperation = typeof OPERATIONS[number];
 
 export function personalOperation(path: string | undefined): PersonalOperation | undefined {
@@ -56,6 +56,11 @@ export async function handlePersonalRequest(operation: PersonalOperation, auth: 
     case "stage": {
       const value = fields(body, ["generation", "connection"]);
       return { status: 200, body: { ...sessions.stage(auth, value.generation as number, value.connection) } };
+    }
+    case "model": {
+      const value = fields(body, ["generation", "candidateId", "model"]);
+      if (typeof value.candidateId !== "string") throw new TutorConnectionError("invalid_configuration");
+      return { status: 200, body: { ...sessions.selectModel(auth, value.generation as number, value.candidateId, value.model) } };
     }
     case "discover":
     case "test": {

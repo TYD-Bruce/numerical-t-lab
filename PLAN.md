@@ -2,47 +2,43 @@
 
 ## Current status
 
-**Active milestone: AI Tutor Connections v1 — chunk 3A3 independently passed; local commit, then 3B.**
+**Active milestone: AI Tutor Connections v1 — chunk 3B independently passed; local commit, then phase 4.**
 The maintainer's continuing goal authorizes the complete implementation sequence.
-Chunks 1A/1B/1C, 2A/2B/2C and 3A1/3A2 passed their independent gates and are
-committed locally. Chunk 3A2 is `8ada41b`; this chunk starts from clean local
-main `8ada41b678a79f9323c642ebf29e9385af3d8218`.
+All preceding chunks passed independent review and are committed locally.
+Chunk 3B starts from clean main `322e7786fba7cfd4ecf2ee44027bd9004ba55e24`,
+the passed 3A3 connection runtime and provenance commit.
 
 Authority: [design](docs/superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md),
 [implementation plan](docs/superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md).
-Continuation: [feature handoff](docs/tutor/HANDOFF.md#current-chunk-3a3-checkpoint).
-Evidence: [chunk 3A3 review](docs/reviews/2026-09-25-ai-tutor-connections-chunk-3a3.md).
+Continuation: [feature handoff](docs/tutor/HANDOFF.md#current-chunk-3b-checkpoint).
+Evidence: [chunk 3B review](docs/reviews/2026-09-25-ai-tutor-connections-chunk-3b.md).
 
-The browser runtime now owns per-tab session proof, personal configuration,
-activation, cancellation and expiry. Pure conversations carry only nonsecret
-connection provenance. One-use fresh/transfer/cancel choices are bound to each
-Lab's transcript revision and source/destination identities; inactive-Lab history
-cannot transfer implicitly. The guarded client reads fresh Lab context and rejects
-outdated replies, including completion-subscriber changes. No retry or hosted
-fallback follows a personal failure. Settings and panel/Host wiring remain 3B;
-the production UI continues to use the legacy client at this boundary.
+The lazy Tutor now offers connection settings before an ODE solve. A compatible
+local capability handshake is required before key entry. Save, Discover, Test,
+Use, Disconnect and explicit per-Lab history choices connect the existing runtime
+to the panel. The Host retains one runtime through close/navigation and disposes
+it at tab shutdown. Complete personal replies use the guarded sender, with
+cancellation and bounded error/progress states; no automatic hosted fallback.
+The candidate-only model operation preserves its credential on the backend,
+invalidates testing and never performs provider networking. Provider destinations
+are shared unchanged constants used by policy and the settings preview.
 
-Focused checks pass 18 files / 498 tests; full verification passes 123 files /
-2,068 tests, all typechecks, boundaries and build. Actual loopback HTTP covers
-the runtime through API, session, adapter and synthetic model server with no
-Authorization header. No live model/key or new real-browser UI claim is made.
+Full verification passes 124 files / 2,091 tests, all typechecks, boundaries and
+the 122-module build. Native Windows Chrome covers dev and production preview,
+desktop/mobile, keyboard, Light/Dark, history choices, failure, cancellation,
+disconnect and Home/Resume using owned loopback fixtures. Home loads only the
+entry script; application resources stay same-origin with external traffic
+blocked. No real model/key, cloud inference or deployment was exercised.
 
-The initial independent audit returned NEEDS_FIXES, with three P2 findings:
-stale errors after completion subscribers, premature browser idle expiry after
-accepted provider failures, and insufficient optional-chart field validation.
-The auditor independently repeated focused checks and reproduced these through
-owned loopback HTTP. All 20 frozen hashes and the baseline matched before/after;
-the implementation task also rechecked them. Bounded corrections now guard both
-send outcomes after subscribers, reconcile authenticated activity without renewing
-it, and project the complete optional-chart schema. Added regressions and the
-unchanged independent HTTP probes pass. Independent re-audit returned PASS, with
-P0/P1/P2/P3 all zero and all three findings closed. It passed 588 focused tests
-and additional boundary probes. All 25 frozen hashes matched before/after audit
-and were independently rechecked by the implementation task.
+Independent Astra Extra High audit returned PASS, with P0/P1/P2/P3 all zero.
+It independently passed 167 focused tests, typechecks, boundaries, an in-memory
+build/graph and browser local/model/history/mobile/cancellation workflows.
+All 23 frozen paths/hashes matched before/after audit and were independently
+rechecked by the implementation task. No runtime change followed the pass.
 
-**Next gate: commit passed 3A3 locally, then implement and independently audit 3B.**
-Suggested commit: `Add Tutor connection provenance and guarded client`.
-Do not begin 3B before that commit gate. Linear Systems Tutor remains phase 4.
+**Next gate: commit passed 3B locally, then implement and audit Linear Systems Tutor.**
+Suggested commit: `Add local AI connection settings to Tutor`.
+Do not begin phase 4 before that commit gate. Linear Systems Tutor remains phase 4.
 After all chunks, the independent overall audit must pass before push and Vercel
 demo update. No per-chunk push, remote contact, live provider call, model management,
 dependency install or numerical change. Native Windows, local-only personal

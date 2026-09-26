@@ -147,6 +147,14 @@ export type TutorMessage = ChatRequest["messages"][number];
 /** Local-only personal connection DTOs. Credentials are write-only input. */
 export type TutorProvider = "local" | "openai" | "anthropic" | "gemini" | "deepseek" | "kimi";
 export type TutorRegion = "international" | "mainland";
+/** Fixed destinations shared by server policy and the connection preview. */
+export const TUTOR_CLOUD_BASES = Object.freeze({
+  openai: "https://api.openai.com/v1",
+  anthropic: "https://api.anthropic.com/v1",
+  gemini: "https://generativelanguage.googleapis.com/v1beta",
+  deepseek: "https://api.deepseek.com",
+});
+export const TUTOR_KIMI_BASES = Object.freeze({ international: "https://api.moonshot.ai/v1", mainland: "https://api.moonshot.cn/v1" });
 export type TutorConnectionInput =
   | { provider: "local"; baseUrl: string; model?: string; apiKey?: string }
   | { provider: "kimi"; region: TutorRegion; model?: string; apiKey: string }

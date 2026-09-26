@@ -78,6 +78,18 @@ beforeEach(() => {
 afterEach(() => { for (const value of clients) value.dispose(); backend.dispose(); vi.restoreAllMocks(); vi.useRealTimers(); });
 
 describe("browser personal connection and per-Lab history", () => {
+  it("changes only the staged model and invalidates its previous history review without sending a key", async () => {
+    const access = createAppSessionStore().createTutorSessionAccess("ode"), value = client();
+    await candidate(value);
+    const review = value.reviewHistory(access, "candidate");
+    provider.mockClear();
+    await value.selectModel("another-model");
+    expect(JSON.parse(String(requests.at(-1)!.options.body))).toEqual({ generation: 0, candidateId: expect.any(String), model: "another-model" });
+    expect(requests.at(-1)!.path).toBe("/api/personal/model");
+    expect(provider).not.toHaveBeenCalled();
+    expect(value.getState().session!.candidate).toMatchObject({ tested: false, connection: { model: "another-model" } });
+    await expect(value.decideHistory(access, review, "transfer")).rejects.toMatchObject({ code: "history_changed" });
+  });
   it.each(["https://demo.example", "http://192.168.1.2:5173", "http://localhost", "http://127.1:5173", "null"])("never bootstraps personal routes from %s", async page => {
     const value = client(fixtureFetch, page);
     await expect(value.initialize()).rejects.toMatchObject({ code: "local_required" });

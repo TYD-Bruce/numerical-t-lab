@@ -26,6 +26,37 @@ beforeEach(() => {
 afterEach(() => { sessions.dispose(); vi.useRealTimers(); vi.unstubAllEnvs(); });
 
 describe("local credential session ownership", () => {
+  it("selects a candidate model without returning or retransferring its credential", () => {
+    const auth = tab(), active = activate(auth);
+    const staged = sessions.stage(auth, 1, config), id = staged.candidate!.id;
+    const old = sessions.begin(auth, { kind: "test", candidateId: id, generation: 1, requestId: "old-model" });
+    old.markTested();
+    const next = sessions.selectModel(auth, 1, id, "another-model");
+    expect(next.active).toEqual(active.active);
+    expect(next.generation).toBe(1);
+    expect(next.candidate!.id).not.toBe(id);
+    expect(next.candidate!.tested).toBe(false);
+    expect(next.candidate!.connection.model).toBe("another-model");
+    expect(old.signal.aborted).toBe(true);
+    expect(() => old.markTested()).toThrow();
+    expect(() => old.credential()).toThrow();
+    expect(JSON.stringify(next)).not.toContain("fixture-key");
+    const selected = sessions.begin(auth, { kind: "test", candidateId: next.candidate!.id, generation: 1, requestId: "new-model" });
+    expect(selected.credential()).toBe("fixture-key"); selected.finish();
+    expect(() => sessions.activate(auth, 1, next.candidate!.id)).toThrow(/test/i);
+  });
+  it("rejects invalid model changes before altering the candidate or active chat", () => {
+    const auth = tab(); activate(auth);
+    const staged = sessions.stage(auth, 1, config), id = staged.candidate!.id;
+    const chat = sessions.begin(auth, { kind: "chat", generation: 1, requestId: "chat" });
+    for (const [owner, generation, candidateId, model] of [[auth, 1, id, ""], [auth, 0, id, "valid"], [auth, 1, "wrong", "valid"], [{ ...auth, proof: "0".repeat(64) }, 1, id, "valid"]] as const) {
+      expect(() => sessions.selectModel(owner, generation, candidateId, model)).toThrow();
+      expect(sessions.status(auth)).toEqual(staged);
+      expect(chat.signal.aborted).toBe(false);
+    }
+    sessions.selectModel(auth, 1, id, "valid");
+    expect(chat.signal.aborted).toBe(false); chat.finish();
+  });
   it("allows discovery without a model while test and activation require model selection", () => {
     const auth = tab();
     const staged = sessions.stage(auth, 0, { provider: "local", baseUrl: "http://localhost:8080" });

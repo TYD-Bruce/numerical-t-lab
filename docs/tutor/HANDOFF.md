@@ -1,13 +1,60 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-25
-Phase: **Chunk 3A3 — Browser connection runtime and history provenance**
-Status: **Independent re-audit PASS; all three initial P2 findings closed**
+Phase: **Chunk 3B — Connection settings and ODE panel integration**
+Status: **Independent audit PASS; P0/P1/P2/P3 all zero**
 Canonical status: continuing maintainer goal; audit/fix/re-audit before each commit.
-Runtime impact: reusable connection/client and pure provenance owners implemented;
-production panel/settings wiring remains 3B.
+Runtime impact: shared lazy settings, tab-owned connection and personal ODE sends.
 
-## Current chunk 3A3 checkpoint
+## Current chunk 3B checkpoint
+
+- Starting clean main: `322e7786fba7cfd4ecf2ee44027bd9004ba55e24`, the independently
+  passed 3A3 commit. All preceding commits remain local.
+- `tutorConnectionSettings.ts` owns the inline settings form inside the existing
+  Tutor frame. No key field exists before a compatible local handshake. Keys
+  clear synchronously on Save, destination changes, expiry and disposal.
+- Explicit Save/Discover/Test/Use actions disclose their destinations and data.
+  All six provider families are available; Kimi starts without a region choice.
+  Listed models do not imply readiness, unloaded models cannot be selected from
+  the catalog, and Test does not attest mathematical accuracy.
+- `/api/personal/model` only changes the exact staged candidate's model. It
+  preserves its backend credential, creates a new untested candidate identity,
+  cancels old candidate work and leaves the active connection unchanged. It
+  cannot accept a provider, endpoint or credential, and makes no provider call.
+- The Host constructs one runtime through the first-open lazy module and retains
+  it across close/navigation. The panel routes personal messages through the
+  guarded client while retaining its existing Lab/context/transcript checks.
+  Configuring before a solve is allowed; sending still needs eligible Lab context.
+- Start fresh is focused by default; transfer/cancel remain explicit. Failed
+  replacement tests preserve the active selection/history. Disconnect keeps the
+  transcript but disables personal Send. Default service requires its own choice.
+- Browser review corrected hidden history choices and focus lost after cancelling
+  chat. Settings reveal progress/review/errors within their own scroll container;
+  request cancellation restores the composer. Session expiry removes key entry.
+- Full verify: 124 files / 2,091 tests, typechecks, boundaries and 122-module build.
+  Production Home loads only its entry script; the 42.33 kB / 13.73 kB gzip Tutor
+  chunk stays deferred and has no ODE runtime import. Native Chrome 1440 x 1000
+  and 390 x 844 workflows use only an owned loopback fixture and synthetic input.
+- Evidence, harness caveats and remaining limits are in the
+  [3B review](../reviews/2026-09-25-ai-tutor-connections-chunk-3b.md).
+
+`Audit AI Tutor connections` (GPT-6 Astra, Extra High) returned PASS with all
+severities zero. Independent execution passed 167 focused tests, typechecks,
+boundaries, an in-memory graph build and real-browser local connection/model,
+both history-transfer directions, mobile focus, cancellation and Home/Resume.
+The full parent verification log was inspected, not rerun in full. All 23 frozen
+paths/hashes and the main baseline/index matched before/after; the implementation
+task independently checked them before recording the verdict. Audit recovery
+after a transport interruption preserved completed evidence and introduced no
+repository edits. No runtime change followed the pass.
+
+Next: commit `Add local AI connection settings to Tutor` locally.
+No phase 4, push or deployment before its required gate. No real API keys or
+external provider calls; Linear Systems Tutor remains the next chunk.
+
+## Previous chunk 3A3 checkpoint — committed at `322e778`
+
+The following records the historical pre-commit gate, now satisfied.
 
 - Starting clean main: `8ada41b678a79f9323c642ebf29e9385af3d8218`, the independently
   passed 3A2 commit. Every preceding chunk remains local.

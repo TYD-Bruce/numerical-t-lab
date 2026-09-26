@@ -12,12 +12,18 @@ import {
   appendTutorMessage,
   clearTutorConversation,
   messagesForTutorRequest,
+  sameTutorConnection,
   updateTutorDraft,
 } from "./moduleTutorSession";
 import {
   PUBLIC_TUTOR_UNAVAILABLE_MESSAGE,
   sendTutorMessage,
 } from "./tutorClient";
+import type { TutorConnection } from "./tutorConnection";
+import { mountTutorConnectionSettings } from "./tutorConnectionSettings";
+import { describeTutorConnection, tutorConnectionFailure } from "./tutorConnectionCopy";
+import { TutorClientError } from "./tutorConnectionProtocol";
+export { createTutorConnection } from "./tutorConnection";
 import "./tutor.css";
 
 export interface PlatformTutorPanelOptions {
@@ -26,6 +32,7 @@ export interface PlatformTutorPanelOptions {
   readonly onClose: () => void;
   readonly isCurrent: () => boolean;
   readonly isPresentationVisible?: () => boolean;
+  readonly connection?: TutorConnection;
   readonly sendMessage?: (
     request: ChatRequest<object>,
     signal: AbortSignal,
@@ -94,6 +101,9 @@ export function mountPlatformTutorPanel(
   let requestController: AbortController | undefined;
   let refresh = (): void => undefined;
   let cancelPending = (): void => undefined;
+  let settings: ReturnType<typeof mountTutorConnectionSettings> | undefined;
+  let settingsOpen = false;
+  let unsubscribeConnection: (() => void) | undefined;
   const bindingIdentity = options.binding;
   const moduleId = options.sessionAccess.moduleId;
   const readContext = (): LabTutorContext => {
@@ -112,11 +122,32 @@ export function mountPlatformTutorPanel(
           <button type="button" class="btn ghost ai-tutor-close" data-tutor-close aria-label="Close AI Tutor">Close</button>
         </div>
         <p class="ai-tutor-sub"></p>
+        <div data-connection-controls hidden><p class="ai-connection-summary" data-connection-summary></p><button type="button" class="btn ghost" data-connection-settings>Connection settings</button><button type="button" class="btn ghost" data-history-review hidden>Review conversation</button></div>
       </header>
       <div class="ai-tutor-content" data-tutor-content></div>
     </aside>`;
 
   const content = target.querySelector<HTMLElement>("[data-tutor-content]")!;
+  const settingsTarget = document.createElement("div"); settingsTarget.hidden = true;
+  target.querySelector(".ai-tutor-panel")!.append(settingsTarget);
+  const settingsButton = target.querySelector<HTMLButtonElement>("[data-connection-settings]")!;
+  const historyButton = target.querySelector<HTMLButtonElement>("[data-history-review]")!;
+  const setSettings = (open: boolean, review = false) => {
+    if (disposed || !options.isCurrent() || !options.connection) return;
+    cancelPending();
+    settingsOpen = open; content.hidden = open; settingsTarget.hidden = !open;
+    settingsButton.textContent = open ? "Back to chat" : "Connection settings";
+    if (open) {
+      settings ??= mountTutorConnectionSettings(settingsTarget, { connection: options.connection, sessionAccess: options.sessionAccess,
+        isCurrent: () => !disposed && options.isCurrent(), onApplied: () => { setSettings(false); refresh(); } });
+      if (review) settings.reviewHistory();
+      else settingsTarget.querySelector<HTMLElement>('button:not([hidden]):not([disabled]), select:not([disabled])')?.focus({ preventScroll: true });
+    } else { settings?.dispose(); settings = undefined; settingsButton.focus({ preventScroll: true }); }
+    refresh();
+  };
+  settingsButton.addEventListener("click", () => setSettings(!settingsOpen));
+  historyButton.addEventListener("click", () => setSettings(true, true));
+  if (options.connection) target.querySelector<HTMLElement>("[data-connection-controls]")!.hidden = false;
   target.querySelector<HTMLElement>(".ai-tutor-sub")!.textContent = options.binding.description;
   {
     const unavailable = document.createElement("p");
@@ -171,19 +202,29 @@ export function mountPlatformTutorPanel(
     send.type = "submit";
     send.className = "btn primary ai-send";
     send.textContent = "Send";
-    actions.append(clear, send);
+    const cancel = document.createElement("button"); cancel.type = "button"; cancel.className = "btn ghost ai-cancel"; cancel.textContent = "Cancel request"; cancel.hidden = true;
+    const progress = document.createElement("p"); progress.className = "ai-request-progress"; progress.setAttribute("role", "status"); progress.hidden = true;
+    actions.append(clear, cancel, send);
     form.append(label, input, actions);
-    content.append(suggestionDisclosure, messages, error, form);
+    content.append(suggestionDisclosure, messages, error, progress, form);
     let loading = false;
     let pendingContextRevision: number | undefined;
     const syncAvailability = (): void => {
       const context = readContext();
       const ready = context.status === "ready";
+      const connectionState = options.connection?.getState();
+      const historyAllowed = !options.connection || options.connection.canSendHistory(options.sessionAccess);
+      const connectionReady = !connectionState || connectionState.selected.kind === "hosted" || connectionState.status === "available" && !!connectionState.session?.active;
       unavailable.hidden = ready;
       unavailable.textContent = context.status === "unavailable" ? context.message : "";
       suggestionDisclosure.hidden = !ready;
-      send.disabled = input.disabled = loading || !ready;
-      for (const button of suggestions.querySelectorAll<HTMLButtonElement>("button")) button.disabled = loading || !ready;
+      send.disabled = input.disabled = loading || !ready || !connectionReady || !historyAllowed || !!connectionState?.pending && connectionState.pending !== "chat";
+      for (const button of suggestions.querySelectorAll<HTMLButtonElement>("button")) button.disabled = send.disabled;
+      if (connectionState) {
+        target.querySelector<HTMLElement>("[data-connection-summary]")!.textContent = connectionState.selected.kind === "hosted" ? "Default Tutor service" : connectionState.status !== "available" ? "Personal connection expired or unavailable. Reconnect in settings."
+          : connectionState.session?.active ? describeTutorConnection(connectionState.session.active) : "No personal connection selected.";
+        historyButton.hidden = historyAllowed || !connectionReady || settingsOpen;
+      }
     };
 
     let suggestionsCollapsedForConversation = false;
@@ -226,6 +267,8 @@ export function mountPlatformTutorPanel(
       loading = next;
       syncAvailability();
       send.textContent = loading ? "Thinking…" : "Send";
+      cancel.hidden = !loading;
+      progress.hidden = !loading; progress.textContent = loading ? "Waiting for a complete response…" : "";
       target.classList.toggle("ai-loading", loading);
     };
     cancelPending = (): void => {
@@ -238,10 +281,13 @@ export function mountPlatformTutorPanel(
     };
     const submit = async (text: string): Promise<void> => {
       const trimmed = text.trim();
-      if (!trimmed || disposed || !options.isCurrent()) return;
+      if (!trimmed || disposed || loading || settingsOpen || !options.isCurrent()) return;
       const context = readContext();
       if (context.status !== "ready") { render(); return; }
       error.hidden = true;
+      try { options.connection?.prepareConversation(options.sessionAccess); }
+      catch (cause) { error.textContent = tutorConnectionFailure(cause); error.hidden = true; setSettings(true, cause instanceof TutorClientError && cause.code === "history_required"); return; }
+      const destination = options.connection?.getState().selected;
       let conversationRevision = options.sessionAccess.getSession().revision + 1;
       options.sessionAccess.updateSession((current) =>
         updateTutorDraft(appendTutorMessage(current, "user", trimmed), "")
@@ -260,12 +306,15 @@ export function mountPlatformTutorPanel(
       };
       const currentRequest = (): boolean => !disposed && !controller.signal.aborted && request === requestGeneration &&
         options.isCurrent() && bindingIdentity === options.binding && moduleId === options.sessionAccess.moduleId &&
-        currentContext() && options.sessionAccess.getSession().revision === conversationRevision;
+        currentContext() && options.sessionAccess.getSession().revision === conversationRevision &&
+        (!options.connection || sameTutorConnection(destination, options.connection.getState().selected));
       let restoreFocus = false;
       setLoading(true);
       try {
         if (!currentRequest()) return;
-        const response = await (options.sendMessage ?? sendTutorMessage)(
+        const response = destination?.kind === "personal" && options.connection
+          ? await options.connection.send(options.binding, options.sessionAccess, controller.signal, () => !disposed && options.isCurrent())
+          : await (options.sendMessage ?? sendTutorMessage)(
           { messages: messagesForTutorRequest(options.sessionAccess.getSession()), context: context.context },
           controller.signal,
           options.binding.promptProfile
@@ -282,10 +331,11 @@ export function mountPlatformTutorPanel(
         if (currentRequest() && response.chartInstruction && isChartInstruction(response.chartInstruction)) {
           options.binding.applyChartInstruction?.(response.chartInstruction);
         }
-      } catch {
+      } catch (cause) {
         if (!currentRequest()) return;
+        if (cause instanceof TutorClientError && cause.code === "request_cancelled") return;
         restoreFocus = true;
-        error.textContent = PUBLIC_TUTOR_UNAVAILABLE_MESSAGE;
+        error.textContent = destination?.kind === "personal" ? tutorConnectionFailure(cause) : PUBLIC_TUTOR_UNAVAILABLE_MESSAGE;
         error.hidden = false;
       } finally {
         if (!disposed && request === requestGeneration && options.isCurrent()) {
@@ -313,11 +363,23 @@ export function mountPlatformTutorPanel(
       render();
       if (!input.disabled) input.focus({ preventScroll: true });
     });
+    cancel.addEventListener("click", () => {
+      cancelPending(); progress.hidden = false; progress.textContent = "Request cancelled.";
+      if (!disposed && options.isCurrent() && !input.disabled && input.isConnected && options.isPresentationVisible?.() !== false) input.focus({ preventScroll: true });
+    });
     suggestions.addEventListener("click", (event) => {
       const button = (event.target as Element).closest<HTMLButtonElement>("[data-tutor-suggestion]");
       if (button) void submit(button.dataset.tutorSuggestion ?? "");
     });
     resizeComposer();
+    if (options.connection) {
+      let lastSelection = options.connection.getState().selected;
+      unsubscribeConnection = options.connection.subscribe(() => {
+        const selected = options.connection!.getState().selected;
+        if (!sameTutorConnection(lastSelection, selected)) { lastSelection = selected; cancelPending(); }
+        render();
+      });
+    }
     render();
   }
 
@@ -333,6 +395,7 @@ export function mountPlatformTutorPanel(
       requestGeneration += 1;
       requestController?.abort();
       requestController = undefined;
+      unsubscribeConnection?.(); settings?.dispose(); settings = undefined;
       target.replaceChildren();
     },
     focus(): void {
@@ -340,6 +403,7 @@ export function mountPlatformTutorPanel(
     },
     refresh(): void {
       refresh();
+      settings?.refresh();
     },
     cancelPending(): void {
       cancelPending();

@@ -148,7 +148,7 @@
 .ai-messages {
   flex: 1 1 auto;
   min-width: 0;
-  min-height: 360px;
+  min-height: 0;
   width: 100%;
   max-width: 100%;
   padding: 14px 12px;
@@ -330,6 +330,23 @@
 .ai-tutor-panel.ai-loading {
   cursor: progress;
 }
+
+.ai-tutor-panel [hidden] { display: none !important; }
+.ai-connection-summary { margin: 8px 0; font-size: 0.76rem; overflow-wrap: anywhere; color: var(--color-text-secondary); }
+.ai-connection-settings { flex: 1 1 auto; min-height: 0; min-width: 0; padding: 14px 16px; overflow-y: auto; overscroll-behavior: contain; font-size: 0.84rem; }
+.ai-connection-settings h4 { margin: 0 0 8px; }
+.ai-connection-settings p { overflow-wrap: anywhere; }
+.ai-connection-notice { color: var(--color-text-secondary); font-size: 0.78rem; line-height: 1.5; }
+.ai-connection-settings fieldset { min-width: 0; margin: 14px 0 8px; padding: 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.ai-connection-settings label { display: block; margin-block: 12px 4px; font-weight: 600; }
+.ai-connection-settings input, .ai-connection-settings select { display: block; box-sizing: border-box; width: 100%; min-width: 0; min-height: 40px; padding: 8px; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--color-surface-primary); color: var(--color-text-primary); font: inherit; }
+.ai-connection-settings input:focus-visible, .ai-connection-settings select:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+.ai-connection-actions, .ai-connection-settings [data-review] { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 12px; }
+.ai-connection-settings [data-review] { border-top: 1px solid var(--color-border); padding-top: 14px; }
+.ai-connection-settings [data-review] > p, .ai-connection-settings [data-review] > h4 { flex-basis: 100%; margin: 0; }
+.ai-connection-settings .btn, [data-connection-controls] .btn { white-space: normal; overflow-wrap: anywhere; }
+.ai-model-choice { display: block; max-width: 100%; margin-block: 6px; text-align: left; }
+.ai-request-progress { flex: none; margin: 0; font-size: 0.78rem; color: var(--color-text-secondary); }
 
 @media (prefers-reduced-motion: no-preference) {
   .ai-suggest-btn,

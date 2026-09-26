@@ -46,7 +46,8 @@ Browser ownership is organized as:
   Linear Systems route, Method/Data/Output/Diagnostics application, visible
   teaching model, domain-specific MathML composition helpers, and
   presentation-only Computation Walkthrough renderer;
-- `frontend/src/tutor/`: browser Tutor session, panel, and `/api/chat` client;
+- `frontend/src/tutor/`: pure Tutor sessions, lazy settings/panel, tab connection
+  runtime, guarded personal client and legacy `/api/chat` client;
 - `frontend/src/glossary/`: production Glossary model, registry, controller,
   and lazy surface;
 - `frontend/src/math/`: MathLive/Compute Engine browser adapters, lightweight
@@ -71,8 +72,10 @@ assets are allowed; object/frame/worker/media loads and form submission are deni
 AppShell imports bundled interface font CSS from `src/assets/fonts/`; licenses
 ship under `/licenses/`. MathLive fonts/static CSS stay at the deferred math
 boundary, with implicit font/sound path discovery disabled. Browser assets have
-been checked with external traffic blocked; full local inference remains a
-later adapter/UI milestone. See [chunk 1C evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md).
+been checked with external traffic blocked. Chunk 3B additionally exercises the
+ODE connection/chat workflow through an owned loopback synthetic model; live
+model readiness and both-Lab integration remain later evidence. See
+[chunk 1C evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md).
 
 `labs/ode/odeTutorContext.ts` now owns the ODE request projection formerly in
 `tutor/aiTutor.ts`. `odeTutorBinding.ts` reads the current successful Run and the
@@ -90,12 +93,32 @@ Store callbacks. The panel keeps its composer/transcript while unavailable and
 disables sending with Lab-owned explanatory text. `tutorPresentation.ts` owns
 shared sanitization/chart-discriminator helpers; `aiTutor.ts` retains compatibility
 reexports. The shared panel no longer imports ODE source or numerical runtime.
-The existing panel still uses the ODE-only legacy `/api/chat` client. Chunk 3A3
-adds `tutorConnection.ts`, an explicitly constructed per-tab owner for personal
+The panel uses the ODE-only legacy `/api/chat` client for the explicit default
+selection, and the guarded personal sender for a personal selection. There is
+no automatic fallback. `tutorConnection.ts` is a per-tab owner for personal
 bootstrap/configuration/verification, private proof, cancellation and expiry.
 `tutorConnectionProtocol.ts` bounds/decodes same-origin JSON and retains only
-public response fields. Their production panel/settings wiring remains 3B; they
-are not eagerly imported by Home, platform bootstrap or Lab routes.
+public response fields. The Host constructs this runtime through the first-open
+module, retains it through panel close/Lab navigation, and disposes it on Host
+teardown or non-persisted pagehide. Home/platform imports remain type-only or
+pure-session helpers; networking/settings are not eagerly loaded by Lab routes.
+
+`tutorConnectionSettings.ts` owns an inline form in the existing Tutor frame.
+A compatible local handshake is required before key fields exist. Explicit
+Save/Discover/Test/Use operations clear transient key input and separate candidate
+configuration from active selection. Catalog selection uses `/api/personal/model`:
+the server verifies proof, generation and candidate ID, keeps the credential
+private, creates a new untested identity and cancels old candidate work without
+changing the active connection. The operation performs no provider request and
+accepts no destination/credential fields. Unchanged fixed destinations now live
+in shared contracts for server policy and accurate UI previews. Closed error
+codes map to fixed English copy in `tutorConnectionCopy.ts`.
+
+Connection/history controls remain available before a solve; eligible Lab
+evidence and authorized provenance are both required for Send. Inline settings
+reuse the existing frame/modal owner. Their own scroll container reveals progress,
+errors and explicit history choices; the chat composer restores focus on cancel.
+No additional modal, storage, framework or provider SDK was introduced.
 
 Pure `ModuleTutorSession.connection` holds destination kind, session ID and
 generation, never proof or credentials. A provenance change advances transcript
@@ -119,7 +142,8 @@ Both send outcomes recheck identity after notifications. Optional charts project
 only finite/ordered numeric fields, booleans and bounded labels/table cells;
 invalid optional charts are dropped without losing valid message text.
 See [3A1 evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md) and
-[3A3 evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3a3.md).
+[3A3 evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3a3.md), plus
+[3B integration evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3b.md).
 
 ### Numerical domain
 
@@ -158,7 +182,8 @@ request leases, 30-minute idle/8-hour absolute expiry and cleanup. Personal
 bodies are authenticated before reading: configuration operations are capped
 at 16 KiB and personal chat at 64 KiB. Session bootstrap
 requires same-origin browser metadata and a custom client marker; subsequent
-operations also require session ID/proof headers. No frontend key form exists.
+operations also require session ID/proof headers. The lazy local settings form
+accepts a transient key only after a compatible bootstrap succeeds.
 
 `localTutorPolicy.ts` owns fixed cloud/region presets and strict loopback URL
 validation. `ai/providers/providerTransport.ts` supplies one bounded native HTTP
@@ -192,8 +217,8 @@ The same final-text reasoning-marker predicate runs before and after model JSON
 decoding, including accepted chart strings/keys. Invalid required text fails;
 invalid optional charts are dropped intact, without removing segments from an answer.
 Session leases reject output/errors after cancellation, replacement or expiry.
-Personal chat is still unavailable from the browser: runtime connection/provenance,
-history consent and settings are the next chunks. Schema validation cannot
+Personal ODE chat is wired through the browser runtime, explicit history consent
+and settings. Linear Systems remains a later profile/integration chunk. Schema validation cannot
 attest numerical correctness, freshness or a browser consent decision. See
 the [Tutor design](../superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md).
 

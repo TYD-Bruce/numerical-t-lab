@@ -1,11 +1,11 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Corrected chunk 3A3 independently passed; local commit, then 3B**
-Runtime scope this round: **Browser connection/provenance and guarded personal client**
-Current chunk baseline: clean `main` at `8ada41b678a79f9323c642ebf29e9385af3d8218`
+Status: **Chunk 3B independently passed; local commit, then phase 4**
+Runtime scope this round: **Lazy settings, Host ownership and personal ODE panel wiring**
+Current chunk baseline: clean `main` at `322e7786fba7cfd4ecf2ee44027bd9004ba55e24`
 The maintainer explicitly resumed after a safe pause. Current evidence is in
-[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-3a3.md).
+[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-3b.md).
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
@@ -24,10 +24,10 @@ another; preserve the separately reviewable boundaries below.
 |---|---|
 | `frontend/src/app/contracts.ts` | Generic optional Lab Tutor binding with ready/unavailable context, evidence revision and pure transcript revision; nonsecret connection provenance implemented in 3A3 |
 | `frontend/src/app/labRouteAdapter.ts` | Connects an exposed Tutor binding and live session access; already owns reset/request invalidation and disposal order |
-| `frontend/src/app/platformTutorHost.ts` | Inserts the launcher in Lab header actions, lazily mounts the panel, owns presentation and cancellation hooks |
+| `frontend/src/app/platformTutorHost.ts` | Inserts the launcher, lazily constructs one tab connection, mounts/disposes panels, retains connection across navigation and owns presentation/cancellation hooks |
 | `frontend/src/app/platformBootstrap.ts` | Platform Host construction; wire only lightweight connection access if needed |
 | `frontend/src/app/appSessionStore.ts` | Pure per-module Lab/Tutor sessions; no credentials, network handles, or provider secrets |
-| `frontend/src/tutor/platformTutorPanel.ts` | Shared opaque context/copy consumer with revision and binding guards; personal connection UI remains 3B |
+| `frontend/src/tutor/platformTutorPanel.ts` | Shared opaque context/copy consumer; connects settings and guarded personal sending with existing revision/binding guards |
 | `frontend/src/tutor/tutorClient.ts` | Same-origin chat fetch and safe public failure boundary |
 | `frontend/src/tutor/moduleTutorSession.ts` | Transcript/draft/reset helpers and history serialization |
 | `frontend/src/tutor/aiTutor.ts` | Compatibility reexports; pure ODE builder now lives in `labs/ode/odeTutorContext.ts`, shared display helpers in `tutorPresentation.ts` |
@@ -298,9 +298,8 @@ work, per-Lab review consumption and the guarded sender; `tutorConnectionProtoco
 owns bounded public response decoding. Pure sessions preserve provenance through
 draft/placement/dividers and drop it on clear. A small session DTO addition
 advertises the existing idle policy, and shared response constants retain their
-values. Tests exercise the ports before any production UI wiring. Independent
-audit returned three P2 findings. Correction/re-audit and local commit remain
-required at this boundary; see the current evidence section below.
+values. Tests exercised the ports before production UI wiring. Independent
+re-audit closed all three initial P2 findings; 3A3 is committed at `322e778`.
 
 3B integrates the settings and connection controls with these owners and runs
 the full connection/history browser workflows. Each subchunk ends at review;
@@ -325,6 +324,14 @@ Tests first for:
 Implement the shared lazy settings presentation and per-tab runtime connection
 access. Reuse existing Host/modal ownership. Show selected destination and model,
 connection status, bounded failure copy, Disconnect/Forget, and Cancel request.
+
+3B adds one necessary candidate operation: `/api/personal/model` accepts only
+generation, candidate ID and exact model ID. Discovery happens after key entry
+is cleared, so selecting a discovered model must preserve the credential on the
+backend. This operation creates an untested candidate identity, aborts previous
+candidate work and preserves the active connection. It has no provider transport
+and cannot change destination/region/credential. Policy and preview share the
+unchanged fixed destination constants in `packages/contracts/src/tutor.ts`.
 
 Move ODE context interpretation to its Lab-owned binding using the existing
 builder and Convergence helper. Preserve existing exports only where callers
@@ -519,7 +526,7 @@ Chunk 3A3 owns browser provenance, transfer consent and client integration;
 settings and Linear Systems stay at their separate later boundaries.
 The complete offline workflow and both-Lab requirements remain in scope.
 
-### Current 3A3 evidence and gate
+### Historical 3A3 evidence and gate — committed at `322e778`
 
 Chunk 3A2 is committed at `8ada41b`. Corrected chunk 3A3 passes 18 focused files / 498
 tests and full verification with 123 files / 2,068 tests, all typechecks,
@@ -536,7 +543,34 @@ original independent HTTP probes now produce the required corrected outcomes.
 Independent re-audit returned PASS, with all three findings closed and no new
 findings (all severities zero). It passed 588 focused tests and additional
 boundaries; all 25 frozen hashes matched before/after and the implementation task
-independently rechecked them. Commit `Add Tutor connection provenance and
-guarded client`; only then start 3B. All original frozen hashes matched, and the
+independently rechecked them. The local commit gate is satisfied at `322e778`.
+All original frozen hashes matched, and the
 implementation task independently rechecked them before this verdict record.
 The preceding 3A2 pre-commit paragraph records a historical gate now satisfied.
+
+### Current 3B evidence and gate
+
+Shared settings and the production ODE panel now use the existing per-tab runtime.
+Settings remain reachable before a solve, credential fields require a compatible
+local handshake, and each explicit network action explains its destination/data.
+Pure Store state remains free of proof, credentials and controllers. Model edits
+use the candidate-only operation above; failed verification preserves active work.
+History choices are single-use, visible and explicit, including return to default.
+The Host retains the connection across close/navigation and disposes it on teardown.
+
+Full verification passes 124 files / 2,091 tests, all typechecks, boundaries and
+122-module build. Actual dev/production-preview Chrome workflows at desktop/mobile
+widths cover key clearing, Kimi choices, loaded-model discovery, synthetic tests,
+fresh/transfer/cancel, personal sending, busy errors, cancellation, disconnect and
+Home/Resume. Browser-driven fixes reveal history choices inside the settings
+scroll frame and restore composer focus after cancel. Expiry removes key entry.
+Application resources stay same-origin; a deny proxy blocks browser external
+traffic, and a fixture guard forbids external provider transport. No live key/model.
+
+Independent 3B audit returned PASS, P0/P1/P2/P3 all zero. It passed 167 focused
+tests, typechecks, boundaries, in-memory graph build and real-browser local
+connection/history/mobile/cancellation checks. All 23 frozen paths/hashes matched
+at both ends, and the implementation task independently rechecked them. No
+runtime change followed the verdict. Next gate: local commit
+`Add local AI connection settings to Tutor`. Phase 4 follows that commit.
+Overall independent audit remains mandatory before push and demo deployment.

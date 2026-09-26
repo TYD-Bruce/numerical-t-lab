@@ -1,4 +1,5 @@
 import type { LabTutorBinding, TutorSessionAccess } from "./contracts";
+import type { TutorConnection } from "../tutor/tutorConnection";
 import { clearTutorConversation, setTutorDesktopOpen } from "../tutor/moduleTutorSession";
 import type {
   MountedPlatformTutorPanel,
@@ -12,6 +13,7 @@ import {
 } from "./platformModalEnvironment";
 
 export interface TutorPanelModule {
+  createTutorConnection?(): TutorConnection;
   mountPlatformTutorPanel(
     target: HTMLElement,
     options: PlatformTutorPanelOptions
@@ -59,6 +61,7 @@ export function createPlatformTutorHost(
 ): PlatformTutorHost {
   let connection: Connection | undefined;
   let panel: MountedPlatformTutorPanel | undefined;
+  let providerConnection: TutorConnection | undefined;
   let modulePromise: Promise<TutorPanelModule> | undefined;
   let moduleRejected = false;
   let generation = 0;
@@ -279,8 +282,8 @@ export function createPlatformTutorHost(
     if (!panel) return;
     if (event.key !== "Tab" || !mobileOpen) return;
     const focusable = [...presentation?.querySelectorAll<HTMLElement>(
-      'button:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
-    ) ?? []];
+      'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [href], [tabindex]:not([tabindex="-1"])'
+    ) ?? []].filter(element => !element.closest('[hidden], [inert], fieldset[disabled]'));
     if (focusable.length === 0) return;
     const first = focusable[0]!;
     const last = focusable.at(-1)!;
@@ -293,6 +296,8 @@ export function createPlatformTutorHost(
     }
   };
   options.target.addEventListener("keydown", onKeyDown);
+  const onPageHide = (event: PageTransitionEvent) => { if (!event.persisted) providerConnection?.dispose(); };
+  window.addEventListener("pagehide", onPageHide);
 
   const host: PlatformTutorHost = {
     connect(binding, sessionAccess): void {
@@ -379,7 +384,9 @@ export function createPlatformTutorHost(
         moduleRejected = false;
         presentation?.replaceChildren();
         if (!presentation) return;
+        providerConnection ??= loaded.createTutorConnection?.();
         panel = loaded.mountPlatformTutorPanel(presentation, {
+          ...(providerConnection ? { connection: providerConnection } : {}),
           binding: activeConnection.binding,
           sessionAccess: activeConnection.sessionAccess,
           onClose: () => host.close(),
@@ -460,6 +467,8 @@ export function createPlatformTutorHost(
       if (disposed) return;
       host.disconnect();
       disposed = true;
+      providerConnection?.dispose(); providerConnection = undefined;
+      window.removeEventListener("pagehide", onPageHide);
       options.target.removeEventListener("keydown", onKeyDown);
       options.target.replaceChildren();
       if (ownsModalEnvironment) modalEnvironment.dispose();

@@ -1,6 +1,6 @@
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import type { LocalTutorSessionActivity, LocalTutorSessionCreated, LocalTutorSessionSnapshot, TutorConnectionMetadata } from "@numerical-t-lab/contracts/tutor";
-import { normalizeConnection, requireSelectedModel, TutorConnectionError, type ServerConnection } from "./localTutorPolicy.js";
+import { normalizeConnection, requireSelectedModel, validateModelId, TutorConnectionError, type ServerConnection } from "./localTutorPolicy.js";
 
 export const LOCAL_TUTOR_LIMITS = Object.freeze({
   idleMs: 30 * 60_000,
@@ -157,6 +157,18 @@ export function createLocalTutorSessions() {
       const connection = normalizeConnection(input);
       if (entry.candidate) entry.candidate.connection.credential = undefined;
       entry.candidate = { id: randomBytes(16).toString("hex"), tested: false, connection };
+      if (entry.pending && entry.pending.kind !== "chat") finish(entry, entry.pending, true);
+      touch(entry);
+      return snapshot(entry);
+    },
+    selectModel(auth: LocalTutorAuth, expected: number, id: string, model: unknown): LocalTutorSessionSnapshot {
+      const entry = authenticate(auth);
+      generation(entry, expected);
+      const old = candidate(entry, id).connection;
+      const selected = validateModelId(model, old.metadata.provider);
+      entry.candidate = { id: randomBytes(16).toString("hex"), tested: false,
+        connection: { metadata: Object.freeze({ ...old.metadata, model: selected }), credential: old.credential } };
+      old.credential = undefined;
       if (entry.pending && entry.pending.kind !== "chat") finish(entry, entry.pending, true);
       touch(entry);
       return snapshot(entry);

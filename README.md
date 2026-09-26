@@ -108,7 +108,7 @@ Start the local Tutor API in a second terminal:
 npm run dev:api
 ```
 
-Set `AI_TUTOR_MOCK=true` in `.env.local` for deterministic grounded demo replies that require no live model. For live tutoring, set a server-side `OPENAI_API_KEY`. Never give the key a `VITE_` prefix because Vite exposes such variables to browser code. The browser always calls the relative-origin endpoint `/api/chat`.
+Set `AI_TUTOR_MOCK=true` in `.env.local` for deterministic grounded default-service replies that require no live model. The default Tutor service can use a server-side `OPENAI_API_KEY`; never give a key a `VITE_` prefix because Vite exposes such variables to browser code. Default-service messages use the relative-origin `/api/chat` endpoint. Personal connections use the separate local session API described below.
 
 The local API binds to `127.0.0.1:3001` and validates Host, Origin, browser
 same-origin metadata and JSON bodies (legacy chat up to 1 MiB). Its default frontend origins
@@ -118,25 +118,43 @@ exact HTTP loopback origins with explicit ports, then restart it. Changing
 `API_PORT` also requires updating the proxy target in `frontend/vite.config.ts`.
 Direct native CLI JSON requests remain supported on `/api/chat`.
 
-Personal model connections and strict offline mode are under phased development;
-there is no browser key-entry form yet. See the [Tutor handoff](docs/tutor/HANDOFF.md).
-The backend personal API can be enabled with `T_LAB_PERSONAL_TUTOR=true`;
-it is disabled by default. Local-compatible, OpenAI, Anthropic, Gemini, DeepSeek
-and standard Kimi discovery/testing are implemented behind per-session proof.
-Kimi requires an explicit international/mainland destination. Known models requiring
+Personal connections are now wired into the ODE Tutor in the local development
+version and have passed their independent chunk review. Linear Systems integration
+and overall feature/release acceptance remain in progress.
+See the [Tutor handoff](docs/tutor/HANDOFF.md). Enable the local backend with
+`T_LAB_PERSONAL_TUTOR=true` (disabled by default), then open **AI Tutor → Connection
+settings → Enable personal connections**. The frontend and backend must run on
+the same computer. The hosted demo does not accept personal keys or endpoints.
+
+Choose a local-compatible server, OpenAI, Anthropic, Gemini, DeepSeek or standard
+Kimi. Kimi requires an explicit international/mainland destination. **Save locally**
+sends the configuration only to the local backend and clears the key input.
+**Discover models** requests provider metadata; enter or select an exact model ID
+and use **Select model locally** to change it without entering the key again.
+**Test connection** sends a synthetic prompt and may incur cloud charges. For a
+local server, the model must already be loaded; T-Lab does not manage models.
+Testing checks compatibility, not mathematical accuracy.
+
+After testing, **Use this connection** offers Start fresh, Transfer this Lab's
+conversation, or Cancel. Each actual Send shares the authorized conversation and
+eligible experiment context only with the selected destination. Requests return
+complete responses and can be cancelled. Disconnect forgets credentials and keeps
+the transcript; personal failures never automatically switch to the default service.
+Keys are held only in the local backend session, with no browser or disk saving.
+
+Known models requiring
 preserved reasoning history are unavailable in this final-text-only version;
 see the [model limitations](docs/reviews/2026-09-25-ai-tutor-connections-chunk-2c.md#model-compatibility-boundary).
-The local API also supports grounded ODE chat through an activated connection;
-the browser connection/client and per-Lab history decisions are implemented and
-tested as runtime ports. Settings and production panel wiring remain the next chunk. Configuration bodies are capped at 16 KiB; personal
+Configuration bodies are capped at 16 KiB; personal
 chat bodies at 64 KiB, with a 32 KiB full-prompt budget and no silent truncation.
 Personal connections never use environment keys.
 
 Interface and math fonts are bundled locally with notices in `/licenses/`.
 Local dev/preview enforce a browser content security policy; production HTML
-also carries a same-origin resource policy. This verifies offline asset loading,
-not complete local inference: connection UI and Lab integration are still in
-development. See [font provenance](frontend/src/assets/fonts/README.md).
+also carries a same-origin resource policy. ODE connection workflows and assets
+have been checked with external traffic blocked and an owned synthetic local
+model. Real model/provider readiness and complete both-Lab acceptance remain
+pending. See [font provenance](frontend/src/assets/fonts/README.md).
 
 ## Build, preview, and verification
 
@@ -209,6 +227,13 @@ See [`docs/INDEX.md`](docs/INDEX.md) for the current architecture, active plan,
 design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
+
+### 2026-09-25 — Local Tutor connection settings
+
+- Added local connection settings to the lazy ODE Tutor, with explicit model
+  testing, per-Lab history choices, cancellation, progress and controlled errors.
+- Model selection keeps credentials on the backend. Native Windows browser
+  verification uses synthetic loopback services; independent chunk audit passed.
 
 ### 2026-09-25 — Tutor connection provenance and client
 

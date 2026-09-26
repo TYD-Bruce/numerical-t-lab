@@ -8,6 +8,7 @@ import { createPlatformModalEnvironment } from "./platformModalEnvironment";
 import { appendTutorMessage, updateTutorDraft } from "../tutor/moduleTutorSession";
 import { createOdeTutorBinding } from "../labs/ode/odeTutorBinding";
 import { mountPlatformTutorPanel } from "../tutor/platformTutorPanel";
+import { createTutorConnection } from "../tutor/tutorConnection";
 
 function binding(moduleId: "ode" = "ode"): LabTutorBinding {
   return {
@@ -42,6 +43,26 @@ function labDom(label: string): {
 describe("Platform Tutor Host", () => {
   beforeEach(() => document.body.replaceChildren());
   afterEach(() => vi.unstubAllGlobals());
+
+  it("creates the private connection on first open, reuses it across mounts and disposes it with the Host", async () => {
+    const target = document.createElement("div"); document.body.append(target);
+    const fetcher = vi.fn<typeof fetch>();
+    const connection = createTutorConnection({ fetch: fetcher, origin: () => "https://example.invalid" });
+    const dispose = vi.spyOn(connection, "dispose");
+    const create = vi.fn(() => connection);
+    const mountedConnections: unknown[] = [];
+    const host = createPlatformTutorHost({ target, isMobile: () => false,
+      loadPanel: async () => ({ createTutorConnection: create, mountPlatformTutorPanel(_target, options) { mountedConnections.push(options.connection); return { dispose: vi.fn(), focus: vi.fn() }; } }),
+    });
+    const store = createAppSessionStore(); host.connect(binding(), store.createTutorSessionAccess("ode"));
+    expect(create).not.toHaveBeenCalled();
+    await host.open(target.querySelector<HTMLButtonElement>("[data-tutor-open]")!); host.close();
+    host.disconnect(); host.connect(binding(), store.createTutorSessionAccess("ode"));
+    await host.open(target.querySelector<HTMLButtonElement>("[data-tutor-open]")!);
+    expect(create).toHaveBeenCalledOnce(); expect(mountedConnections).toEqual([connection, connection]);
+    expect(fetcher).not.toHaveBeenCalled(); expect(dispose).not.toHaveBeenCalled();
+    host.dispose(); expect(dispose).toHaveBeenCalledOnce(); expect(connection.getState().status).toBe("disposed");
+  });
 
   it("subscribes without eagerly reading context and ignores disconnected context callbacks", async () => {
     const target = document.createElement("div");

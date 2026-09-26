@@ -5,7 +5,7 @@ import { clearTutorConversation, messagesForTutorRequest, sameTutorConnection, s
 import { readActivity, readChartInstruction, readCreated, readDiscovery, readFailure, readReply, readSession, record, TutorClientError } from "./tutorConnectionProtocol";
 
 export { TutorClientError } from "./tutorConnectionProtocol";
-type Operation = "session" | "status" | "stage" | "discard" | "test" | "discover" | "activate" | "disconnect" | "chat";
+type Operation = "session" | "status" | "stage" | "model" | "discard" | "test" | "discover" | "activate" | "disconnect" | "chat";
 type HistoryTarget = "current" | "candidate" | "hosted";
 export interface TutorHistoryReview {
   readonly labId: TutorSessionAccess["moduleId"];
@@ -244,6 +244,16 @@ export function createTutorConnection(options: { readonly fetch?: typeof fetch; 
       });
     },
     discard: discardCandidate,
+    async selectModel(model: string) {
+      const current = requireSession(); if (!current.candidate) throw new TutorClientError("connection_required");
+      reviews.clear();
+      session = Object.freeze({ ...current, candidate: Object.freeze({ ...current.candidate, tested: false }) });
+      await run("model", { generation: current.generation, candidateId: current.candidate.id, model }, data => {
+        const next = snapshot(data, current.generation);
+        if (!next.candidate || next.candidate.id === current.candidate!.id || next.candidate.tested || next.candidate.connection.model !== model) throw new TutorClientError("response_invalid");
+        session = next;
+      });
+    },
     async discover(): Promise<TutorModelDiscovery> {
       const current = requireSession(); if (!current.candidate) throw new TutorClientError("connection_required");
       return run("discover", { generation: current.generation, candidateId: current.candidate.id }, readDiscovery);

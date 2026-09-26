@@ -134,4 +134,18 @@ describe("explicitly enabled local personal session routes", () => {
     expect(lease.signal.aborted).toBe(true);
     lease.finish();
   });
+  it("allows only an owned candidate model change with no forwarding authority", async () => {
+    const tab = await newTab();
+    const staged = JSON.parse((await send("/api/personal/stage", { generation: 0, connection: { provider: "openai", model: "first", apiKey: "fixture-only" } }, tab.proofHeaders)).text);
+    const body = { generation: 0, candidateId: staged.candidate.id, model: "second" };
+    expect((await send("/api/personal/model", body)).status).toBe(403);
+    for (const extra of [{ apiKey: "unapproved" }, { baseUrl: "https://example.invalid" }, { provider: "gemini" }]) {
+      expect((await send("/api/personal/model", { ...body, ...extra }, tab.proofHeaders)).status).toBe(400);
+    }
+    const selected = await send("/api/personal/model", body, tab.proofHeaders);
+    expect(selected.status).toBe(200);
+    expect(JSON.parse(selected.text).candidate.connection).toEqual({ provider: "openai", baseUrl: "https://api.openai.com/v1", model: "second", hasCredential: true });
+    expect(selected.text).not.toContain("fixture-only");
+    expect((await send("/api/personal/model", body, tab.proofHeaders)).status).toBe(409);
+  });
 });
