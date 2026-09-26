@@ -1,12 +1,77 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-25
-Phase: **Chunk 3A2 — Validated personal chat HTTP boundary**
-Status: **Independent re-audit PASS — local commit boundary, chunk 3A3 next**
-Canonical status: the maintainer's continuing goal authorizes the complete
-feature sequence, with independent audit/fix/re-audit before each local commit.
-Runtime impact: **Opt-in local API supports bounded ODE personal chat through an activated connection**.
+Phase: **Chunk 3A3 — Browser connection runtime and history provenance**
+Status: **Independent re-audit PASS; all three initial P2 findings closed**
+Canonical status: continuing maintainer goal; audit/fix/re-audit before each commit.
+Runtime impact: reusable connection/client and pure provenance owners implemented;
+production panel/settings wiring remains 3B.
 
+## Current chunk 3A3 checkpoint
+
+- Starting clean main: `8ada41b678a79f9323c642ebf29e9385af3d8218`, the independently
+  passed 3A2 commit. Every preceding chunk remains local.
+- `tutorConnection.ts` owns tab-local proof, configuration/test/activation,
+  requests, explicit destination changes, cancellation and expiry. It is not yet
+  instantiated by production Host/panel. No import-time networking or persistence.
+- Pure sessions preserve nonsecret destination provenance. A runtime review is
+  single-use and bound to Lab, revision, source/target identity and candidate ID.
+  Default fresh, explicit transfer and cancel are exercised across both Store
+  Labs. Other-Lab transcript reuse remains blocked until its own decision.
+- Candidate cancel discards staged credentials. Failed verification preserves the
+  active selection. Uncertain activation fails closed without hosted fallback;
+  history edited during the request remains intact and needs another decision.
+- The personal sender rebuilds the envelope from current Lab context/conversation
+  and guards fetch/body/response/notification boundaries. A 3B caller must prepare
+  provenance before appending a question and retain the panel's acceptance guards.
+- Browser reply decoding is bounded and projects only public fields. Session
+  snapshots advertise the existing idle timeout; timers never extend absolute
+  expiry. Catalog/final-text constants and error codes are shared wire data.
+- Focused: 18 files / 498 tests. Full verify: 123 files / 2,068 tests, all
+  typechecks, boundaries, 118-module build. Native HTTP reaches only an owned
+  loopback synthetic model without Authorization. No new browser workflow claim.
+- See [3A3 evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3a3.md) for
+  regression corrections, limits, source owners and temporary logs.
+
+Initial Astra Extra High audit returned NEEDS_FIXES, P0 0 / P1 0 / P2 3 / P3 0.
+It independently reproduced:
+
+1. `send()` rechecks successful results after completion notifications but skips
+   that final guard on rejection. Reentrant clear/context/navigation/abort/dispose
+   still returns an obsolete provider error.
+2. The browser does not renew idle accounting for accepted provider failures,
+   so it can expire and close a live backend session at the old deadline.
+   The independent real-HTTP proof checks backend `authorize()` without refresh.
+   Include accepted test/discovery failure and cancellation paths in the repair;
+   use authoritative accepted activity, never blind renewal, polling or retry.
+3. Optional chart decoding checks only its type. Reject malformed/unknown fields
+   with the approved finite/ordered/bounded schema, preserving clean message text.
+
+All 20 frozen hashes, paths, main baseline and empty index matched at both audit
+ends, and the implementation task independently rechecked them. Corrections now
+cover both send outcomes after subscribers, authoritative activity on accepted
+failures/cancellation, and closed optional-chart fields. The backend's new activity
+observation authenticates without renewal and returns only session ID, generation
+and idle deadline. A bounded cancellation acknowledgement cannot revive an expired
+session or extend its absolute lifetime. No retry/polling was introduced.
+
+Seventeen regression cases failed before the repair; corrected coverage adds 36
+cases overall. The original independent native HTTP probes now pass their required
+outcomes: stale failures cancel, malformed charts disappear, and a controlled
+provider failure leaves the live session available with no close request.
+Independent Astra Extra High re-audit returned PASS, with P0/P1/P2/P3 all zero.
+It passed 19 files / 588 focused tests, all typechecks, boundaries, original HTTP
+probes and additional activity/chart boundaries. All 25 corrected file hashes
+matched before and after audit, and the implementation task independently checked
+them before recording this verdict. The auditor is idle; all original and re-audit
+evidence is preserved. No runtime change followed the pass.
+
+Next: commit `Add Tutor connection provenance and guarded client` locally, then 3B.
+Do not start 3B before PASS and that commit, or push/deploy before the overall audit.
+
+## Previous chunk 3A2 checkpoint — committed at `8ada41b`
+
+The following records the historical pre-commit gate, now satisfied.
 ## Current chunk 3A2 checkpoint
 
 - Starting branch `main`, clean HEAD `43f6701dd234638aa88c4c8b90e01207fedc4536`
@@ -529,8 +594,8 @@ compatibility must never be reused as personal-route authorization.
 
 ## Exact next gate
 
-**Commit the independently passed 3A2 locally, then implement and audit 3A3.**
+**Create the independently passed 3A3 local commit, then implement and audit 3B.**
 
 Provider adapters are locally implemented with documented model limitations;
-connection/history/client work is 3A3, settings 3B and Linear Systems phase 4. No per-chunk
+3A3 runtime/history work is locally verified, settings/panel wiring is 3B and Linear Systems phase 4. No per-chunk
 push or deployment. Keep the latest release record separate from this local work.

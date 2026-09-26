@@ -1,7 +1,7 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Chunks through 3A1 committed; chunk 3A2 independently passed; chunk 3A3 next**
+Status: **Chunks through 3A2 committed; corrected 3A3 independently passed**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
@@ -114,8 +114,21 @@ successful Run evidence after input edits or a failed Run, while its existing
 Convergence helper excludes stale/blocked/mismatched study evidence. This does
 not relax Linear Systems' later current-success-only contract.
 Chunk 3A2 implements cross-boundary ODE profile/context validation and a scoped
-personal chat HTTP operation. Connection provenance, one-use history decisions
-and the guarded browser client are separately audited in 3A3 before settings UI.
+personal chat HTTP operation. Chunk 3A3 implements nonsecret conversation
+provenance, runtime single-use per-Lab decisions and the guarded browser client;
+its three initial audit findings (late errors, accepted-failure idle accounting
+and optional-chart fields) are corrected, locally verified and independently passed.
+Production settings/panel wiring remains 3B.
+The tab runtime performs no import-time networking and holds proof/controllers
+outside pure state. Unknown actions cannot imply transfer. An uncertain activation
+reply fails closed; a changed transcript cannot be retroactively authorized or
+cleared after activation. Candidate cancellation discards its backend credential.
+The backend advertises the existing idle duration in snapshots and reports its
+actual activity on authenticated chat/test/discovery/cancel replies, including
+controlled failures. This observation does not itself renew the session. Matching
+activity updates browser accounting, with bounded cancellation acknowledgement;
+absolute expiry is unchanged and no polling keepalive is added. Browser replies are bounded at
+512 KiB before JSON parsing. See [3A3 evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-3a3.md).
 
 Request profiles are limited to ODE and Linear Systems in this feature.
 Validate the profile/context pairing on the backend before constructing a prompt.
@@ -162,7 +175,7 @@ Restrict paths to the documented API base and read-only discovery/inference
 operations. Chunk 1B implements this outgoing policy with a bounded transport.
 Chunk 2A exposes explicit local/OpenAI discovery and synthetic testing behind
 session proof. Chunk 3A2 adds ODE personal chat through the tested completion
-adapter. Browser provenance/history consent and settings remain subsequent work.
+adapter. Browser runtime provenance/history decisions are implemented in 3A3; settings wiring remains 3B.
 
 Cloud connections use fixed, reviewed provider/region presets over HTTPS.
 Pin a credential to its selected provider and destination. Reject redirects
@@ -242,7 +255,7 @@ Use a small backend adapter layer, not a general agent framework.
 Implementation checkpoint: 2A implements local-compatible/OpenAI, 2B adds native
 Anthropic/Gemini, and 2C adds DeepSeek/Kimi. The provider-family adapters are
 locally implemented; 3A2 connects ODE personal chat to them through the local API.
-Browser personal-chat/history consent and settings remain later integration chunks.
+Browser personal-chat/history runtime is implemented in 3A3; settings and panel integration remain 3B.
 The table describes approved protocols, not end-to-end UI or every-model readiness.
 
 | Provider family | Proposed transport |
@@ -507,11 +520,11 @@ alter another client's model state.
 
 ## 12. Review gate and public references
 
-Current gate: chunks through 2B are committed after independent audit. Chunk 2C
-(DeepSeek/Kimi) passed independent audit with no findings. After its local
-commit, chunk 3A adds connection/history state and Lab-owned context. Settings and both-Lab integration remain
-later chunks. Follow the continuing goal through each gate; do not push before
-the final independent overall audit.
+Current gate: chunks through 3A2 are committed after independent audit. Chunk
+3A3's three initial P2 issues are closed by independent re-audit (all severities
+zero); its local commit is next. Settings/panel wiring is 3B and Linear Systems Tutor is phase 4.
+Follow the continuing goal through each gate; do not push before the final
+independent overall audit.
 
 Primary API/security references consulted during discussion:
 

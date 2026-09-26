@@ -1,11 +1,11 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Chunk 3A2 independently passed; local commit boundary, then 3A3**
-Runtime scope this round: **Validated ODE personal chat HTTP boundary**
-Current chunk baseline: clean `main` at `43f6701dd234638aa88c4c8b90e01207fedc4536`
+Status: **Corrected chunk 3A3 independently passed; local commit, then 3B**
+Runtime scope this round: **Browser connection/provenance and guarded personal client**
+Current chunk baseline: clean `main` at `8ada41b678a79f9323c642ebf29e9385af3d8218`
 The maintainer explicitly resumed after a safe pause. Current evidence is in
-[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-3a2.md).
+[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-3a3.md).
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
@@ -22,7 +22,7 @@ another; preserve the separately reviewable boundaries below.
 
 | Existing owner | Verified responsibility and planned seam |
 |---|---|
-| `frontend/src/app/contracts.ts` | Generic optional Lab Tutor binding with ready/unavailable context, evidence revision and pure transcript revision; nonsecret connection provenance remains 3A3 |
+| `frontend/src/app/contracts.ts` | Generic optional Lab Tutor binding with ready/unavailable context, evidence revision and pure transcript revision; nonsecret connection provenance implemented in 3A3 |
 | `frontend/src/app/labRouteAdapter.ts` | Connects an exposed Tutor binding and live session access; already owns reset/request invalidation and disposal order |
 | `frontend/src/app/platformTutorHost.ts` | Inserts the launcher in Lab header actions, lazily mounts the panel, owns presentation and cancellation hooks |
 | `frontend/src/app/platformBootstrap.ts` | Platform Host construction; wire only lightweight connection access if needed |
@@ -293,6 +293,15 @@ own audit before being joined by settings UI:
   Keep proof and pending requests outside pure state. Exercise fresh/transfer/
   cancel and inactive-Lab transitions before the settings UI connects them.
 
+3A3 is now locally verified: `tutorConnection.ts` owns private proof and pending
+work, per-Lab review consumption and the guarded sender; `tutorConnectionProtocol.ts`
+owns bounded public response decoding. Pure sessions preserve provenance through
+draft/placement/dividers and drop it on clear. A small session DTO addition
+advertises the existing idle policy, and shared response constants retain their
+values. Tests exercise the ports before any production UI wiring. Independent
+audit returned three P2 findings. Correction/re-audit and local commit remain
+required at this boundary; see the current evidence section below.
+
 3B integrates the settings and connection controls with these owners and runs
 the full connection/history browser workflows. Each subchunk ends at review;
 3A1 also receives focused browser/lifecycle and lazy-boundary evidence.
@@ -504,8 +513,30 @@ numerical values, freshness or browser transfer consent. Independent re-audit
 returned PASS with P0/P1/P2/P3 all zero, independently repeating the focused and
 full suites, API typecheck, boundaries, original native HTTP probe and 156 further
 decoding cases. The implementation task rechecked all 21 frozen paths/hashes,
-main HEAD and empty index before verdict metadata. Current gate: local commit
-`Add validated personal Tutor chat`; no runtime change followed the audit pass.
+main HEAD and empty index before verdict metadata. Its historical gate was local
+commit `Add validated personal Tutor chat`; no runtime change followed the audit pass.
 Chunk 3A3 owns browser provenance, transfer consent and client integration;
 settings and Linear Systems stay at their separate later boundaries.
 The complete offline workflow and both-Lab requirements remain in scope.
+
+### Current 3A3 evidence and gate
+
+Chunk 3A2 is committed at `8ada41b`. Corrected chunk 3A3 passes 18 focused files / 498
+tests and full verification with 123 files / 2,068 tests, all typechecks,
+boundaries and the 118-module build. Its native HTTP test spans the real local
+API/session/adapter/transport with a synthetic loopback model and no Authorization.
+Regressions cover inactive-Lab consent, one-use/revision/destination identity,
+failed testing, uncertain activation, cancellation and reentrant notification.
+Initial independent audit returned NEEDS_FIXES (three P2; other severity counts
+zero). Corrections now guard rejected results after completion subscribers,
+synchronize idle accounting with authenticated activity without renewing it,
+and validate/project optional chart fields. Added regressions cover cancellation
+acknowledgements, absolute expiry, stale identity and bounded chart fields. The
+original independent HTTP probes now produce the required corrected outcomes.
+Independent re-audit returned PASS, with all three findings closed and no new
+findings (all severities zero). It passed 588 focused tests and additional
+boundaries; all 25 frozen hashes matched before/after and the implementation task
+independently rechecked them. Commit `Add Tutor connection provenance and
+guarded client`; only then start 3B. All original frozen hashes matched, and the
+implementation task independently rechecked them before this verdict record.
+The preceding 3A2 pre-commit paragraph records a historical gate now satisfied.

@@ -181,6 +181,18 @@ describe("local credential session ownership", () => {
     expect(() => sessions.status(auth)).toThrow(/expired/i);
   });
 
+  it("observes authenticated activity without credentials or an idle renewal", () => {
+    const auth = tab(), active = activate(auth);
+    const expected = { sessionId: auth.sessionId, generation: 1, idleExpiresAt: active.idleExpiresAt };
+    expect(sessions.activity(auth)).toEqual(expected);
+    expect(Object.isFrozen(sessions.activity(auth))).toBe(true);
+    vi.advanceTimersByTime(LOCAL_TUTOR_LIMITS.idleMs - 1);
+    expect(() => sessions.activity({ ...auth, proof: "f".repeat(64) })).toThrow();
+    expect(sessions.activity(auth)).toEqual(expected);
+    vi.advanceTimersByTime(1);
+    expect(() => sessions.activity(auth)).toThrow(/expired/i);
+  });
+
   it("does not extend idle on bad proof, invalid configuration, stale generation or busy work", () => {
     const auth = tab(); activate(auth);
     const lease = sessions.begin(auth, { kind: "chat", generation: 1, requestId: "work" });

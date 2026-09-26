@@ -74,8 +74,17 @@ export function createLocalApiServer(options: {
   const origins = approvedOrigins(options.frontendOrigins ?? DEFAULT_FRONTEND_ORIGINS);
   const chatHandler = options.chatHandler ?? handleChatRequest;
   const server = http.createServer({ requestTimeout: 30_000, headersTimeout: 10_000 }, async (req, res) => {
+    let auth: LocalTutorAuth | undefined;
+    let operation: ReturnType<typeof personalOperation>;
     const reply = (status: number, body: Record<string, unknown>): void => {
       if (res.destroyed) return;
+      // Snapshot-only operations already return their deadlines. Leased work and
+      // cancellation also acknowledge activity on controlled failures. This read
+      // neither renews activity nor returns a credential/proof or model metadata.
+      let activity;
+      if (auth && operation && ["chat", "test", "discover", "cancel"].includes(operation)) {
+        try { activity = options.personalTutor?.activity(auth); } catch { /* expired/invalid auth has no activity acknowledgement */ }
+      }
       res.writeHead(status, {
         "Content-Type": "application/json; charset=utf-8",
         "Cache-Control": "no-store",
@@ -83,13 +92,13 @@ export function createLocalApiServer(options: {
         // Finish rejected uploads without retaining an unread keep-alive body.
         ...(status >= 400 ? { Connection: "close" } : {}),
       });
-      res.end(JSON.stringify(body));
+      res.end(JSON.stringify(activity ? { ...body, activity } : body));
     };
     if (!isLocalRequest(req, origins)) {
       reply(403, { error: "Local request origin is not allowed." });
       return;
     }
-    const operation = options.personalTutor && personalOperation(req.url);
+    operation = options.personalTutor && personalOperation(req.url);
     if (req.url !== "/api/chat" && !operation) {
       reply(404, { error: "Not found" });
       return;
@@ -99,7 +108,6 @@ export function createLocalApiServer(options: {
       reply(405, { error: "Method not allowed" });
       return;
     }
-    let auth: LocalTutorAuth | undefined;
     if (operation && options.personalTutor) {
       try { auth = authorizePersonalRequest(req, operation, options.personalTutor); }
       catch (error) {

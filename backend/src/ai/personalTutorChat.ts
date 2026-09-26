@@ -1,4 +1,5 @@
 import type { ChartInstruction, ChatResponse, PersonalTutorChatRequest, TutorMessage } from "@numerical-t-lab/contracts/tutor";
+import { TUTOR_CHART_LIMITS } from "@numerical-t-lab/contracts/tutor";
 import { TutorConnectionError } from "../localTutorPolicy.js";
 import { SYSTEM_PROMPT } from "./chatHandler.js";
 import { boundedPrompt, containsReasoningMarker, PROVIDER_ADAPTER_LIMITS, type ProviderPrompt } from "./providers/providerAdapters.js";
@@ -43,18 +44,18 @@ function chartInstruction(value: unknown): ChartInstruction | undefined {
   const fields = ["type", "title", "xLabel", "yLabel", "tMin", "tMax", "includePoints", "includeLine", "tableRows"];
   if (Object.keys(value).some(key => !fields.includes(key))) return undefined;
   for (const key of ["title", "xLabel", "yLabel"]) {
-    if (value[key] !== undefined && (typeof value[key] !== "string" || Buffer.byteLength(value[key] as string) > 1024 || containsReasoningMarker(value[key] as string))) return undefined;
+    if (value[key] !== undefined && (typeof value[key] !== "string" || Buffer.byteLength(value[key] as string) > TUTOR_CHART_LIMITS.textBytes || containsReasoningMarker(value[key] as string))) return undefined;
   }
   for (const key of ["tMin", "tMax"]) if (value[key] !== undefined && (typeof value[key] !== "number" || !Number.isFinite(value[key]))) return undefined;
   for (const key of ["includePoints", "includeLine"]) if (value[key] !== undefined && typeof value[key] !== "boolean") return undefined;
   if (value.type === "zoom_range" && (typeof value.tMin !== "number" || typeof value.tMax !== "number" || value.tMin >= value.tMax)) return undefined;
   if (value.tableRows !== undefined) {
-    if (!Array.isArray(value.tableRows) || value.tableRows.length > 80) return undefined;
+    if (!Array.isArray(value.tableRows) || value.tableRows.length > TUTOR_CHART_LIMITS.rows) return undefined;
     for (const row of value.tableRows) {
-      if (!isRecord(row) || Object.keys(row).length > 16) return undefined;
+      if (!isRecord(row) || Object.keys(row).length > TUTOR_CHART_LIMITS.columns) return undefined;
       for (const [key, cell] of Object.entries(row)) {
-        if (!key || key.length > 80 || containsReasoningMarker(key) || ["__proto__", "prototype", "constructor"].includes(key) ||
-          !(typeof cell === "number" && Number.isFinite(cell) || typeof cell === "string" && Buffer.byteLength(cell) <= 1024 && !containsReasoningMarker(cell))) return undefined;
+        if (!key || key.length > TUTOR_CHART_LIMITS.keyLength || containsReasoningMarker(key) || ["__proto__", "prototype", "constructor"].includes(key) ||
+          !(typeof cell === "number" && Number.isFinite(cell) || typeof cell === "string" && Buffer.byteLength(cell) <= TUTOR_CHART_LIMITS.textBytes && !containsReasoningMarker(cell))) return undefined;
       }
     }
   }

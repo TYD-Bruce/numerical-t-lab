@@ -128,9 +128,9 @@ describe("explicitly enabled local personal session routes", () => {
     const auth = { origin, sessionId: tab.data.session.sessionId, proof: tab.data.proof };
     const staged = sessions.stage(auth, 0, { provider: "local", model: "fixture", baseUrl: "http://localhost:8080" });
     const lease = sessions.begin(auth, { generation: 0, kind: "test", candidateId: staged.candidate!.id, requestId: "owned" });
-    expect(JSON.parse((await send("/api/personal/cancel", { requestId: "other" }, tab.proofHeaders)).text)).toEqual({ cancelled: false });
+    expect(JSON.parse((await send("/api/personal/cancel", { requestId: "other" }, tab.proofHeaders)).text)).toEqual({ cancelled: false, activity: sessions.activity(auth) });
     expect(lease.signal.aborted).toBe(false);
-    expect(JSON.parse((await send("/api/personal/cancel", { requestId: "owned" }, tab.proofHeaders)).text)).toEqual({ cancelled: true });
+    expect(JSON.parse((await send("/api/personal/cancel", { requestId: "owned" }, tab.proofHeaders)).text)).toEqual({ cancelled: true, activity: sessions.activity(auth) });
     expect(lease.signal.aborted).toBe(true);
     lease.finish();
   });

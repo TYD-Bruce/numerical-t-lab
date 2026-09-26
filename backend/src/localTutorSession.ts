@@ -1,5 +1,5 @@
 import { randomBytes, timingSafeEqual } from "node:crypto";
-import type { LocalTutorSessionCreated, LocalTutorSessionSnapshot, TutorConnectionMetadata } from "@numerical-t-lab/contracts/tutor";
+import type { LocalTutorSessionActivity, LocalTutorSessionCreated, LocalTutorSessionSnapshot, TutorConnectionMetadata } from "@numerical-t-lab/contracts/tutor";
 import { normalizeConnection, requireSelectedModel, TutorConnectionError, type ServerConnection } from "./localTutorPolicy.js";
 
 export const LOCAL_TUTOR_LIMITS = Object.freeze({
@@ -119,6 +119,7 @@ export function createLocalTutorSessions() {
     return Object.freeze({
       sessionId: entry.id, generation: entry.generation,
       idleExpiresAt: entry.touchedAt + LOCAL_TUTOR_LIMITS.idleMs,
+      idleTimeoutMs: LOCAL_TUTOR_LIMITS.idleMs,
       absoluteExpiresAt: entry.createdAt + LOCAL_TUTOR_LIMITS.absoluteMs,
       ...(entry.active ? { active: entry.active.metadata } : {}),
       ...(entry.candidate ? { candidate: Object.freeze({ id: entry.candidate.id, tested: entry.candidate.tested, connection: entry.candidate.connection.metadata }) } : {}),
@@ -140,6 +141,11 @@ export function createLocalTutorSessions() {
     },
     /** Authenticate before accepting a body; does not extend the idle deadline. */
     authorize(auth: LocalTutorAuth): void { authenticate(auth); },
+    /** Report accepted activity without turning an observation into keepalive. */
+    activity(auth: LocalTutorAuth): LocalTutorSessionActivity {
+      const value = snapshot(authenticate(auth));
+      return Object.freeze({ sessionId: value.sessionId, generation: value.generation, idleExpiresAt: value.idleExpiresAt });
+    },
     status(auth: LocalTutorAuth): LocalTutorSessionSnapshot {
       const entry = authenticate(auth);
       touch(entry);

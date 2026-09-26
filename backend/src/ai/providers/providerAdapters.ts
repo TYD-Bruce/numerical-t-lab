@@ -1,10 +1,11 @@
 import type { TutorMessage, TutorModelCandidate, TutorModelDiscovery, TutorProvider } from "@numerical-t-lab/contracts/tutor";
+import { TUTOR_FINAL_TEXT_BYTES } from "@numerical-t-lab/contracts/tutor";
 import type { LocalTutorLease } from "../../localTutorSession.js";
 import { PROVIDER_MODEL_LIMIT, requireSelectedModel, TutorConnectionError, validateModelId } from "../../localTutorPolicy.js";
 import { requestProvider } from "./providerTransport.js";
 
 export const SUPPORTED_TUTOR_PROVIDERS: readonly TutorProvider[] = Object.freeze(["local", "openai", "anthropic", "gemini", "deepseek", "kimi"]);
-export const PROVIDER_ADAPTER_LIMITS = Object.freeze({ models: PROVIDER_MODEL_LIMIT, messages: 40, inputBytes: 32 * 1024, outputBytes: 32 * 1024 });
+export const PROVIDER_ADAPTER_LIMITS = Object.freeze({ models: PROVIDER_MODEL_LIMIT, messages: 40, inputBytes: 32 * 1024, outputBytes: TUTOR_FINAL_TEXT_BYTES });
 // The documented always-preserved models need historical reasoning, which this
 // final-text-only Tutor deliberately does not retain. Other IDs still need an
 // explicit connection test; this is not an exhaustive model capability registry.

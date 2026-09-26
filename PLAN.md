@@ -2,65 +2,52 @@
 
 ## Current status
 
-**Active milestone: AI Tutor Connections v1 — chunk 3A2 independently passed; chunk 3A3 next.**
-The maintainer explicitly resumed the continuing implementation goal.
-Chunks 1A, 1B and 1C are committed locally at `2e20a3a`, `b9fad94` and
-`f36cfc1` after independent audit. Chunks 2A and 2B are committed at `74a0773`
-and `fd14abc` after independent review; 2C is committed at `2e6f331`.
-Chunk 3A1 is committed at `43f6701` after independent audit. Chunk 3A2 started
-from that clean local main. Its checkpoint is in
-[the feature handoff](docs/tutor/HANDOFF.md#current-chunk-3a2-checkpoint).
-The maintainer has selected local-only personal connections, native
-Windows, strict offline local inference, session-only keys, explicit cloud
-providers/regions, and Tutor interfaces for both ODE and Linear Systems.
+**Active milestone: AI Tutor Connections v1 — chunk 3A3 independently passed; local commit, then 3B.**
+The maintainer's continuing goal authorizes the complete implementation sequence.
+Chunks 1A/1B/1C, 2A/2B/2C and 3A1/3A2 passed their independent gates and are
+committed locally. Chunk 3A2 is `8ada41b`; this chunk starts from clean local
+main `8ada41b678a79f9323c642ebf29e9385af3d8218`.
 
-The [design](docs/superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md)
-and [repository-grounded implementation plan](docs/superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md)
-incorporate the supplied review after independent verification. The maintainer
-authorized the continuing implementation sequence with independent audit before
-every chunk commit. The
-[feature handoff](docs/tutor/HANDOFF.md) records all agreed choices, source
-findings, scope, and continuation rules. The
-[current review/evidence record](docs/reviews/2026-09-25-ai-tutor-connections-chunk-3a2.md)
-distinguishes current fixes from future acceptance requirements.
+Authority: [design](docs/superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md),
+[implementation plan](docs/superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md).
+Continuation: [feature handoff](docs/tutor/HANDOFF.md#current-chunk-3a3-checkpoint).
+Evidence: [chunk 3A3 review](docs/reviews/2026-09-25-ai-tutor-connections-chunk-3a3.md).
 
-**Next gate: local commit of independently passed 3A2, then implement and audit 3A3.**
-The opt-in personal API now accepts bounded ODE chat only through an activated
-connection and its session proof. Closed context/history schemas, the full
-prompt budget and complete-response validation run before evidence is accepted;
-no history or numerical evidence is silently truncated. Cancellation, replacement,
-expiry and socket closure reject late output. Valid optional charts are projected
-separately from inert final text. The hosted legacy handler remains separate.
-Focused checks pass 15 files / 597 tests. Full verification, synthetic provider
-contracts and native loopback HTTP evidence are recorded in the review.
-The first audit confirmed one P2 at the model JSON decoding boundary. The existing
-reasoning-marker check now also covers decoded message/chart strings and keys;
-11 failing regressions and the original independent HTTP probe now pass.
-Independent re-audit returned PASS with P0/P1/P2/P3 all zero, including 156
-additional decoding cases. The implementation task rechecked all 21 frozen
-paths/hashes, starting HEAD and empty index before recording the verdict.
-No runtime change followed the pass.
-The original 3A2 scope is split at the backend/browser boundary: connection and
-history provenance, one-use per-Lab transfer decisions and the guarded browser
-client are 3A3. Settings UI remains 3B; Linear Systems Tutor remains phase 4.
-Personal browser sending is not enabled at this gate. Provider evidence is
-synthetic; no live readiness is claimed. The existing 3A1 browser evidence
-remains historical, with no new browser-workflow claim for this backend chunk.
-The maintainer authorizes one coherent local commit after
-each chunk passes independent audit and any corrections are rechecked. Do not
-push individual chunks. After all chunks, an independent overall audit must
-pass before pushing and updating the Vercel demo; inspect exact remote and
-deployment targets at that release gate. Live provider calls and model
-management remain unauthorized. Numerical behavior remains
-unchanged. Motion, Glossary-to-Tutor handoff, PDE, LAN, and WSL remain deferred.
+The browser runtime now owns per-tab session proof, personal configuration,
+activation, cancellation and expiry. Pure conversations carry only nonsecret
+connection provenance. One-use fresh/transfer/cancel choices are bound to each
+Lab's transcript revision and source/destination identities; inactive-Lab history
+cannot transfer implicitly. The guarded client reads fresh Lab context and rejects
+outdated replies, including completion-subscriber changes. No retry or hosted
+fallback follows a personal failure. Settings and panel/Host wiring remain 3B;
+the production UI continues to use the legacy client at this boundary.
 
-The previous release milestone below is historical planning context. Its
-Production recovery is recorded as complete in
-[the latest project handoff](docs/PROJECT_HANDOFF.md); this local work does
-not change that release evidence or production state.
+Focused checks pass 18 files / 498 tests; full verification passes 123 files /
+2,068 tests, all typechecks, boundaries and build. Actual loopback HTTP covers
+the runtime through API, session, adapter and synthetic model server with no
+Authorization header. No live model/key or new real-browser UI claim is made.
 
-Milestone and next-gate statements below are retained as historical records;
-only the Current status section above governs this task's continuation.
+The initial independent audit returned NEEDS_FIXES, with three P2 findings:
+stale errors after completion subscribers, premature browser idle expiry after
+accepted provider failures, and insufficient optional-chart field validation.
+The auditor independently repeated focused checks and reproduced these through
+owned loopback HTTP. All 20 frozen hashes and the baseline matched before/after;
+the implementation task also rechecked them. Bounded corrections now guard both
+send outcomes after subscribers, reconcile authenticated activity without renewing
+it, and project the complete optional-chart schema. Added regressions and the
+unchanged independent HTTP probes pass. Independent re-audit returned PASS, with
+P0/P1/P2/P3 all zero and all three findings closed. It passed 588 focused tests
+and additional boundary probes. All 25 frozen hashes matched before/after audit
+and were independently rechecked by the implementation task.
+
+**Next gate: commit passed 3A3 locally, then implement and independently audit 3B.**
+Suggested commit: `Add Tutor connection provenance and guarded client`.
+Do not begin 3B before that commit gate. Linear Systems Tutor remains phase 4.
+After all chunks, the independent overall audit must pass before push and Vercel
+demo update. No per-chunk push, remote contact, live provider call, model management,
+dependency install or numerical change. Native Windows, local-only personal
+connections, session-only keys, strict offline local mode and explicit cloud/region
+choices remain the approved scope. The released-state record below is historical.
 
 ## Previous milestone — Production release closeout
 

@@ -1,5 +1,6 @@
 import { BlockList, isIP } from "node:net";
 import type { TutorConnectionErrorCode, TutorConnectionMetadata, TutorProvider, TutorRegion } from "@numerical-t-lab/contracts/tutor";
+import { TUTOR_MODEL_DISCOVERY_LIMIT } from "@numerical-t-lab/contracts/tutor";
 
 const ERRORS: Record<TutorConnectionErrorCode, readonly [number, string]> = {
   invalid_configuration: [400, "Invalid connection configuration."],
@@ -106,7 +107,7 @@ export function normalizeConnection(input: unknown): ServerConnection {
 }
 
 export type ProviderOperation = "discover" | "readiness" | "complete";
-export const PROVIDER_MODEL_LIMIT = 256;
+export const PROVIDER_MODEL_LIMIT = TUTOR_MODEL_DISCOVERY_LIMIT;
 
 export function requireSelectedModel(connection: TutorConnectionMetadata): string {
   if (connection.model === undefined) throw new TutorConnectionError("model_required");

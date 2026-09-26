@@ -82,7 +82,8 @@ describe("grounded personal chat HTTP integration", () => {
     vi.stubEnv("OPENAI_API_KEY", "unused-environment-key"); vi.stubEnv("AI_TUTOR_MOCK", "true");
     const response = await send("/api/personal/chat", own.request, own.headers);
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ profile: "ode", generation: 1, requestId: "chat-1", response: { message: "Synthetic approximation explanation" } });
+    expect(response.body).toEqual({ profile: "ode", generation: 1, requestId: "chat-1", response: { message: "Synthetic approximation explanation" },
+      activity: sessions.activity({ origin, sessionId: own.headers["X-T-Lab-Session"], proof: own.headers["X-T-Lab-Proof"] }) });
     expect(response.headers["cache-control"]).toBe("no-store");
     const completions = provider.mock.calls.filter(([, op]) => op === "complete");
     expect(completions).toHaveLength(1);
@@ -97,7 +98,9 @@ describe("grounded personal chat HTTP integration", () => {
     expect((await send("/api/personal/chat", staged.request, staged.headers)).body.code).toBe("connection_required");
     const own = await tab();
     for (const headers of [{}, { ...own.headers, "X-T-Lab-Proof": "0".repeat(64) }, { ...own.headers, "Sec-Fetch-Site": "cross-site" }]) {
-      expect((await send("/api/personal/chat", own.request, headers)).status).toBe(403);
+      const rejected = await send("/api/personal/chat", own.request, headers);
+      expect(rejected.status).toBe(403);
+      expect(rejected.body.activity).toBeUndefined();
     }
     expect((await send("/api/personal/chat", { ...own.request, generation: 0 }, own.headers)).body.code).toBe("connection_changed");
     expect(provider).not.toHaveBeenCalled();

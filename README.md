@@ -127,8 +127,8 @@ Kimi requires an explicit international/mainland destination. Known models requi
 preserved reasoning history are unavailable in this final-text-only version;
 see the [model limitations](docs/reviews/2026-09-25-ai-tutor-connections-chunk-2c.md#model-compatibility-boundary).
 The local API also supports grounded ODE chat through an activated connection;
-the browser personal-chat client, history-transfer consent and settings UI remain
-later integration chunks. Configuration bodies are capped at 16 KiB; personal
+the browser connection/client and per-Lab history decisions are implemented and
+tested as runtime ports. Settings and production panel wiring remain the next chunk. Configuration bodies are capped at 16 KiB; personal
 chat bodies at 64 KiB, with a 32 KiB full-prompt budget and no silent truncation.
 Personal connections never use environment keys.
 
@@ -209,6 +209,13 @@ See [`docs/INDEX.md`](docs/INDEX.md) for the current architecture, active plan,
 design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
+
+### 2026-09-25 — Tutor connection provenance and client
+
+- Added a tab-owned personal connection runtime and guarded chat client, with
+  one-use history choices for each Lab, cancellation and session expiry.
+- Settings and production panel wiring remain next; verification uses synthetic
+  providers and actual loopback HTTP, without real API keys or cloud inference.
 
 ### 2026-09-25 — Validated personal Tutor chat API
 

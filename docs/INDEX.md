@@ -25,20 +25,16 @@
 
 ## Current active milestone
 
-**AI Tutor Connections v1 — chunk 3A2 independently passed; chunk 3A3 next.**
-Chunks 1A, 1B and 1C passed independent audit and are committed locally at
-`2e20a3a`, `b9fad94` and `f36cfc1`; 2A/2B are committed at `74a0773`/`fd14abc`
-after independent review; 2C is committed at `2e6f331` and 3A1 at `43f6701`
-after clean audits. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-3a2-checkpoint).
-Chunk 3A2 adds the opt-in ODE personal chat HTTP operation with a closed context
-schema, full-prompt limits, complete text/chart normalization and request leases.
-Focused checks pass 15 files / 597 tests; full and native loopback evidence is
-in its review. Provider evidence remains synthetic. Browser history consent and
-personal sending remain unimplemented; this API work does not imply that consent.
-The initial audit's P2 JSON decoding gap has a bounded correction and failing-then-
-passing regressions. Independent re-audit passed with all severity counts zero;
-the implementation task rechecked all 21 frozen paths/hashes before recording it.
-Chunk 1C retains the browser evidence and minimal beforeunload automation limitation.
+**AI Tutor Connections v1 — chunk 3A3 independently passed; local commit, then 3B.**
+Chunks through 3A2 are committed locally after independent audit; 3A2 is
+`8ada41b`. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-3a3-checkpoint).
+The browser runtime now provides private session proof, connection transitions,
+pure conversation provenance, one-use per-Lab choices and guarded personal sends.
+Production panel/settings wiring remains 3B. Focused tests pass 18 files / 498
+tests; full verification passes 123 files / 2,068 tests, typechecks, boundaries
+and build. Native HTTP evidence uses only an owned loopback synthetic model.
+No real provider/key or new real-browser workflow verification is claimed.
+Chunk 1C's existing browser evidence and beforeunload automation limitation remain.
 The complete feature scope includes personal connections
 only with local frontend/backend, native Windows, strict offline local models,
 session-only credentials, all requested cloud providers with explicit Kimi
@@ -55,11 +51,16 @@ regions, and Tutor interfaces for both ODE and Linear Systems.
 - [Chunk 2C evidence](reviews/2026-09-25-ai-tutor-connections-chunk-2c.md)
 - [Chunk 3A1 evidence](reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md)
 - [Chunk 3A2 evidence](reviews/2026-09-25-ai-tutor-connections-chunk-3a2.md)
+- [Chunk 3A3 evidence](reviews/2026-09-25-ai-tutor-connections-chunk-3a3.md)
 
-Next gate: commit the independently passed 3A2 locally, then implement and audit 3A3.
+Initial 3A3 audit found three P2 issues in late errors, accepted-failure idle
+accounting and optional-chart validation; its review preserves the reproductions.
+The corrections and added regressions pass, including the original HTTP probes.
+Independent re-audit returned PASS, all severities zero, with 588 focused tests
+and 25/25 frozen hashes verified. Next gate: its local commit, then 3B.
 The explicitly enabled local personal API supports all six provider families
 for discovery, synthetic testing and ODE chat, subject to documented model limitations.
-Browser connection/history consent and client integration are 3A3, settings UI is 3B, and Linear Systems
+Browser runtime and history decisions are implemented in 3A3; settings/panel wiring is 3B, and Linear Systems
 Tutor is phase 4. Each chunk requires audit/fix/re-audit before its local commit. No chunk
 is pushed individually; all chunks and the final independent overall audit
 must pass before push and Vercel demo update. Live provider calls remain separate.
@@ -438,7 +439,7 @@ maintainer acceptance of the F2 review commit.
 ## Feature handoffs
 
 - [AI Tutor Connections v1 handoff](tutor/HANDOFF.md) — agreed decisions,
-  reviewed design/plan, committed chunks through 3A1, current 3A2 evidence, remaining
+  reviewed design/plan, committed chunks through 3A2, current 3A3 evidence, remaining
   scope, and the exact independent audit gate.
 - [Project handoff](PROJECT_HANDOFF.md) — implemented Platform Shell and current
   release baseline.

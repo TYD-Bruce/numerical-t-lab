@@ -6,6 +6,7 @@ import {
   createEmptyModuleTutorSession,
   messagesForTutorRequest,
   setTutorDesktopOpen,
+  setTutorConversationConnection,
   updateTutorDraft,
 } from "./moduleTutorSession";
 
@@ -55,5 +56,18 @@ describe("Module Tutor session values", () => {
       { role: "user", content: "Old question" },
       { role: "assistant", content: "New answer" },
     ]);
+  });
+
+  it("keeps only copied connection provenance through draft/divider changes and drops it on clear", () => {
+    const connection = { kind: "personal" as const, sessionId: "nonsecret-session", generation: 1 };
+    const owned = setTutorConversationConnection(appendTutorMessage(createEmptyModuleTutorSession(), "user", "History"), connection);
+    connection.generation = 2;
+    expect(owned.connection?.generation).toBe(1);
+    expect(Object.isFrozen(owned.connection)).toBe(true);
+    const changed = appendNewExperimentDivider(updateTutorDraft(setTutorDesktopOpen(owned, true), "Draft"), { id: "next", body: "New experiment" });
+    expect(changed.connection).toBe(owned.connection);
+    expect(changed.revision).toBe(owned.revision + 1);
+    expect(clearTutorConversation(changed).connection).toBeUndefined();
+    expect(messagesForTutorRequest(changed)).toEqual([{ role: "user", content: "History" }]);
   });
 });

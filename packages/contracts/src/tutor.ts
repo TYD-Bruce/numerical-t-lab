@@ -96,6 +96,10 @@ export interface OdeLabContext {
 
 /** Existing Lab projection budgets, shared with personal API validation. */
 export const ODE_TUTOR_SERIES_LIMITS = Object.freeze({ preview: 20, full: 80 });
+/** Shared response budgets; the browser never silently truncates these payloads. */
+export const TUTOR_MODEL_DISCOVERY_LIMIT = 256;
+export const TUTOR_FINAL_TEXT_BYTES = 32 * 1024;
+export const TUTOR_CHART_LIMITS = Object.freeze({ textBytes: 1024, rows: 80, columns: 16, keyLength: 80 });
 
 export interface ChartInstruction {
   type: "line_chart" | "error_table" | "zoom_range" | "none";
@@ -161,9 +165,18 @@ export interface LocalTutorSessionSnapshot {
   readonly sessionId: string;
   readonly generation: number;
   readonly idleExpiresAt: number;
+  /** Advertised session policy; browser activity must not extend absolute expiry. */
+  readonly idleTimeoutMs: number;
   readonly absoluteExpiresAt: number;
   readonly active?: TutorConnectionMetadata;
   readonly candidate?: { readonly id: string; readonly tested: boolean; readonly connection: TutorConnectionMetadata };
+}
+
+/** Authenticated activity observation; reading it never renews the session. */
+export interface LocalTutorSessionActivity {
+  readonly sessionId: string;
+  readonly generation: number;
+  readonly idleExpiresAt: number;
 }
 
 export interface LocalTutorSessionCreated {
@@ -190,13 +203,15 @@ export interface TutorModelDiscovery {
   readonly hasMore: boolean;
 }
 
-export type TutorConnectionErrorCode =
-  | "invalid_configuration" | "invalid_endpoint" | "credential_required" | "model_required"
-  | "invalid_session" | "session_expired" | "session_limit"
-  | "connection_changed" | "connection_unverified" | "connection_required"
-  | "request_busy" | "request_cancelled" | "provider_unavailable"
-  | "redirect_rejected" | "response_too_large" | "response_invalid"
-  | "timeout" | "provider_auth" | "provider_busy"
-  | "provider_unsupported" | "discovery_unsupported" | "model_unavailable" | "model_unsupported"
-  | "response_refused" | "response_incomplete" | "input_too_large"
-  | "invalid_chat_request" | "invalid_context" | "profile_unsupported";
+export const TUTOR_CONNECTION_ERROR_CODES = [
+  "invalid_configuration", "invalid_endpoint", "credential_required", "model_required",
+  "invalid_session", "session_expired", "session_limit",
+  "connection_changed", "connection_unverified", "connection_required",
+  "request_busy", "request_cancelled", "provider_unavailable",
+  "redirect_rejected", "response_too_large", "response_invalid",
+  "timeout", "provider_auth", "provider_busy",
+  "provider_unsupported", "discovery_unsupported", "model_unavailable", "model_unsupported",
+  "response_refused", "response_incomplete", "input_too_large",
+  "invalid_chat_request", "invalid_context", "profile_unsupported",
+] as const;
+export type TutorConnectionErrorCode = typeof TUTOR_CONNECTION_ERROR_CODES[number];

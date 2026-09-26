@@ -57,12 +57,20 @@ export type TutorTranscriptItem =
       readonly body: string;
     };
 
+/** Nonsecret conversation destination; never a credential or session proof. */
+export interface TutorConversationConnection {
+  readonly kind: "hosted" | "personal";
+  readonly sessionId: string;
+  readonly generation: number;
+}
+
 export interface ModuleTutorSession {
   readonly items: readonly TutorTranscriptItem[];
   /** Changes with transcript content, independently of draft and placement. */
   readonly revision: number;
   readonly draftMessage: string;
   readonly desktopOpen: boolean;
+  readonly connection?: TutorConversationConnection;
 }
 
 export interface TutorSessionAccess {

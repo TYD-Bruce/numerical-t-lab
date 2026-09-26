@@ -90,10 +90,36 @@ Store callbacks. The panel keeps its composer/transcript while unavailable and
 disables sending with Lab-owned explanatory text. `tutorPresentation.ts` owns
 shared sanitization/chart-discriminator helpers; `aiTutor.ts` retains compatibility
 reexports. The shared panel no longer imports ODE source or numerical runtime.
-The existing client permits only the ODE profile on legacy `/api/chat`; personal
-chat client, connection/history provenance and settings remain later chunks;
-the backend profile boundary is described below. See
-[chunk 3A1 evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md).
+The existing panel still uses the ODE-only legacy `/api/chat` client. Chunk 3A3
+adds `tutorConnection.ts`, an explicitly constructed per-tab owner for personal
+bootstrap/configuration/verification, private proof, cancellation and expiry.
+`tutorConnectionProtocol.ts` bounds/decodes same-origin JSON and retains only
+public response fields. Their production panel/settings wiring remains 3B; they
+are not eagerly imported by Home, platform bootstrap or Lab routes.
+
+Pure `ModuleTutorSession.connection` holds destination kind, session ID and
+generation, never proof or credentials. A provenance change advances transcript
+revision; draft/placement/dividers preserve it and clear drops it. Runtime history
+reviews bind Lab/revision/source/destination plus candidate identity and are
+consumed once. Inactive-Lab history remains blocked across connection changes.
+The personal client reads Lab-owned context and checks identity after fetch,
+stream reads and completion subscribers. Request controllers and proof never
+enter the Store. Backend snapshots advertise the existing idle timeout; the local
+HTTP envelope also reports authenticated activity for chat/test/discovery/cancel,
+including controlled failures. Reading this session ID/generation/idle deadline
+does not renew it or disclose credentials. The client reconciles matching activity
+and bounds cancellation acknowledgement at 1.5 seconds; absolute expiry always
+wins. Provider and
+client response budgets/error-code data are shared contracts with unchanged limits.
+Initial independent 3A3 audit found gaps in rejected-result notification guards,
+idle reconciliation after accepted provider failures and optional-chart field
+validation. Those corrections and regressions are now locally verified, including
+the original HTTP probes, and passed independent re-audit with no open findings.
+Both send outcomes recheck identity after notifications. Optional charts project
+only finite/ordered numeric fields, booleans and bounded labels/table cells;
+invalid optional charts are dropped without losing valid message text.
+See [3A1 evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md) and
+[3A3 evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3a3.md).
 
 ### Numerical domain
 
