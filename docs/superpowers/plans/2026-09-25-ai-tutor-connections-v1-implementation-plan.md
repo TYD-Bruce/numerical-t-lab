@@ -1,11 +1,11 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Chunk 3B independently passed; local commit, then phase 4**
-Runtime scope this round: **Lazy settings, Host ownership and personal ODE panel wiring**
-Current chunk baseline: clean `main` at `322e7786fba7cfd4ecf2ee44027bd9004ba55e24`
+Status: **Chunk 4A independently passed; local commit, then 4B**
+Runtime scope this round: **Linear context, validation and personal chat profile**
+Current chunk baseline: clean `main` at `37df723d0f6ca16429c2e6c73036688185400e76`
 The maintainer explicitly resumed after a safe pause. Current evidence is in
-[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-3b.md).
+[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-4a.md).
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
@@ -38,9 +38,11 @@ another; preserve the separately reviewable boundaries below.
 | `frontend/src/labs/linear-algebra/linearSystemsApp.ts` | Lab header, session updates, solve/reset UI, disposal; currently no Tutor binding |
 | `frontend/src/labs/linear-algebra/linearSystemsRoute.ts` | Must expose the new Lab-owned binding through the existing optional port |
 | `packages/numerics/src/linear-algebra/linearSystemsNumerics.ts` | Existing result/trace types and producer; inspect and consume, do not modify algorithms or trace authority |
-| `packages/contracts/src/tutor.ts` | ODE DTO, shared 20/80-point projection budgets, personal session/connection and ODE chat request/reply DTOs; Linear Systems profile remains phase 4 |
-| `backend/src/ai/personalTutorChat.ts` | Closed chat envelope/history, server-owned ODE prompt construction, full-prompt budget and safe final text/chart normalization |
-| `backend/src/ai/tutorContextValidation.ts` | Closed bounded ODE wire schema; validates finite evidence without running numerical algorithms or attesting freshness |
+| `packages/contracts/src/tutor.ts` | ODE and Linear DTOs, bounded projection constants, personal session/connection and discriminated chat request/reply DTOs |
+| `frontend/src/labs/linear-algebra/linearSystemsTutorContext.ts` | Current-success Linear projection; exact preset reference and selected stored-trace fields, no numerical replay; binding remains 4B |
+| `backend/src/ai/personalTutorChat.ts` | Closed chat envelope/history, server-owned ODE/Linear prompt selection, full-prompt budget and profile-specific final response normalization |
+| `backend/src/ai/tutorContextValidation.ts` | Closed bounded ODE/Linear wire schemas; finite evidence and complete Linear trace shape without numerical execution or freshness attestation |
+| `backend/src/ai/linearTutor.ts` | Linear prompt and pure deterministic demo generator; default-service dispatch remains 4B |
 | `backend/src/ai/chatHandler.ts` | Validation, ODE prompt/mock, fixed OpenAI invocation, parsing; separate profile and provider responsibilities narrowly |
 | `backend/src/dev.ts` | Local API process, environment loading, loopback startup and explicit personal-session enablement/shutdown |
 | `api/chat.ts` | Hosted adapter; do not expose personal configuration/session routes |
@@ -347,6 +349,31 @@ Suggested commit boundary: `Add local AI connection settings to Tutor`.
 
 ## 6. Phase 4 — Linear Systems Tutor
 
+Repository inspection splits this phase into independently audited commits:
+
+- **4A — Grounding and personal profile:** Lab-owned current-success projection,
+  closed Linear DTO/validation, bounded selected fields from every stored trace
+  step, Linear server prompt and pure deterministic demo generator. Admit the
+  profile at the authenticated local endpoint and browser capability boundary;
+  discard all Linear chart actions on both sides. No binding/launcher yet.
+- **4B — Lab and default-service integration:** expose the binding, context/reset
+  subscriptions and launcher through the existing route/Host ports. Wire the
+  default `/api/chat` Linear prompt/demo with a validated profile and preserve
+  its emitted Vercel package boundary. Integrate successful Solve, failed Solve,
+  draft edits, reset choices and disposal, then perform both-Lab browser checks.
+
+The 4A trace DTO keeps all stored step kinds in order and selected original
+fields, with a 50-record wire ceiling for dimensions 2–6. Core A/b, xHat, P/L/U,
+pivots, permutation, residuals, threshold and qualified reference remain intact.
+It explicitly omits matrix-scale terms, pivot candidates, repeated full matrices,
+swapped matrix rows, substitution contributions, residual products and reference
+components. Elimination keeps its three stored rows and multiplier; substitution
+keeps its authoritative numerator, diagonal and result, with the optional sum
+only when recorded. No new numerical value is calculated. The API validates the
+complete stage order, index/dimension bounds and declared omissions; it cannot
+attest the supplied arithmetic or Lab freshness. The unchanged whole-prompt
+32 KiB/40-message budget fails explicitly, without dropping evidence/history.
+
 Write tests against the actual session/result owners before adding the binding.
 
 - Allow only current successful fingerprint-matching context.
@@ -548,7 +575,9 @@ All original frozen hashes matched, and the
 implementation task independently rechecked them before this verdict record.
 The preceding 3A2 pre-commit paragraph records a historical gate now satisfied.
 
-### Current 3B evidence and gate
+### Previous 3B evidence and gate — committed at `37df723`
+
+The following records the historical pre-commit gate, now satisfied.
 
 Shared settings and the production ODE panel now use the existing per-tab runtime.
 Settings remain reachable before a solve, credential fields require a compatible

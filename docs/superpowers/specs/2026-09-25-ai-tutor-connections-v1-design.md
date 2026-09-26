@@ -1,7 +1,7 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Chunks through 3A3 committed; 3B independently passed, local commit next**
+Status: **Chunks through 3B committed; 4A independently passed, local commit next**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
@@ -382,6 +382,16 @@ explanations. Do not rerun elimination, reconstruct missing steps, or describe a
 omitted trace as complete. Context budget failures must be explicit and must not
 silently replace authoritative evidence with model-generated summaries.
 
+The 4A implementation projects selected fields from every stored Linear step,
+preserving its kind and order (at most 50 records, dimensions 2–6). A closed
+`omittedDetails` declaration identifies matrix-scale terms, pivot candidates,
+full intermediate matrices, swapped matrix rows, substitution contributions,
+residual products and reference components as unavailable in Tutor context.
+Elimination rows/multipliers and substitution numerators/diagonals/results remain
+stored evidence; an absent optional accumulated sum stays absent. The core result
+and qualified reference are not reduced. This is a selected-field projection,
+not the complete computation trace and not a new numerical authority.
+
 Exclude stale, absent, failed, partial, and fingerprint-mismatched results.
 A failed operation preserves the previous successful output and conversation;
 it does not make that output current for changed inputs.
@@ -535,8 +545,9 @@ alter another client's model state.
 
 Current gate: chunks through 3A3 are committed after independent audit. Chunk
 3B settings/ODE panel integration passed independent audit with all severities
-zero; its local commit is next. Linear Systems Tutor
-remains phase 4.
+zero and is committed locally at `37df723`. Phase 4A implements Linear grounding,
+the validated personal chat profile and a pure demo generator. The default-service
+dispatch, Lab binding/interface and lifecycle/browser integration remain 4B.
 Follow the continuing goal through each gate; do not push before the final
 independent overall audit.
 

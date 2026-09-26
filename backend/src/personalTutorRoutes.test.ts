@@ -5,6 +5,7 @@ import { createLocalApiServer } from "./localApiServer.js";
 import { createLocalTutorSessions, LOCAL_TUTOR_LIMITS, type LocalTutorLease } from "./localTutorSession.js";
 import { TutorConnectionError } from "./localTutorPolicy.js";
 import * as transport from "./ai/providers/providerTransport.js";
+import { linearTutorFixture } from "./ai/linearTutor.test-fixture.js";
 
 const origin = "http://127.0.0.1:5173";
 const context = {
@@ -73,6 +74,24 @@ afterEach(async () => {
 });
 
 describe("grounded personal chat HTTP integration", () => {
+  it.each(["local", "openai", "anthropic", "gemini", "deepseek", "kimi"])("accepts Linear context through the active %s adapter and suppresses actions", async selected => {
+    const own = await tab({ provider: selected, model: "fixture", ...(selected === "local" ? { baseUrl: "http://127.0.0.1:8099" } : { apiKey: "synthetic-linear-key" }), ...(selected === "kimi" ? { region: "international" } : {}) });
+    provider.mockImplementation(async (lease, operation) => operation === "complete"
+      ? final(lease, JSON.stringify({ message: "Stored Linear evidence only.", chartInstruction: { type: "line_chart" }, solve: true }))
+      : { data: [{ id: "fixture", status: { value: "loaded" } }] });
+    const input = { ...own.request, profile: "linear_algebra", context: linearTutorFixture() };
+    const response = await send("/api/personal/chat", input, own.headers);
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({ profile: "linear_algebra", generation: 1, requestId: "chat-1", response: { message: "Stored Linear evidence only." } });
+    expect(response.body.response).toEqual({ message: "Stored Linear evidence only." });
+    expect(provider.mock.calls.filter(([, operation]) => operation === "complete")).toHaveLength(1);
+    expect(JSON.stringify(provider.mock.calls[provider.mock.calls.length - 1][2])).toContain("Linear Systems Lab");
+    expect(legacy).not.toHaveBeenCalled();
+    provider.mockClear();
+    expect((await send("/api/personal/chat", { ...input, context: { ...input.context, tools: [] } }, own.headers)).body.code).toBe("invalid_context");
+    expect(provider).not.toHaveBeenCalled();
+  });
+
   it.each(["local", "openai", "anthropic", "gemini", "deepseek", "kimi-international", "kimi-mainland"])("uses only the active %s adapter and echoes request identity", async destination => {
     const selected = destination.startsWith("kimi") ? "kimi" : destination;
     const connection = { provider: selected, model: "fixture", apiKey: "explicit-fixture-key",

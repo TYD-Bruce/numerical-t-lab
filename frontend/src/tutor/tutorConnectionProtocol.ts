@@ -72,7 +72,7 @@ export function readCreated(value: unknown): LocalTutorSessionCreated {
   const data = record(value), session = readSession(data.session), capability = record(data.capabilities);
   if (session.active || session.candidate || session.generation !== 0 || typeof data.proof !== "string" || !/^[a-f0-9]{64}$/.test(data.proof) ||
     capability.protocol !== 1 || capability.providerOperations !== true || !Array.isArray(capability.providers) || !capability.providers.length ||
-    !Array.isArray(capability.chatProfiles) || capability.chatProfiles.some(profile => profile !== "ode")) throw new TutorClientError("response_invalid");
+    !Array.isArray(capability.chatProfiles) || capability.chatProfiles.some(profile => profile !== "ode" && profile !== "linear_algebra")) throw new TutorClientError("response_invalid");
   return { session, proof: data.proof, capabilities: Object.freeze({ protocol: 1, providerOperations: true,
     providers: Object.freeze(capability.providers.map(provider)), chatProfiles: Object.freeze([...capability.chatProfiles]) }) };
 }

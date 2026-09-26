@@ -7,6 +7,7 @@ import { createLocalTutorSessions } from "../../../backend/src/localTutorSession
 import { handlePersonalRequest, personalOperation } from "../../../backend/src/localTutorRoutes";
 import { TutorConnectionError } from "../../../backend/src/localTutorPolicy";
 import * as transport from "../../../backend/src/ai/providers/providerTransport";
+import { linearTutorFixture } from "../../../backend/src/ai/linearTutor.test-fixture";
 
 const origin = "http://127.0.0.1:5173";
 const config = { provider: "local" as const, baseUrl: "http://127.0.0.1:8099", model: "fixture" };
@@ -78,6 +79,39 @@ beforeEach(() => {
 afterEach(() => { for (const value of clients) value.dispose(); backend.dispose(); vi.restoreAllMocks(); vi.useRealTimers(); });
 
 describe("browser personal connection and per-Lab history", () => {
+  it("sends only authorized Linear history and discards chart fields even if the local reply contains them", async () => {
+    const store = createAppSessionStore(), access = store.createTutorSessionAccess("linear_algebra"), ode = store.createTutorSessionAccess("ode");
+    append(ode, "Other Lab history must stay local");
+    const value = client(async (input, options) => {
+      const response = await fixtureFetch(input, options);
+      if (!String(input).endsWith("/chat")) return response;
+      const body = await response.json();
+      return Response.json({ ...body, response: { ...body.response, chartInstruction: { type: "line_chart" } } });
+    });
+    await candidate(value);
+    await value.decideHistory(access, value.reviewHistory(access, "candidate"), "fresh");
+    append(access, "Explain my Linear result");
+    const linear: LabTutorBinding = { ...binding, moduleId: "linear_algebra", promptProfile: "linear_algebra", getContext: () => ({ status: "ready", revision: 1, context: linearTutorFixture() }) };
+    await expect(value.send(linear, access, new AbortController().signal)).resolves.toEqual({ message: "A complete explanation." });
+    const body = String(requests.find(request => request.path.endsWith("/chat"))!.options.body);
+    expect(JSON.parse(body)).toMatchObject({ profile: "linear_algebra", messages: [{ role: "user", content: "Explain my Linear result" }], context: linearTutorFixture() });
+    expect(body).not.toContain("Other Lab history");
+    expect(ode.getSession().items).toHaveLength(1);
+  });
+
+  it("does not send Linear requests to an older ODE-only backend", async () => {
+    const value = client(async (input, options) => {
+      const response = await fixtureFetch(input, options);
+      if (!String(input).endsWith("/session")) return response;
+      const body = await response.json();
+      return Response.json({ ...body, capabilities: { ...body.capabilities, chatProfiles: ["ode"] } });
+    });
+    const access = createAppSessionStore().createTutorSessionAccess("linear_algebra");
+    await candidate(value); await value.decideHistory(access, value.reviewHistory(access, "candidate"), "fresh"); append(access);
+    await expect(value.send({ ...binding, moduleId: "linear_algebra", promptProfile: "linear_algebra" }, access, new AbortController().signal)).rejects.toMatchObject({ code: "profile_unsupported" });
+    expect(requests.some(request => request.path.endsWith("/chat"))).toBe(false);
+  });
+
   it("changes only the staged model and invalidates its previous history review without sending a key", async () => {
     const access = createAppSessionStore().createTutorSessionAccess("ode"), value = client();
     await candidate(value);

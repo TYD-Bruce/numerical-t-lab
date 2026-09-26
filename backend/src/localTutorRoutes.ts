@@ -36,7 +36,7 @@ export async function handlePersonalRequest(operation: PersonalOperation, auth: 
   switch (operation) {
     case "session":
       fields(body, []);
-      return { status: 201, body: { ...sessions.create(auth.origin), capabilities: { protocol: 1, providerOperations: true, providers: SUPPORTED_TUTOR_PROVIDERS, chatProfiles: ["ode"] } } };
+      return { status: 201, body: { ...sessions.create(auth.origin), capabilities: { protocol: 1, providerOperations: true, providers: SUPPORTED_TUTOR_PROVIDERS, chatProfiles: ["ode", "linear_algebra"] } } };
     case "status":
       fields(body, []);
       return { status: 200, body: { ...sessions.status(auth) } };
@@ -46,7 +46,7 @@ export async function handlePersonalRequest(operation: PersonalOperation, auth: 
       try {
         const text = await completeWithProvider(lease, prompt);
         lease.assertCurrent();
-        return { status: 200, body: { profile, generation, requestId, response: normalizePersonalTutorResponse(text) } satisfies PersonalTutorChatResponse };
+        return { status: 200, body: { profile, generation, requestId, response: normalizePersonalTutorResponse(text, profile) } satisfies PersonalTutorChatResponse };
       } catch (error) {
         // A late provider error cannot become the result of a replaced/cancelled request.
         lease.assertCurrent();

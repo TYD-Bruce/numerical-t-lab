@@ -5,6 +5,10 @@ const session = { sessionId: "a".repeat(32), generation: 0, idleExpiresAt: Date.
 const capabilities = { protocol: 1, providerOperations: true, providers: ["local"], chatProfiles: ["ode"] };
 const created = { session, capabilities, proof: "b".repeat(64) };
 describe("bounded browser protocol decoding", () => {
+  it("accepts implemented Linear capability while retaining ODE-only backend compatibility", () => {
+    expect(readCreated(created).capabilities.chatProfiles).toEqual(["ode"]);
+    expect(readCreated({ ...created, capabilities: { ...capabilities, chatProfiles: ["ode", "linear_algebra"] } }).capabilities.chatProfiles).toEqual(["ode", "linear_algebra"]);
+  });
   it("projects only the nonsecret activity fields and accepts its absence", () => {
     const activity = { sessionId: session.sessionId, generation: 0, idleExpiresAt: session.idleExpiresAt };
     expect(readActivity({ activity: { ...activity, apiKey: "synthetic-ignored", proof: "synthetic-ignored" } })).toEqual(activity);

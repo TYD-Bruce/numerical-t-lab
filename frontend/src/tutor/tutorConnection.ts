@@ -324,7 +324,7 @@ export function createTutorConnection(options: { readonly fetch?: typeof fetch; 
     async send(binding: LabTutorBinding, access: TutorSessionAccess, signal: AbortSignal, isCurrent = () => true): Promise<ChatResponse> {
       const current = requireSession(), identity = readyIdentity(), transcript = access.getSession(), context = binding.getContext();
       if (identity.kind !== "personal" || !current.active) throw new TutorClientError("connection_required");
-      if (binding.moduleId !== access.moduleId || binding.promptProfile !== access.moduleId || !capabilities?.chatProfiles.includes(binding.promptProfile as "ode")) throw new TutorClientError("profile_unsupported");
+      if (binding.moduleId !== access.moduleId || binding.promptProfile !== access.moduleId || !capabilities?.chatProfiles.some(profile => profile === binding.promptProfile)) throw new TutorClientError("profile_unsupported");
       if (context.status !== "ready") throw new TutorClientError("invalid_context");
       if (!sameTutorConnection(transcript.connection, identity)) throw new TutorClientError("history_required");
       const scope = () => {
@@ -336,7 +336,7 @@ export function createTutorConnection(options: { readonly fetch?: typeof fetch; 
         return await run("chat", { profile: binding.promptProfile, generation: current.generation, messages: messagesForTutorRequest(transcript), context: context.context }, data => {
           const value = record(data), response = record(value.response);
           if (value.profile !== binding.promptProfile || value.generation !== current.generation || typeof response.message !== "string" || !response.message.trim() || new TextEncoder().encode(response.message).length > TUTOR_FINAL_TEXT_BYTES) throw new TutorClientError("response_invalid");
-          const chart = readChartInstruction(response.chartInstruction);
+          const chart = binding.promptProfile === "ode" ? readChartInstruction(response.chartInstruction) : undefined;
           return { message: response.message, ...(chart ? { chartInstruction: chart } : {}) };
         }, scope, signal);
       } finally {

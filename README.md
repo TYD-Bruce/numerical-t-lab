@@ -228,6 +228,14 @@ design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
 
+### 2026-09-25 — Linear Tutor grounding foundation
+
+- Added current-result Linear context and a validated personal-chat profile,
+  with explicit trace-detail limits and explanatory-only replies.
+- Verification uses synthetic data and local HTTP; independent re-audit passed.
+  The Linear Lab interface and
+  default-service/demo wiring remain the next independently reviewed chunk.
+
 ### 2026-09-25 — Local Tutor connection settings
 
 - Added local connection settings to the lazy ODE Tutor, with explicit model

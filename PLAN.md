@@ -2,43 +2,41 @@
 
 ## Current status
 
-**Active milestone: AI Tutor Connections v1 — chunk 3B independently passed; local commit, then phase 4.**
+**Active milestone: AI Tutor Connections v1 — chunk 4A independently passed; local commit, then 4B.**
 The maintainer's continuing goal authorizes the complete implementation sequence.
 All preceding chunks passed independent review and are committed locally.
-Chunk 3B starts from clean main `322e7786fba7cfd4ecf2ee44027bd9004ba55e24`,
-the passed 3A3 connection runtime and provenance commit.
+Chunk 4A starts from clean main `37df723d0f6ca16429c2e6c73036688185400e76`,
+the independently passed and committed 3B settings integration.
 
 Authority: [design](docs/superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md),
 [implementation plan](docs/superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md).
-Continuation: [feature handoff](docs/tutor/HANDOFF.md#current-chunk-3b-checkpoint).
-Evidence: [chunk 3B review](docs/reviews/2026-09-25-ai-tutor-connections-chunk-3b.md).
+Continuation: [feature handoff](docs/tutor/HANDOFF.md#current-chunk-4a-checkpoint).
+Evidence: [chunk 4A review](docs/reviews/2026-09-25-ai-tutor-connections-chunk-4a.md).
 
-The lazy Tutor now offers connection settings before an ODE solve. A compatible
-local capability handshake is required before key entry. Save, Discover, Test,
-Use, Disconnect and explicit per-Lab history choices connect the existing runtime
-to the panel. The Host retains one runtime through close/navigation and disposes
-it at tab shutdown. Complete personal replies use the guarded sender, with
-cancellation and bounded error/progress states; no automatic hosted fallback.
-The candidate-only model operation preserves its credential on the backend,
-invalidates testing and never performs provider networking. Provider destinations
-are shared unchanged constants used by policy and the settings preview.
+4A implements a Lab-owned projection of current successful Linear evidence,
+a closed bounded wire schema and the `linear_algebra` personal-chat profile.
+All stored step kinds/order and selected fields are retained; omitted detail is
+explicit. Matrix/result arrays reuse immutable source data. No solve, trace
+reconstruction, inferred condition number or executable model action is added.
+Both server and personal browser client discard Linear chart instructions.
 
-Full verification passes 124 files / 2,091 tests, all typechecks, boundaries and
-the 122-module build. Native Windows Chrome covers dev and production preview,
-desktop/mobile, keyboard, Light/Dark, history choices, failure, cancellation,
-disconnect and Home/Resume using owned loopback fixtures. Home loads only the
-entry script; application resources stay same-origin with external traffic
-blocked. No real model/key, cloud inference or deployment was exercised.
+The Linear server prompt and deterministic demo generator are implemented.
+The demo generator is not yet wired to `/api/chat`; that default-service route
+remains ODE-only. The Linear Lab binding, launcher, lifecycle/reset integration
+and both-Lab browser acceptance belong to 4B. This chunk does not claim a usable
+Linear Tutor interface. Existing ODE settings and default service remain intact.
 
-Independent Astra Extra High audit returned PASS, with P0/P1/P2/P3 all zero.
-It independently passed 167 focused tests, typechecks, boundaries, an in-memory
-build/graph and browser local/model/history/mobile/cancellation workflows.
-All 23 frozen paths/hashes matched before/after audit and were independently
-rechecked by the implementation task. No runtime change followed the pass.
+Full verification passes 126 files / 2,154 tests, typechecks, import boundaries
+and the 122-module build. Graph inspection preserves the lazy boundaries.
+Independent Astra Extra High review passed 339 focused tests and supplemental
+producer/boundary probes. Its only initial finding was a P3 stale architecture
+description, now corrected and independently re-audited. Final P0/P1/P2/P3 are
+all zero. The parent rechecked all 24 frozen hashes and the exact main/index state.
+Only synthetic fixtures and owned loopback HTTP are permitted;
+no real key, environment-file read or external model request is needed.
 
-**Next gate: commit passed 3B locally, then implement and audit Linear Systems Tutor.**
-Suggested commit: `Add local AI connection settings to Tutor`.
-Do not begin phase 4 before that commit gate. Linear Systems Tutor remains phase 4.
+**Next gate: commit passed 4A locally before starting 4B.**
+Suggested commit: `Add Linear Systems Tutor grounding and personal profile`.
 After all chunks, the independent overall audit must pass before push and Vercel
 demo update. No per-chunk push, remote contact, live provider call, model management,
 dependency install or numerical change. Native Windows, local-only personal

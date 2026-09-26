@@ -1,12 +1,52 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-25
-Phase: **Chunk 3B — Connection settings and ODE panel integration**
-Status: **Independent audit PASS; P0/P1/P2/P3 all zero**
+Phase: **Chunk 4A — Linear grounding and personal profile**
+Status: **Independent re-audit PASS; P0/P1/P2/P3 all zero**
 Canonical status: continuing maintainer goal; audit/fix/re-audit before each commit.
-Runtime impact: shared lazy settings, tab-owned connection and personal ODE sends.
+Runtime impact: Linear context projection, validated personal chat and text-only replies.
 
-## Current chunk 3B checkpoint
+## Current chunk 4A checkpoint
+
+- Starting clean main: `37df723d0f6ca16429c2e6c73036688185400e76`, the independently
+  passed 3B commit. All preceding feature commits remain local.
+- Phase 4 is split at its grounding/API and UI/lifecycle boundaries. 4A adds
+  `linearSystemsTutorContext.ts`, the closed Linear DTO/validator, server prompt,
+  pure demo generator and personal profile. 4B connects the Lab binding, default
+  service/demo dispatch, reset and route lifecycle, then verifies both Lab UIs.
+- Context requires a current complete success with matching fingerprints. It
+  reuses frozen original A/b, xHat, P/L/U, pivots, permutation and diagnostics.
+  Only an exact matching preset supplies the qualified reference comparison.
+- The trace retains every stored step kind/order and selected fields, capped at
+  50 records for dimensions 2–6. Explicit omissions cover repeated matrices,
+  pivot candidates and detailed terms/contributions; no numerical replay.
+- The local API advertises `linear_algebra` alongside `ode`. Both server and
+  browser remove Linear chart instructions. Context validation precedes leases
+  and provider access; existing connection, consent and request guards apply.
+- The default `/api/chat` and `tutorClient.ts` remain ODE-only in this chunk.
+  The demo generator is tested but unwired; no Linear launcher/interface yet.
+- Evidence: [4A review](../reviews/2026-09-25-ai-tutor-connections-chunk-4a.md).
+- Full verify passes 126 files / 2,154 tests, all typechecks, boundaries and
+  the 122-module build. Rollup graph checks preserve Home and Tutor isolation.
+
+Initial independent audit found no runtime issue and one P3 documentation
+inconsistency: the backend architecture section still described the personal
+endpoint as ODE-only. That section now names both profiles, limits chart
+acceptance to ODE and identifies exactly the remaining 4B work. Runtime/test
+hashes remain unchanged. Bounded re-audit returned PASS and closed the P3 finding,
+with P0/P1/P2/P3 all zero. Independent verification includes 339 focused tests,
+all typechecks and 32 additional actual-producer probes. The parent checked
+the report, probe source and all 24 frozen paths/hashes before verdict-only
+documentation updates. No runtime change followed the audit.
+
+Next: create the passed local commit
+`Add Linear Systems Tutor grounding and personal profile`. Do not begin 4B before
+that gate. No real API keys, cloud/model calls, model management, installs,
+Git remote contact, push or deployment. The overall audit remains required.
+
+## Previous chunk 3B checkpoint — committed at `37df723`
+
+The following records the historical pre-commit gate, now satisfied.
 
 - Starting clean main: `322e7786fba7cfd4ecf2ee44027bd9004ba55e24`, the independently
   passed 3A3 commit. All preceding commits remain local.

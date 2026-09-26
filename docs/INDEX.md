@@ -25,15 +25,16 @@
 
 ## Current active milestone
 
-**AI Tutor Connections v1 — chunk 3B independently passed; local commit, then phase 4.**
-Chunks through 3A3 are committed locally after independent audit; 3A3 is
-`322e778`. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-3b-checkpoint).
-The lazy panel now connects settings and per-Lab history choices to the tab-owned
-runtime and guarded ODE sender. Model selection preserves backend-only credentials
-and requires a new test. Full verify passes 124 files / 2,091 tests, typechecks,
-boundaries and build. Dev/production-preview desktop/mobile Chrome workflows
-use owned synthetic loopback fixtures with external traffic blocked.
-No real provider/key, cloud inference or production deployment is claimed.
+**AI Tutor Connections v1 — chunk 4A independently passed; local commit, then 4B.**
+Chunks through 3B are committed locally after independent audit; 3B is
+`37df723`. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-4a-checkpoint).
+4A adds current-success Linear context, a bounded stored-trace projection, closed
+validation, the personal chat profile and explanatory-only response acceptance.
+The Linear prompt and pure demo generator exist; the Lab interface and default
+service/demo dispatch remain 4B. Full verify passes 126 files / 2,154 tests,
+typechecks, boundaries and build. Independent re-audit passed with no open
+findings after correcting one P3 architecture-description inconsistency.
+Evidence uses synthetic fixtures; no real key, cloud inference or deployment.
 The complete feature scope includes personal connections
 only with local frontend/backend, native Windows, strict offline local models,
 session-only credentials, all requested cloud providers with explicit Kimi
@@ -52,16 +53,15 @@ regions, and Tutor interfaces for both ODE and Linear Systems.
 - [Chunk 3A2 evidence](reviews/2026-09-25-ai-tutor-connections-chunk-3a2.md)
 - [Chunk 3A3 evidence](reviews/2026-09-25-ai-tutor-connections-chunk-3a3.md)
 - [Chunk 3B evidence](reviews/2026-09-25-ai-tutor-connections-chunk-3b.md)
+- [Chunk 4A evidence](reviews/2026-09-25-ai-tutor-connections-chunk-4a.md)
 
-The 3A3 re-audit closed all initial findings before its local commit. Independent
-3B audit returned PASS, all severities zero, with 167 focused tests, typechecks,
-boundaries, emitted-graph build and independent browser workflows. All 23 frozen
-hashes matched before/after audit and the implementation task rechecked them.
-Next gate: local 3B commit, then Linear Systems Tutor.
+The 3A3 and 3B audit gates are satisfied and committed. The 4A audit/re-audit
+is PASS, with 339 independent focused tests and all severities zero. Next gate:
+its local commit before 4B integration.
 The explicitly enabled local personal API supports all six provider families
-for discovery, synthetic testing and ODE chat, subject to documented model limitations.
-Settings/panel wiring is implemented in 3B; Linear Systems
-Tutor is phase 4. Each chunk requires audit/fix/re-audit before its local commit. No chunk
+for discovery, synthetic testing and ODE/Linear personal chat, subject to documented
+model limitations. Settings/ODE wiring is implemented in 3B; Linear UI remains 4B.
+Each chunk requires audit/fix/re-audit before its local commit. No chunk
 is pushed individually; all chunks and the final independent overall audit
 must pass before push and Vercel demo update. Live provider calls remain separate.
 Current released-state evidence remains in [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md).

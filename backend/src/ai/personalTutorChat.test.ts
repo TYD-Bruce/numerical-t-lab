@@ -51,8 +51,11 @@ describe("personal Tutor request and ODE context boundary", () => {
     expect(prepared.prompt.messages[0].content).toBe("First question");
   });
 
-  it.each([undefined, "linear_algebra", "pde", "__proto__"])("rejects unsupported profile %s", profile => {
+  it.each([undefined, "pde", "__proto__"])("rejects unsupported profile %s", profile => {
     expect(() => preparePersonalChat({ ...request(), profile })).toThrowError(expect.objectContaining({ code: "profile_unsupported" }));
+  });
+  it("does not reuse ODE evidence for the implemented Linear profile", () => {
+    expect(() => preparePersonalChat({ ...request(), profile: "linear_algebra" })).toThrowError(expect.objectContaining({ code: "invalid_context" }));
   });
   it.each(["apiKey", "model", "baseUrl", "provider", "instructions", "tools", "candidateId"])("rejects client-supplied %s authority", field => {
     expect(() => preparePersonalChat({ ...request(), [field]: "not allowed" })).toThrowError(expect.objectContaining({ code: "invalid_chat_request" }));

@@ -145,6 +145,21 @@ See [3A1 evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3a1.md) and
 [3A3 evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3a3.md), plus
 [3B integration evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-3b.md).
 
+Chunk 4A adds the Lab-owned `linearSystemsTutorContext.ts` projection. It accepts
+current successful fingerprint-matching evidence, reuses immutable core arrays,
+qualifies preset reference data and selects stored trace fields without running
+numerics. All step kinds/order are preserved and omitted detail is explicit.
+The shared contract caps dimensions at 2–6 and selected records at 50; the local
+validator checks closed shapes, finite values and complete stage order. It does
+not attest arithmetic or freshness. The personal endpoint now advertises both
+`ode` and `linear_algebra`; it chooses the server-owned prompt, keeps the existing
+whole-prompt budget, and returns explanatory content only for Linear. The browser
+also discards Linear chart instructions. `linearTutor.ts` contains the prompt and
+a tested pure demo generator. The generator and Lab projection have no production
+UI caller yet. Linear binding/launcher and default `/api/chat` dispatch remain
+the planned 4B integration; the existing default service stays ODE-only.
+See [4A evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-4a.md).
+
 ### Numerical domain
 
 `packages/numerics` is DOM-free and exposes deliberate subpaths rather than an
@@ -198,27 +213,33 @@ Native discovery requests
 one page capped at 256 models, sharing `PROVIDER_MODEL_LIMIT` with validation;
 `TutorModelDiscovery` exposes projected models and `hasMore`, never raw cursors.
 The personal API exposes exact `/discover`, `/test` and `/chat` operations with leases;
-bootstrap reports all six provider families and only the implemented ODE chat profile. Successful testing marks
+bootstrap reports all six provider families and the implemented `ode` and
+`linear_algebra` chat profiles. Successful testing marks
 the current candidate for explicit activation; failure preserves the active
 connection. HTTP caller closure cancels the lease and outgoing request.
 Local inference first reads model metadata and uses policy-owned `autoload=false`
 on the completion URL. Metadata is server-reported, not lifecycle attestation.
-`ai/personalTutorChat.ts` accepts a closed request with ODE profile, generation,
+`ai/personalTutorChat.ts` accepts a closed request with ODE or Linear profile, generation,
 request ID, user/assistant history and context. `tutorContextValidation.ts`
-checks its bounded finite DTO without numerical execution. ODE projection and
-validation share the existing 20-preview/80-full-point budgets. The immutable
-server-owned ODE prompt is reused from the legacy handler without invoking its
-environment/provider path. Fresh context is attached to the latest user message;
+checks the selected profile's bounded finite DTO without numerical execution.
+ODE projection and validation share the existing 20-preview/80-full-point budgets;
+Linear uses the complete core result and selected-field trace described above.
+The server selects the ODE prompt from the legacy handler or the Linear prompt
+from `linearTutor.ts`, without invoking the legacy environment/provider path.
+Fresh context is attached to the latest user message;
 the full normalized prompt, including server instructions, is capped at 32 KiB
 and 40 messages. No evidence or history is silently removed. Complete final text
-is inert presentation data; valid optional chart fields are accepted separately.
-Unknown or malformed chart instructions are dropped without losing usable text.
+is inert presentation data; valid optional chart fields are accepted only for ODE.
+Unknown/malformed ODE charts and all Linear chart instructions are dropped
+without losing usable text.
 The same final-text reasoning-marker predicate runs before and after model JSON
 decoding, including accepted chart strings/keys. Invalid required text fails;
 invalid optional charts are dropped intact, without removing segments from an answer.
 Session leases reject output/errors after cancellation, replacement or expiry.
 Personal ODE chat is wired through the browser runtime, explicit history consent
-and settings. Linear Systems remains a later profile/integration chunk. Schema validation cannot
+and settings. The Linear personal profile is implemented; its Lab binding,
+default-service/demo dispatch and UI/lifecycle integration remain 4B. The default
+`/api/chat` route is still ODE-only. Schema validation cannot
 attest numerical correctness, freshness or a browser consent decision. See
 the [Tutor design](../superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md).
 
