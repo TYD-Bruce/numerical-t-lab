@@ -1,7 +1,7 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Overall independent audit PASS; release preflight pending**
+Status: **Implemented; overall audit PASS; Production interfaces verified**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
@@ -544,7 +544,7 @@ alter another client's model state.
 
 ## 12. Review gate and public references
 
-The [current handoff](../../tutor/HANDOFF.md#current-overall-audit-checkpoint)
+The [current handoff](../../tutor/HANDOFF.md)
 owns the exact continuation gate. The [overall review](../../reviews/2026-09-26-ai-tutor-connections-overall-review.md)
 records independent findings and closure; the [5B acceptance matrix](../../reviews/2026-09-26-ai-tutor-connections-chunk-5b.md)
 and [Windows guide](../../tutor/LOCAL_CONNECTIONS.md) retain local evidence and

@@ -1,14 +1,15 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Overall independent audit PASS; release preflight pending**
-Runtime scope this round: **None; two documentation repairs and audit record**
-Current baseline: clean `main` at `641b2861a1d991f3d180638178b56d3676c5c559`
+Status: **Executed; overall and closeout PASS; Production verified**
+Runtime scope this round: **None; release documentation only**
+Released source: `ea9860fb8e078c76c1d5c0d05a2ebbe8e776b8fd`
 All 14 implementation/acceptance chunks are independently reviewed and committed.
 The separate overall audit found no runtime defect. Its two P3 documentation
 issues and one follow-up status inconsistency are independently closed; final
-severity is P0/P1/P2/P3 = 0. The correction commit and release preflight follow.
-Current evidence is in [the overall review](../../reviews/2026-09-26-ai-tutor-connections-overall-review.md).
+severity is P0/P1/P2/P3 = 0. The correction commit, push and deployed checks are
+complete. Current evidence is in [the release record](../../reviews/2026-09-26-ai-tutor-connections-release.md),
+supported by [the overall review](../../reviews/2026-09-26-ai-tutor-connections-overall-review.md).
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
@@ -518,18 +519,19 @@ No current documentation or local test changes production status.
 
 ## 9. Current evidence and next gate
 
-The [current handoff](../../tutor/HANDOFF.md#current-overall-audit-checkpoint)
-owns the exact next gate; the [overall review](../../reviews/2026-09-26-ai-tutor-connections-overall-review.md)
-records its independent findings, corrections and closure. All 14 feature chunks
-are committed through `641b286`. The overall runtime audit is complete; its
-documentation correction state is recorded in those current owners.
+The [current handoff](../../tutor/HANDOFF.md) owns the exact next gate;
+the [overall review](../../reviews/2026-09-26-ai-tutor-connections-overall-review.md)
+records independent findings and closure, and the [release record](../../reviews/2026-09-26-ai-tutor-connections-release.md)
+records deployed evidence. All 14 feature chunks are committed through `641b286`;
+the overall correction and deployed source are `ea9860f`. Independent documentation
+closeout review has passed; no implementation or release gate remains.
 
 The [5B acceptance matrix](../../reviews/2026-09-26-ai-tutor-connections-chunk-5b.md)
 and Windows guide completed local acceptance without runtime edits. Full
 verification on that unchanged runtime is 130 files / 2,211 tests, all typechecks,
 boundaries and the 124-module build. Browser/build evidence uses only synthetic
-local models. Overall PASS and the correction commit must precede release;
-deployed verification remains a separate requirement.
+local models. Overall PASS and the correction commit preceded release; the
+separate deployed verification is recorded above, without live inference claims.
 
 ### Historical evidence through 3A2
 

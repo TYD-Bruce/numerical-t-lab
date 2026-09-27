@@ -1,12 +1,43 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-26
-Phase: **Overall feature audit complete — release preflight next**
-Status: **Overall independent PASS; P0/P1/P2/P3 = 0**
+Phase: **Production release complete**
+Status: **Overall and closeout independent PASS; P0/P1/P2/P3 = 0**
 Canonical status: continuing maintainer goal; audit/fix/re-audit before each commit.
 Runtime impact: none; documentation only.
 
-## Current overall audit checkpoint
+## Current release checkpoint
+
+- Overall independent PASS has no unresolved P0/P1/P2/P3 finding. The approved
+  correction was committed at `ea9860fb8e078c76c1d5c0d05a2ebbe8e776b8fd`.
+- Public main and the private deployment main were pushed normally after live
+  identity, clean-state, ancestry and dry-run checks. Private sync `3c6370a` has
+  the exact public tree and its own prior private main as its sole parent.
+- Vercel deployment `dpl_8E6LfZGZQ3xD79SgXrYrrouCkdZk` is READY and owns
+  `https://numerical-t-lab.vercel.app/`; source private SHA is verified.
+- [Release evidence](../reviews/2026-09-26-ai-tutor-connections-release.md)
+  records 12 canonical HTTP checks, 21 emitted assets with correct types, matching
+  JavaScript bytes, seven captured native browser states, both Lab solves/Tutor
+  interfaces, hosted key exclusion and empty browser/CSP/runtime-error observations.
+- No valid hosted inference, real key, private configuration read or real model
+  access occurred. Personal local operation and provider contracts retain the
+  accepted local/mock evidence and live-untested limitation.
+- The owned release browser is closed. Runtime and configuration are unchanged
+  after overall audit; this final diff is documentation only.
+
+Independent closeout re-audit passed after two documentation provenance fixes;
+the parent inspected the final report and rechecked all eight frozen hashes.
+The authorized final documentation commit is
+`Record AI Tutor production release verification`, pushed to public main without
+a repeated application deployment. No implementation/release gate remains.
+Future live-model checks need a separate bounded instruction. Earlier checkpoints
+below retain point-in-time evidence and gates.
+
+<a id="current-overall-audit-checkpoint"></a>
+
+## Previous overall audit checkpoint — committed at `ea9860f`
+
+The following records the historical pre-release gate, now satisfied.
 
 - Clean starting main: `641b2861a1d991f3d180638178b56d3676c5c559`, the 5B commit.
   The overall review covers 14 commits and 125 paths after `5bfcf734`.

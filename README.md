@@ -16,17 +16,19 @@ The canonical Production URL is `https://numerical-t-lab.vercel.app/`.
 
 ## Local routes and module status
 
-This table describes the locally verified current repository. The new Tutor
-Connections work has not been pushed or deployed, so the live demo remains on
-the prior accepted release until a separate deployment gate is completed.
+This table describes the current repository and deployed Labs. AI Tutor
+Connections v1 passed its independent overall audit and deployed interface/API
+checks. Personal server/key connections require local T-Lab; the hosted demo
+does not accept personal keys. See the [release record](docs/reviews/2026-09-26-ai-tutor-connections-release.md)
+for exact evidence and the live-provider testing boundary.
 
 | Route | Page | Status |
 |---|---|---|
 | `/` | Platform Home | Available |
 | `/ode` | Numerical ODE overview | Available |
 | `/ode/initial-value-problems` | Initial Value Problems Lab | Available |
-| `/linear-algebra` | Numerical Linear Algebra overview | Available locally |
-| `/linear-algebra/linear-systems` | Linear Systems Lab | Available locally |
+| `/linear-algebra` | Numerical Linear Algebra overview | Available |
+| `/linear-algebra/linear-systems` | Linear Systems Lab | Available |
 | `/pde` | Numerical PDE roadmap | Planned |
 | `/about` | Platform and project overview | Available |
 
@@ -230,6 +232,14 @@ See [`docs/INDEX.md`](docs/INDEX.md) for the current architecture, active plan,
 design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
+
+### 2026-09-26 — AI Tutor Connections v1 released
+
+- Completed the independent overall audit and deployed both Lab Tutor interfaces,
+  local connection support and bundled fonts. Hosted personal-key entry remains
+  unavailable. See the [Windows guide](docs/tutor/LOCAL_CONNECTIONS.md) and
+  [release evidence](docs/reviews/2026-09-26-ai-tutor-connections-release.md);
+  real model/provider inference remains untested.
 
 ### 2026-09-26 — Tutor connection acceptance and Windows guide
 

@@ -25,9 +25,10 @@
 
 ## Current active milestone
 
-**AI Tutor Connections v1 — overall audit PASS; release preflight next.**
-All 14 feature chunks are committed locally after independent review, through
-`641b286` (5B). See the [current checkpoint](tutor/HANDOFF.md#current-overall-audit-checkpoint)
+**AI Tutor Connections v1 — Production verified; independent closeout PASS.**
+All 14 feature chunks and the overall correction are committed and pushed.
+Public release `ea9860f` is deployed through exact-tree private sync `3c6370a`.
+See the [current checkpoint](tutor/HANDOFF.md)
 and [Windows/local connections guide](tutor/LOCAL_CONNECTIONS.md).
 5B consolidates the acceptance matrix, local setup, provider readiness and remaining
 release gates. Fresh cold-cache ODE/editor and both-Lab browser checks use only
@@ -52,6 +53,7 @@ owned local fixtures with external traffic denied. Runtime is unchanged from the
 - [Chunk 5A evidence](reviews/2026-09-26-ai-tutor-connections-chunk-5a.md)
 - [Chunk 5B acceptance matrix](reviews/2026-09-26-ai-tutor-connections-chunk-5b.md)
 - [Overall feature review and correction gate](reviews/2026-09-26-ai-tutor-connections-overall-review.md)
+- [Production release verification](reviews/2026-09-26-ai-tutor-connections-release.md)
 
 Personal connections require local frontend/backend on the same computer, use
 backend session-only credentials and offer all six requested provider families,
@@ -63,9 +65,10 @@ The separate overall audit found no runtime defect and two P3 documentation
 issues, now independently closed along with the follow-up P3 current-gate
 consistency correction. Final overall severity is P0–P3 all zero. The audit independently
 passed 677 focused tests, nine cross-layer scenarios and hosted-package checks.
-Overall PASS is recorded; the local correction commit and release preflight
-precede the authorized push and Vercel update. No real key, external model call or feature deployment has
-been used. Released evidence remains in
+Overall PASS preceded the authorized push and Vercel update. Production routes,
+API rejection, emitted assets and both Lab interfaces have deployed evidence;
+the documentation closeout independently passed with P0–P3 all zero. No real key or external
+model call was used. Released evidence remains in
 [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md). Older milestones and next-gate statements
 below are historical; this section governs the current feature's next action.
 

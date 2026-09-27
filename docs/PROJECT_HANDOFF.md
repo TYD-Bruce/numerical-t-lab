@@ -2,32 +2,53 @@
 
 This is the durable handoff for future contributors. Use it with the current codebase and the authoritative design and plan; do not rely on prior chat history.
 
-## Unreleased local Tutor integration — 2026-09-26
+## AI Tutor Connections v1 — Production verified — 2026-09-26
 
-AI Tutor Connections v1 is the active local milestone. All 14 chunks are
-independently reviewed and committed through `641b286` (5B). Both ODE and Linear Systems
-have Tutor interfaces with personal connections and the default service/demo.
-5B completed acceptance evidence and the Windows operation guide. The separate
-overall audit found no runtime defect and two P3 documentation issues; both are
-independently closed along with the follow-up P3 current-gate consistency issue.
-Final overall verdict is PASS with P0–P3 all zero. The correction commit and
-release preflight remain before the authorized release.
+All 14 implementation/acceptance chunks and the separate overall audit are
+complete. Three documentation findings were independently closed; overall
+severity is P0/P1/P2/P3 = 0. Public `origin/main` was normally advanced to
+`ea9860fb8e078c76c1d5c0d05a2ebbe8e776b8fd`. Private deployment commit
+`3c6370ae71ec058786f9988b947e97ca95e49bec` has one parent, the prior private main
+`9649cb67b8ef1dfc507fa3238dc45789220a84e3`, and the exact same public tree
+`b084fe515f2708d940c12806d8828b74ae32b39d`. No histories were merged or rewritten.
 
-The unchanged runtime passes full verification with 130 files / 2,211 tests,
-all typechecks, boundaries and the 124-module build. Fresh native desktop/mobile
-checks cover cold local assets, actual ODE math editing, both Lab replies,
+Vercel deployment `dpl_8E6LfZGZQ3xD79SgXrYrrouCkdZk` is READY for that private
+commit and owns [the canonical demo](https://numerical-t-lab.vercel.app/).
+Its immutable URL is `https://numerical-t-l592pl0vh-bruce-tian.vercel.app/`;
+anonymous access is SSO-protected, while an authorized connector GET returns
+the same HTML as the canonical demo. No protection or environment setting changed.
+
+Both ODE and Linear Systems have deployed Tutor interfaces. Personal connections
+remain local-only; the hosted form refuses enablement without presenting a key
+field or sending a configuration request. Native desktop/mobile checks completed
+both numerical solves and verified Tutor placement, modal/focus behavior and
+local assets. Six canonical routes return HTML 200; invalid ODE/Linear/unknown
+profile requests return JSON 400 and GET `/api/chat` returns JSON 405 before any
+provider call. All 21 checked emitted assets have correct content types, and
+downloaded JavaScript matches the audited local build. Browser errors/CSP are
+empty; the scoped Vercel runtime-error query reports no errors.
+
+Inherited local evidence remains valid on the unchanged runtime: 5A full
+verification passed 130 files / 2,211 tests, all typechecks, boundaries and the
+124-module build. The 5B local native desktop/mobile acceptance checks covered
+cold local assets, actual ODE math editing, both Lab replies,
 Linear input invalidation/restoration, ODE previous-success grounding and explicit
 provider/region choices. Only default mocks and owned loopback synthetic models
 were used. Real provider/model readiness is untested; no real key or external
-model request was used. The browser and owned listeners are closed.
+model request was used. Deployed valid inference was intentionally not exercised;
+the hosted demo/provider path is not claimed live-inference-tested. The browser
+and all owned test listeners are closed.
 
 Follow [PLAN](../PLAN.md), the [feature handoff](tutor/HANDOFF.md),
 [local connections guide](tutor/LOCAL_CONNECTIONS.md) and
 [5B acceptance matrix](reviews/2026-09-26-ai-tutor-connections-chunk-5b.md) and
-[overall review](reviews/2026-09-26-ai-tutor-connections-overall-review.md).
-No feature chunk has been pushed or deployed. The production identity and older
-milestone records below are historical release evidence, not claims that this
-new feature is deployed or that its remaining gates are satisfied.
+[overall review](reviews/2026-09-26-ai-tutor-connections-overall-review.md) and
+[release record](reviews/2026-09-26-ai-tutor-connections-release.md).
+Independent closeout-record review passed with P0/P1/P2/P3 = 0; the parent read
+the report and rechecked all eight frozen file hashes before verdict metadata.
+This documentation-only closeout does not require another application deployment.
+The production identities
+and milestone records below describe earlier historical releases.
 
 ## Tutor API Production packaging recovery — verified — 2026-08-23
 

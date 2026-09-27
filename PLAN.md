@@ -2,18 +2,19 @@
 
 ## Current status
 
-**Active milestone: AI Tutor Connections v1 — overall audit PASS; release preflight next.**
-All 14 feature chunks are independently reviewed and committed locally, through
-`641b2861a1d991f3d180638178b56d3676c5c559` (5B). The separate overall audit of
-the complete range found no runtime defect and two P3 documentation issues.
-Both are independently closed. The follow-up P3 current-gate inconsistency is
-also closed; final overall severity is P0/P1/P2/P3 = 0.
+**Completed milestone: AI Tutor Connections v1 — Production verified; independent closeout PASS.**
+All 14 feature chunks and the overall documentation correction are committed
+and pushed. Overall independent audit passed with P0/P1/P2/P3 = 0. Public release
+`ea9860fb8e078c76c1d5c0d05a2ebbe8e776b8fd` and private deployment sync
+`3c6370ae71ec058786f9988b947e97ca95e49bec` share the exact tree
+`b084fe515f2708d940c12806d8828b74ae32b39d`.
 
 Authority: [design](docs/superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md),
 [implementation plan](docs/superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md).
-Continuation: [feature handoff](docs/tutor/HANDOFF.md#current-overall-audit-checkpoint).
+Continuation: [feature handoff](docs/tutor/HANDOFF.md).
 Evidence: [overall review](docs/reviews/2026-09-26-ai-tutor-connections-overall-review.md)
 and [5B acceptance review](docs/reviews/2026-09-26-ai-tutor-connections-chunk-5b.md).
+Release: [deployed verification](docs/reviews/2026-09-26-ai-tutor-connections-release.md).
 Usage: [Windows/local connections guide](docs/tutor/LOCAL_CONNECTIONS.md).
 
 5B completes the remaining offline/both-Lab acceptance matrix and operational
@@ -31,18 +32,26 @@ Every real provider/model remains live-untested; mocked contracts are distinguis
 
 The overall Astra Extra High audit independently passed 677 focused tests,
 nine composed client/Store/API/provider scenarios and isolated hosted-package
-checks. Its 125-path snapshot matches HEAD. It identified one broken historical
+checks. Its 125-path snapshot matched the original audited commit
+`641b2861a1d991f3d180638178b56d3676c5c559`. Subsequent changes are documentation
+only; the audited runtime remains unchanged. It identified one broken historical
 3B anchor and an outdated INDEX handoff description; no runtime repair is needed.
 The parent inspected the complete report, probe source/results and snapshot.
 
-**Next gate: local correction commit, then release preflight.**
-Overall PASS is independently confirmed. Commit `Record AI Tutor overall audit and close documentation findings`,
-then verify exact release identities before the authorized push and Vercel demo
-update. Collect deployed evidence afterward. No per-chunk push, live model call,
-model management, dependency install or numerical change. Native Windows,
-local-only personal connections, session-only keys, offline local assets and
-explicit cloud/region choices remain the approved scope. Released-state records
-below are historical.
+Vercel deployment `dpl_8E6LfZGZQ3xD79SgXrYrrouCkdZk` is READY and owns the
+canonical demo. Deployed checks pass for nested routes, structured API rejection,
+21 emitted assets, matching audited JavaScript, both Lab solves/Tutor interfaces,
+desktop/mobile layouts, hosted key exclusion and browser/runtime error checks.
+No valid inference request was sent; real provider/model readiness remains untested.
+
+**Release closeout: independent PASS, P0/P1/P2/P3 = 0.**
+The parent inspected the final report and rechecked all eight frozen hashes.
+No feature implementation or release gate remains. The final documentation-only
+commit/push preserves the deployed application; no further deployment is needed.
+No runtime, configuration, numerical or dependency change is part of closeout.
+Native Windows, local-only personal connections, session-only keys, offline local
+assets and explicit cloud/region choices remain the approved scope. Earlier
+released-state records below are historical.
 
 ## Previous milestone — Production release closeout
 
