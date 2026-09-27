@@ -1,11 +1,14 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Chunk 5B independently passed; separate overall audit pending**
-Runtime scope this round: **None; acceptance evidence and operational documentation**
-Current chunk baseline: clean `main` at `72937725379a44c1c00d74ac8f57eb4c331f89f1`
-The maintainer explicitly resumed after a safe pause. Current evidence is in
-[the chunk review](../../reviews/2026-09-26-ai-tutor-connections-chunk-5b.md).
+Status: **Overall independent audit PASS; release preflight pending**
+Runtime scope this round: **None; two documentation repairs and audit record**
+Current baseline: clean `main` at `641b2861a1d991f3d180638178b56d3676c5c559`
+All 14 implementation/acceptance chunks are independently reviewed and committed.
+The separate overall audit found no runtime defect. Its two P3 documentation
+issues and one follow-up status inconsistency are independently closed; final
+severity is P0/P1/P2/P3 = 0. The correction commit and release preflight follow.
+Current evidence is in [the overall review](../../reviews/2026-09-26-ai-tutor-connections-overall-review.md).
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
@@ -515,15 +518,18 @@ No current documentation or local test changes production status.
 
 ## 9. Current evidence and next gate
 
-Chunks through 5A are committed at local main `7293772`. 5B completes the
-acceptance/evidence matrix and Windows configuration guide without runtime edits.
-The unchanged full verification passes 130 files / 2,211 tests, all typechecks,
-boundaries and the 124-module build. Fresh build/graph/browser checks cover the
-remaining offline and both-Lab paths with synthetic local models only. Independent
-5B audit passed with P0/P1/P2/P3 all zero; the parent inspected its report/probes
-and rechecked all 12 frozen hashes. The local commit gate is satisfied, followed
-by the separate overall feature audit.
-See [5B evidence](../../reviews/2026-09-26-ai-tutor-connections-chunk-5b.md).
+The [current handoff](../../tutor/HANDOFF.md#current-overall-audit-checkpoint)
+owns the exact next gate; the [overall review](../../reviews/2026-09-26-ai-tutor-connections-overall-review.md)
+records its independent findings, corrections and closure. All 14 feature chunks
+are committed through `641b286`. The overall runtime audit is complete; its
+documentation correction state is recorded in those current owners.
+
+The [5B acceptance matrix](../../reviews/2026-09-26-ai-tutor-connections-chunk-5b.md)
+and Windows guide completed local acceptance without runtime edits. Full
+verification on that unchanged runtime is 130 files / 2,211 tests, all typechecks,
+boundaries and the 124-module build. Browser/build evidence uses only synthetic
+local models. Overall PASS and the correction commit must precede release;
+deployed verification remains a separate requirement.
 
 ### Historical evidence through 3A2
 

@@ -25,9 +25,9 @@
 
 ## Current active milestone
 
-**AI Tutor Connections v1 — chunk 5B independently passed; overall audit next.**
-Chunks through 5A are committed locally after independent review; 5A is
-`7293772`. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-5b-checkpoint)
+**AI Tutor Connections v1 — overall audit PASS; release preflight next.**
+All 14 feature chunks are committed locally after independent review, through
+`641b286` (5B). See the [current checkpoint](tutor/HANDOFF.md#current-overall-audit-checkpoint)
 and [Windows/local connections guide](tutor/LOCAL_CONNECTIONS.md).
 5B consolidates the acceptance matrix, local setup, provider readiness and remaining
 release gates. Fresh cold-cache ODE/editor and both-Lab browser checks use only
@@ -51,6 +51,7 @@ owned local fixtures with external traffic denied. Runtime is unchanged from the
 - [Chunk 4B evidence](reviews/2026-09-25-ai-tutor-connections-chunk-4b.md)
 - [Chunk 5A evidence](reviews/2026-09-26-ai-tutor-connections-chunk-5a.md)
 - [Chunk 5B acceptance matrix](reviews/2026-09-26-ai-tutor-connections-chunk-5b.md)
+- [Overall feature review and correction gate](reviews/2026-09-26-ai-tutor-connections-overall-review.md)
 
 Personal connections require local frontend/backend on the same computer, use
 backend session-only credentials and offer all six requested provider families,
@@ -58,10 +59,13 @@ with explicit Kimi regions. Both Labs use per-Lab conversation consent. Native
 Windows and offline local assets are the first-version boundary. The guide records
 every provider individually as mock-contract-verified and live-untested.
 
-Independent 5B audit passed with P0–P3 all zero; the parent rechecked all frozen
-hashes and inspected the report/probes. After its authorized local commit, the
-separate independent overall audit precedes any push or Vercel update. No real key, external model call or
-feature deployment has been used. Released evidence remains in
+The separate overall audit found no runtime defect and two P3 documentation
+issues, now independently closed along with the follow-up P3 current-gate
+consistency correction. Final overall severity is P0–P3 all zero. The audit independently
+passed 677 focused tests, nine cross-layer scenarios and hosted-package checks.
+Overall PASS is recorded; the local correction commit and release preflight
+precede the authorized push and Vercel update. No real key, external model call or feature deployment has
+been used. Released evidence remains in
 [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md). Older milestones and next-gate statements
 below are historical; this section governs the current feature's next action.
 
@@ -436,8 +440,8 @@ maintainer acceptance of the F2 review commit.
 ## Feature handoffs
 
 - [AI Tutor Connections v1 handoff](tutor/HANDOFF.md) — agreed decisions,
-  reviewed design/plan, committed chunks through 3A3, current 3B evidence, remaining
-  scope, and the exact independent audit gate.
+  reviewed design/plan, implemented chunk history, current evidence, remaining
+  scope, and the next independent review gate.
 - [Project handoff](PROJECT_HANDOFF.md) — implemented Platform Shell and current
   release baseline.
 - [Numerical notation research handoff](research/HANDOFF.md) — non-canonical

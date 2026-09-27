@@ -4,12 +4,14 @@ This is the durable handoff for future contributors. Use it with the current cod
 
 ## Unreleased local Tutor integration — 2026-09-26
 
-AI Tutor Connections v1 is the active local milestone. Chunks through 5A are
-independently passed and committed; 5A is `7293772`. Both ODE and Linear Systems
+AI Tutor Connections v1 is the active local milestone. All 14 chunks are
+independently reviewed and committed through `641b286` (5B). Both ODE and Linear Systems
 have Tutor interfaces with personal connections and the default service/demo.
-5B finishes acceptance evidence and the Windows operation guide. Independent
-5B review passed with P0–P3 all zero and its local commit gate is satisfied.
-The separate overall audit remains pending before release.
+5B completed acceptance evidence and the Windows operation guide. The separate
+overall audit found no runtime defect and two P3 documentation issues; both are
+independently closed along with the follow-up P3 current-gate consistency issue.
+Final overall verdict is PASS with P0–P3 all zero. The correction commit and
+release preflight remain before the authorized release.
 
 The unchanged runtime passes full verification with 130 files / 2,211 tests,
 all typechecks, boundaries and the 124-module build. Fresh native desktop/mobile
@@ -21,7 +23,8 @@ model request was used. The browser and owned listeners are closed.
 
 Follow [PLAN](../PLAN.md), the [feature handoff](tutor/HANDOFF.md),
 [local connections guide](tutor/LOCAL_CONNECTIONS.md) and
-[5B acceptance matrix](reviews/2026-09-26-ai-tutor-connections-chunk-5b.md).
+[5B acceptance matrix](reviews/2026-09-26-ai-tutor-connections-chunk-5b.md) and
+[overall review](reviews/2026-09-26-ai-tutor-connections-overall-review.md).
 No feature chunk has been pushed or deployed. The production identity and older
 milestone records below are historical release evidence, not claims that this
 new feature is deployed or that its remaining gates are satisfied.

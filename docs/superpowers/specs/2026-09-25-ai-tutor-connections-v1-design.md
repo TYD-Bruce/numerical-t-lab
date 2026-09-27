@@ -1,7 +1,7 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Chunk 5B independently passed; separate overall audit pending**
+Status: **Overall independent audit PASS; release preflight pending**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
@@ -17,6 +17,7 @@ Related documents:
 
 - [Implementation plan](../plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md)
 - [Feature handoff](../../tutor/HANDOFF.md)
+- [Overall feature review](../../reviews/2026-09-26-ai-tutor-connections-overall-review.md)
 - [Review verification and chunk 1A evidence](../../reviews/2026-09-25-ai-tutor-connections-review-and-chunk-1a.md)
 - [Chunk 1B evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-1b.md)
 - [Chunk 1C evidence](../../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md)
@@ -543,14 +544,13 @@ alter another client's model state.
 
 ## 12. Review gate and public references
 
-Current gate: chunks through 5A are committed locally after independent audit;
-5A is `7293772`. The [5B acceptance matrix](../../reviews/2026-09-26-ai-tutor-connections-chunk-5b.md)
-and [Windows guide](../../tutor/LOCAL_CONNECTIONS.md) complete the remaining local
-evidence and operational documentation. Independent 5B audit passed with no open
-findings. After its authorized local commit, the independent overall feature
-audit is the next separate release gate.
-Follow the continuing goal through each gate; do not push before the final
-independent overall audit.
+The [current handoff](../../tutor/HANDOFF.md#current-overall-audit-checkpoint)
+owns the exact continuation gate. The [overall review](../../reviews/2026-09-26-ai-tutor-connections-overall-review.md)
+records independent findings and closure; the [5B acceptance matrix](../../reviews/2026-09-26-ai-tutor-connections-chunk-5b.md)
+and [Windows guide](../../tutor/LOCAL_CONNECTIONS.md) retain local evidence and
+operational guidance. Follow the continuing goal through each gate. Overall
+independent PASS and the local correction commit precede the authorized release;
+local acceptance does not establish deployed verification.
 
 Primary API/security references consulted during discussion:
 

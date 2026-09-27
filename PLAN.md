@@ -2,15 +2,18 @@
 
 ## Current status
 
-**Active milestone: AI Tutor Connections v1 — chunk 5B independently passed; overall audit next.**
-The continuing maintainer goal authorizes the full sequence with independent
-review before each local commit. Chunks through 5A are committed locally;
-5B starts from clean main `72937725379a44c1c00d74ac8f57eb4c331f89f1`.
+**Active milestone: AI Tutor Connections v1 — overall audit PASS; release preflight next.**
+All 14 feature chunks are independently reviewed and committed locally, through
+`641b2861a1d991f3d180638178b56d3676c5c559` (5B). The separate overall audit of
+the complete range found no runtime defect and two P3 documentation issues.
+Both are independently closed. The follow-up P3 current-gate inconsistency is
+also closed; final overall severity is P0/P1/P2/P3 = 0.
 
 Authority: [design](docs/superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md),
 [implementation plan](docs/superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md).
-Continuation: [feature handoff](docs/tutor/HANDOFF.md#current-chunk-5b-checkpoint).
-Evidence: [5B acceptance review](docs/reviews/2026-09-26-ai-tutor-connections-chunk-5b.md).
+Continuation: [feature handoff](docs/tutor/HANDOFF.md#current-overall-audit-checkpoint).
+Evidence: [overall review](docs/reviews/2026-09-26-ai-tutor-connections-overall-review.md)
+and [5B acceptance review](docs/reviews/2026-09-26-ai-tutor-connections-chunk-5b.md).
 Usage: [Windows/local connections guide](docs/tutor/LOCAL_CONNECTIONS.md).
 
 5B completes the remaining offline/both-Lab acceptance matrix and operational
@@ -26,19 +29,20 @@ verification: **130 files / 2,211 tests**, all typechecks, boundaries and the
 The acceptance matrix identifies inherited checks instead of claiming repeat runs.
 Every real provider/model remains live-untested; mocked contracts are distinguished.
 
-Independent Astra Extra High audit passed with P0/P1/P2/P3 all zero. It checked
-the guide against source with pure executable probes, inspected the browser and
-build evidence, validated all 296 links and confirmed all 12 frozen file hashes.
-The parent inspected its report/results and rechecked the exact snapshot.
+The overall Astra Extra High audit independently passed 677 focused tests,
+nine composed client/Store/API/provider scenarios and isolated hosted-package
+checks. Its 125-path snapshot matches HEAD. It identified one broken historical
+3B anchor and an outdated INDEX handoff description; no runtime repair is needed.
+The parent inspected the complete report, probe source/results and snapshot.
 
-**Next gate: the separate independent overall feature audit.**
-The authorized local 5B commit is `Verify AI Tutor connections and both Labs`.
-After that commit, perform the overall audit across
-all chunks. Only its pass permits the authorized push and Vercel demo update,
-followed by deployed verification. No per-chunk push, model management, dependency
-install or numerical change. Native Windows, local-only personal connections,
-session-only keys, offline local assets and explicit cloud/region choices remain
-the approved scope. Released-state records below are historical.
+**Next gate: local correction commit, then release preflight.**
+Overall PASS is independently confirmed. Commit `Record AI Tutor overall audit and close documentation findings`,
+then verify exact release identities before the authorized push and Vercel demo
+update. Collect deployed evidence afterward. No per-chunk push, live model call,
+model management, dependency install or numerical change. Native Windows,
+local-only personal connections, session-only keys, offline local assets and
+explicit cloud/region choices remain the approved scope. Released-state records
+below are historical.
 
 ## Previous milestone — Production release closeout
 

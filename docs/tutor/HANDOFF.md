@@ -1,12 +1,47 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-26
-Phase: **Chunk 5B — Acceptance and operational documentation**
-Status: **Independently passed; overall audit next after local commit**
+Phase: **Overall feature audit complete — release preflight next**
+Status: **Overall independent PASS; P0/P1/P2/P3 = 0**
 Canonical status: continuing maintainer goal; audit/fix/re-audit before each commit.
-Runtime impact: none; documentation and non-secret environment-example guidance.
+Runtime impact: none; documentation only.
 
-## Current chunk 5B checkpoint
+## Current overall audit checkpoint
+
+- Clean starting main: `641b2861a1d991f3d180638178b56d3676c5c559`, the 5B commit.
+  The overall review covers 14 commits and 125 paths after `5bfcf734`.
+- Initial independent Astra Extra High verdict: NEEDS_FIXES, P0/P1/P2 = 0,
+  P3 = 2; final verdict after corrections: PASS, P0/P1/P2/P3 = 0. No runtime
+  defect found. The full feature was reviewed across ownership seams.
+- `OVERALL-P3-01`: restore the stable historical 3B checkpoint anchor below.
+  `OVERALL-P3-02`: make the INDEX handoff description durable and accurate.
+  Both are independently CLOSED. Re-audit found `OVERALL-P3-03`: two dedicated
+  current-gate paragraphs still described the pre-5B-commit state. They now point
+  to this current checkpoint and the overall review. Independent final re-audit
+  CLOSED P3-03, verified all seven hashes plus 119 unchanged paths, and passed
+  355 links / 13 fragments. The parent read the report and rechecked the hashes.
+- Fresh independent evidence: 16 files / 677 tests, nine composed cross-layer
+  scenarios and an isolated emitted hosted API package, all passing. Only owned
+  synthetic loopback fixtures were used; zero external/model-provider calls.
+  All fixtures are closed. The parent inspected probe source/results and hashes.
+- Full 130-file / 2,211-test verify and native desktop/mobile acceptance remain
+  valid inherited evidence on unchanged runtime. New request limits/cancellation
+  apply to personal connections and default Linear; the approved legacy default
+  ODE provider path retains its existing behavior.
+- [Overall review](../reviews/2026-09-26-ai-tutor-connections-overall-review.md)
+  records the findings, evidence continuity, limitations and release gate.
+
+Next: create the independently passed local commit
+`Record AI Tutor overall audit and close documentation findings`. After that,
+verify remotes and the actual demo target before the authorized push/Vercel
+update. Deployed verification is still required. No real keys/model calls,
+private configuration reads, dependency installs or numerical changes.
+
+<a id="current-chunk-5b-checkpoint"></a>
+
+## Previous chunk 5B checkpoint — committed at `641b286`
+
+The following records the historical pre-commit gate, now satisfied.
 
 - Starting clean main: `72937725379a44c1c00d74ac8f57eb4c331f89f1`, the independently
   passed 5A recovery commit. All feature commits remain local.
@@ -178,6 +213,8 @@ Next: create the passed local commit
 `Add Linear Systems Tutor grounding and personal profile`. Do not begin 4B before
 that gate. No real API keys, cloud/model calls, model management, installs,
 Git remote contact, push or deployment. The overall audit remains required.
+
+<a id="current-chunk-3b-checkpoint"></a>
 
 ## Previous chunk 3B checkpoint — committed at `37df723`
 
