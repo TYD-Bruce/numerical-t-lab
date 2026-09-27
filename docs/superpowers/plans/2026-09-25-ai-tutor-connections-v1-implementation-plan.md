@@ -1,11 +1,11 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Chunk 4A independently passed; local commit, then 4B**
-Runtime scope this round: **Linear context, validation and personal chat profile**
-Current chunk baseline: clean `main` at `37df723d0f6ca16429c2e6c73036688185400e76`
+Status: **Chunk 4B verified and independently passed; local commit gate**
+Runtime scope this round: **Linear Tutor interface, default service and lifecycle**
+Current chunk baseline: clean `main` at `ab2a82befc9488dccc8728e70cedca6bf4fb3bce`
 The maintainer explicitly resumed after a safe pause. Current evidence is in
-[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-4a.md).
+[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-4b.md).
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
@@ -35,15 +35,16 @@ another; preserve the separately reviewable boundaries below.
 | `frontend/src/labs/ode/odeApp.ts` | Current result, Run/reset, chart application, and disposal owner |
 | `frontend/src/labs/ode/initialValueProblemsRoute.ts` | Existing complete-Lab binding export |
 | `frontend/src/labs/linear-algebra/linearSystemsSession.ts` | Current/stale status, input fingerprint, immutable latest success |
-| `frontend/src/labs/linear-algebra/linearSystemsApp.ts` | Lab header, session updates, solve/reset UI, disposal; currently no Tutor binding |
-| `frontend/src/labs/linear-algebra/linearSystemsRoute.ts` | Must expose the new Lab-owned binding through the existing optional port |
+| `frontend/src/labs/linear-algebra/linearSystemsApp.ts` | Lab header, session updates, successful-Solve reset, optional reset history retention and binding disposal |
+| `frontend/src/labs/linear-algebra/linearSystemsRoute.ts` | Exposes the Lab-owned Tutor binding through the existing optional port |
 | `packages/numerics/src/linear-algebra/linearSystemsNumerics.ts` | Existing result/trace types and producer; inspect and consume, do not modify algorithms or trace authority |
 | `packages/contracts/src/tutor.ts` | ODE and Linear DTOs, bounded projection constants, personal session/connection and discriminated chat request/reply DTOs |
-| `frontend/src/labs/linear-algebra/linearSystemsTutorContext.ts` | Current-success Linear projection; exact preset reference and selected stored-trace fields, no numerical replay; binding remains 4B |
+| `frontend/src/labs/linear-algebra/linearSystemsTutorContext.ts` | Current-success Linear projection; exact preset reference and selected stored-trace fields, consumed by the lazy-read Lab binding without numerical replay |
 | `backend/src/ai/personalTutorChat.ts` | Closed chat envelope/history, server-owned ODE/Linear prompt selection, full-prompt budget and profile-specific final response normalization |
 | `backend/src/ai/tutorContextValidation.ts` | Closed bounded ODE/Linear wire schemas; finite evidence and complete Linear trace shape without numerical execution or freshness attestation |
-| `backend/src/ai/linearTutor.ts` | Linear prompt and pure deterministic demo generator; default-service dispatch remains 4B |
-| `backend/src/ai/chatHandler.ts` | Validation, ODE prompt/mock, fixed OpenAI invocation, parsing; separate profile and provider responsibilities narrowly |
+| `backend/src/ai/linearTutor.ts` | Linear prompt and pure deterministic demo generator, wired through default Linear dispatch |
+| `backend/src/ai/linearTutorHandler.ts` | Closed default Linear request, shared prompt validation, demo and bounded fixed-destination complete response with caller cancellation |
+| `backend/src/ai/chatHandler.ts` | Explicit profile dispatcher and unchanged legacy ODE mock/provider behavior; rejects unsupported profiles |
 | `backend/src/dev.ts` | Local API process, environment loading, loopback startup and explicit personal-session enablement/shutdown |
 | `api/chat.ts` | Hosted adapter; do not expose personal configuration/session routes |
 | `frontend/vite.config.ts` | Frontend root, local API proxy, root-base asset build |
@@ -51,10 +52,10 @@ another; preserve the separately reviewable boundaries below.
 | `frontend/src/math/ui/readonlyMath.ts` | Bundled MathLive font/static CSS imports; inspect actual emitted and requested assets |
 | `scripts/verify/importBoundaries.mjs` | Existing four-owner import enforcement |
 
-Additional owners; unimplemented entries remain proposed:
+Additional implemented owners:
 
 - `frontend/src/labs/linear-algebra/linearSystemsTutorBinding.ts`: fresh
-  eligible Linear Systems evidence projection and suggestions.
+  eligible Linear Systems evidence projection, revision/subscriptions and suggestions.
 - `frontend/src/tutor/tutorConnection.ts`: per-tab runtime connection metadata
   and identity; no provider key retention.
 - `frontend/src/tutor/tutorConnectionSettings.ts`: lazy local connection form
@@ -361,6 +362,12 @@ Repository inspection splits this phase into independently audited commits:
   default `/api/chat` Linear prompt/demo with a validated profile and preserve
   its emitted Vercel package boundary. Integrate successful Solve, failed Solve,
   draft edits, reset choices and disposal, then perform both-Lab browser checks.
+
+The hosted function's runtime graph uses explicit relative emitted `.js` targets
+for backend/public-contract helpers, while type-only workspace aliases remain.
+This narrowly documented packaging exception preserves the already accepted
+native Node/Vercel boundary; it does not permit a new dependency direction or
+expose local personal sessions. A recursive emitted-graph invocation test covers it.
 
 The 4A trace DTO keeps all stored step kinds in order and selected original
 fields, with a 50-record wire ceiling for dimensions 2–6. Core A/b, xHat, P/L/U,

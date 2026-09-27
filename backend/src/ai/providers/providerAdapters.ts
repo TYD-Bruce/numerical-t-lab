@@ -1,22 +1,17 @@
-import type { TutorMessage, TutorModelCandidate, TutorModelDiscovery, TutorProvider } from "@numerical-t-lab/contracts/tutor";
-import { TUTOR_FINAL_TEXT_BYTES } from "@numerical-t-lab/contracts/tutor";
+import { responseRecord as record, boundedFinalText as boundedText, boundedPrompt, PROVIDER_ADAPTER_LIMITS, type ProviderPrompt } from "../tutorMessagePolicy.js";
+export { boundedPrompt, containsReasoningMarker, PROVIDER_ADAPTER_LIMITS, type ProviderPrompt } from "../tutorMessagePolicy.js";
+import { openaiFinal } from "./openaiFinal.js";
+import type { TutorModelCandidate, TutorModelDiscovery, TutorProvider } from "@numerical-t-lab/contracts/tutor";
 import type { LocalTutorLease } from "../../localTutorSession.js";
-import { PROVIDER_MODEL_LIMIT, requireSelectedModel, TutorConnectionError, validateModelId } from "../../localTutorPolicy.js";
+import { requireSelectedModel, TutorConnectionError, validateModelId } from "../../localTutorPolicy.js";
 import { requestProvider } from "./providerTransport.js";
 
 export const SUPPORTED_TUTOR_PROVIDERS: readonly TutorProvider[] = Object.freeze(["local", "openai", "anthropic", "gemini", "deepseek", "kimi"]);
-export const PROVIDER_ADAPTER_LIMITS = Object.freeze({ models: PROVIDER_MODEL_LIMIT, messages: 40, inputBytes: 32 * 1024, outputBytes: TUTOR_FINAL_TEXT_BYTES });
 // The documented always-preserved models need historical reasoning, which this
 // final-text-only Tutor deliberately does not retain. Other IDs still need an
 // explicit connection test; this is not an exhaustive model capability registry.
 const KIMI_PRESERVED_THINKING_MODELS = new Set(["kimi-k3", "kimi-k2.7-code", "kimi-k2.7-code-highspeed"]);
-export interface ProviderPrompt { readonly instructions: string; readonly messages: readonly TutorMessage[] }
 type Send = typeof requestProvider;
-type JsonRecord = Record<string, unknown>;
-function record(value: unknown): JsonRecord {
-  if (!value || typeof value !== "object" || Array.isArray(value)) throw new TutorConnectionError("response_invalid");
-  return value as JsonRecord;
-}
 function eligible(lease: LocalTutorLease): void {
   lease.assertCurrent();
   if (!SUPPORTED_TUTOR_PROVIDERS.includes(lease.connection.provider)) throw new TutorConnectionError("provider_unsupported");
@@ -95,17 +90,6 @@ async function localReadiness(lease: LocalTutorLease, send: Send): Promise<void>
   if (!selected || (selected.availability !== "loaded" && selected.availability !== "listed")) throw new TutorConnectionError("model_unavailable");
 }
 
-/** Also applies to accepted text after optional model JSON has been decoded. */
-export function containsReasoningMarker(value: string): boolean {
-  return /<\/?think(?:\s|>)/i.test(value);
-}
-
-function boundedText(value: unknown): string {
-  if (typeof value !== "string" || !value.trim() || containsReasoningMarker(value)) throw new TutorConnectionError("response_invalid");
-  if (Buffer.byteLength(value) > PROVIDER_ADAPTER_LIMITS.outputBytes) throw new TutorConnectionError("response_too_large");
-  return value.trim();
-}
-
 function chatFinal(value: unknown, provider: TutorProvider): string {
   const response = record(value);
   if (response.error != null) throw new TutorConnectionError("response_invalid");
@@ -122,28 +106,6 @@ function chatFinal(value: unknown, provider: TutorProvider): string {
     (toolCalls != null && (!Array.isArray(toolCalls) || toolCalls.length > 0)) || message.function_call) throw new TutorConnectionError("response_invalid");
   // reasoning_content, reasoning and every other field are deliberately ignored.
   return boundedText(message.content);
-}
-
-function openaiFinal(value: unknown): string {
-  const response = record(value);
-  if (response.incomplete_details && record(response.incomplete_details).reason === "content_filter") throw new TutorConnectionError("response_refused");
-  if (response.status === "incomplete") throw new TutorConnectionError("response_incomplete");
-  if (response.status !== "completed" || response.error || response.incomplete_details || !Array.isArray(response.output)) throw new TutorConnectionError("response_invalid");
-  const parts: string[] = [];
-  for (const raw of response.output) {
-    const item = record(raw);
-    if (item.type !== "message") continue;
-    if (item.phase === "commentary") continue;
-    if (item.role !== "assistant" || item.status !== "completed" ||
-      (item.phase != null && item.phase !== "final_answer") || !Array.isArray(item.content)) throw new TutorConnectionError("response_invalid");
-    for (const rawPart of item.content) {
-      const part = record(rawPart);
-      if (part.type === "refusal") throw new TutorConnectionError("response_refused");
-      if (part.type !== "output_text" || typeof part.text !== "string") throw new TutorConnectionError("response_invalid");
-      parts.push(part.text);
-    }
-  }
-  return boundedText(parts.join("\n"));
 }
 
 function anthropicFinal(value: unknown): string {
@@ -185,21 +147,6 @@ function geminiFinal(value: unknown): string {
     parts.push(part.text);
   }
   return boundedText(parts.join(""));
-}
-
-export function boundedPrompt(prompt: ProviderPrompt): ProviderPrompt {
-  if (!prompt || typeof prompt.instructions !== "string" || !prompt.instructions.trim() ||
-    !Array.isArray(prompt.messages) || !prompt.messages.length || prompt.messages.length > PROVIDER_ADAPTER_LIMITS.messages ||
-    prompt.messages.at(-1)?.role !== "user") throw new TutorConnectionError("invalid_configuration");
-  const messages = prompt.messages.map(message => {
-    if (!message || !["user", "assistant"].includes(message.role) || typeof message.content !== "string" || !message.content.trim()) throw new TutorConnectionError("invalid_configuration");
-    return { role: message.role, content: message.content };
-  });
-  const captured = { instructions: prompt.instructions, messages };
-  // A conservative byte ceiling, not a tokenizer or a promise that every model
-  // has this much context. Never truncate the caller's numerical evidence.
-  if (Buffer.byteLength(JSON.stringify(captured)) > PROVIDER_ADAPTER_LIMITS.inputBytes) throw new TutorConnectionError("input_too_large");
-  return captured;
 }
 
 async function complete(lease: LocalTutorLease, prompt: ProviderPrompt, testing: boolean, send: Send): Promise<string> {

@@ -61,7 +61,7 @@ describe("local API HTTP boundary", () => {
     expect(result.status).toBe(200);
     expect(JSON.parse(result.text)).toEqual({ message: "fixture answer" });
     expect(chatHandler).toHaveBeenCalledTimes(1);
-    expect(chatHandler).toHaveBeenCalledWith(body);
+    expect(chatHandler).toHaveBeenCalledWith(body, expect.any(AbortSignal));
     expect(result.headers["access-control-allow-origin"]).toBeUndefined();
     expect(result.headers["cache-control"]).toBe("no-store");
   });

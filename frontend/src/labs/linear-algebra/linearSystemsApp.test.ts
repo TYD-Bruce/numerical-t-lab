@@ -697,6 +697,41 @@ describe("Linear Systems Lab Teaching v2 application", () => {
     expect(target.childElementCount).toBe(0);
   });
 
+  it("offers an explicit retained-history reset and includes its checkbox in the focus loop", () => {
+    const applyConfirmedReset = vi.fn();
+    const { target, mounted } = mount(successfulSession(), { updateSession: vi.fn(), applyConfirmedReset });
+    const binding = mounted.getTutorBinding();
+    expect(binding.getContext().status).toBe("ready");
+    const changed = vi.fn(); binding.subscribeContextChange!(changed);
+    target.querySelector<HTMLButtonElement>("[data-new-experiment]")!.click();
+    const checkbox = document.querySelector<HTMLInputElement>("[data-clear-tutor]")!;
+    const confirm = document.querySelector<HTMLButtonElement>("[data-reset-confirm]")!;
+    expect(checkbox.checked).toBe(true);
+    checkbox.focus(); checkbox.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true, cancelable: true }));
+    expect(document.activeElement).toBe(confirm);
+    confirm.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }));
+    expect(document.activeElement).toBe(checkbox);
+    checkbox.checked = false; confirm.click();
+    expect(applyConfirmedReset).toHaveBeenCalledWith(expect.objectContaining({ clearTutorConversation: false }));
+    expect(binding.getContext().status).toBe("unavailable"); expect(changed).toHaveBeenCalledOnce();
+    expect(document.querySelector("[inert]")).toBeNull();
+    mounted.dispose();
+  });
+
+  it("resets conversation only after successful Solve and makes disposed callbacks inert", () => {
+    const { target, mounted } = mount();
+    const binding = mounted.getTutorBinding(), reset = vi.fn(), changed = vi.fn();
+    binding.subscribeConversationReset!(reset); binding.subscribeContextChange!(changed);
+    binding.getContext(); goToData(target); runControl(target).click();
+    expect(binding.getContext().status).toBe("ready"); expect(reset).toHaveBeenCalledOnce();
+    goToData(target); const submit = runControl(target);
+    input(target, "[data-vector-b-row='0']", ""); submit.click();
+    expect(binding.getContext().status).toBe("unavailable"); expect(reset).toHaveBeenCalledOnce();
+    const saved = mounted.getSession(); mounted.dispose(); changed.mockClear();
+    submit.click(); binding.prepareForOpen?.();
+    expect(mounted.getSession()).toBe(saved); expect(reset).toHaveBeenCalledOnce(); expect(changed).not.toHaveBeenCalled();
+  });
+
   it("keeps primary result and Diagnostics height content-driven", () => {
     const css = readFileSync(
       resolve(process.cwd(), "frontend", "src", "labs", "linear-algebra", "linearSystems.css"),

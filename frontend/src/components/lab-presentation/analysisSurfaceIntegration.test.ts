@@ -56,9 +56,9 @@ describe("cross-Lab AnalysisSurface ownership", () => {
     );
   });
 
-  it("does not expand deferred or unauthorized features", () => {
+  it("keeps Tutor runtime deferred and does not expand other unauthorized features", () => {
     expect(linearSystems).not.toMatch(
-      /from\s+["'][^"']*(?:tutor|glossary)|mount\w*Tutor|create\w*Glossary|computationMotion|Replay/i
+      /from\s+["'][^"']*(?:\/tutor\/|platformTutor|glossary)|mount\w*Tutor|create\w*Glossary|computationMotion|Replay/i
     );
     expect(convergence).not.toMatch(/linearSystems|ComputationTrace|computationMotion|Replay/);
     expect(entry).not.toMatch(/AnalysisSurface|analysisSurface|convergenceStudyView|linearSystemsApp/);

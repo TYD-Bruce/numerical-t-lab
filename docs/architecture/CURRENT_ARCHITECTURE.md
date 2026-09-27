@@ -72,9 +72,9 @@ assets are allowed; object/frame/worker/media loads and form submission are deni
 AppShell imports bundled interface font CSS from `src/assets/fonts/`; licenses
 ship under `/licenses/`. MathLive fonts/static CSS stay at the deferred math
 boundary, with implicit font/sound path discovery disabled. Browser assets have
-been checked with external traffic blocked. Chunk 3B additionally exercises the
-ODE connection/chat workflow through an owned loopback synthetic model; live
-model readiness and both-Lab integration remain later evidence. See
+been checked with external traffic blocked. Chunks 3B and 4B exercise both Lab
+connection/chat workflows through an owned loopback synthetic model and the
+actual default handler in mock mode. Live model readiness remains unverified. See
 [chunk 1C evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md).
 
 `labs/ode/odeTutorContext.ts` now owns the ODE request projection formerly in
@@ -93,8 +93,9 @@ Store callbacks. The panel keeps its composer/transcript while unavailable and
 disables sending with Lab-owned explanatory text. `tutorPresentation.ts` owns
 shared sanitization/chart-discriminator helpers; `aiTutor.ts` retains compatibility
 reexports. The shared panel no longer imports ODE source or numerical runtime.
-The panel uses the ODE-only legacy `/api/chat` client for the explicit default
-selection, and the guarded personal sender for a personal selection. There is
+The panel uses `/api/chat` for the explicit default selection (the legacy ODE
+body or an explicit validated Linear profile), and the guarded personal sender
+for a personal selection. There is
 no automatic fallback. `tutorConnection.ts` is a per-tab owner for personal
 bootstrap/configuration/verification, private proof, cancellation and expiry.
 `tutorConnectionProtocol.ts` bounds/decodes same-origin JSON and retains only
@@ -155,10 +156,18 @@ not attest arithmetic or freshness. The personal endpoint now advertises both
 `ode` and `linear_algebra`; it chooses the server-owned prompt, keeps the existing
 whole-prompt budget, and returns explanatory content only for Linear. The browser
 also discards Linear chart instructions. `linearTutor.ts` contains the prompt and
-a tested pure demo generator. The generator and Lab projection have no production
-UI caller yet. Linear binding/launcher and default `/api/chat` dispatch remain
-the planned 4B integration; the existing default service stays ODE-only.
-See [4A evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-4a.md).
+pure demo generator, now wired to the default service.
+
+`linearSystemsTutorBinding.ts` exposes the Lab-owned projection, English copy and
+context/reset subscriptions through the existing route/Host ports. It builds on
+first read and caches by successful-result identity, status, input fingerprint
+and dimension; workflow-only changes reuse the snapshot. Edits invalidate pending
+work without clearing history. Successful Solve resets this Lab's conversation;
+failed Solve, close and navigation preserve it. New experiment offers a checked
+clear-conversation choice; explicit retention appends the existing Store divider.
+Binding disposal releases its subscriptions. Runtime handles never enter sessions.
+See [4A grounding](../reviews/2026-09-25-ai-tutor-connections-chunk-4a.md) and
+[4B integration](../reviews/2026-09-25-ai-tutor-connections-chunk-4b.md).
 
 ### Numerical domain
 
@@ -180,9 +189,17 @@ meaningful-work metadata rather than mathematical authority.
 
 ### Backend and API
 
-`backend/src/ai/chatHandler.ts` owns validation, deterministic mock behavior,
-the ODE Tutor system prompt, provider invocation, and server-only environment
-access. `backend/src/dev.ts` is the local HTTP entry and is launched by the
+`backend/src/ai/chatHandler.ts` dispatches explicit profiles and owns server-only
+environment access plus the unchanged legacy ODE mock/provider behavior.
+`odeTutorPrompt.ts` owns its prompt and the handler retains a compatibility export.
+The Linear branch delegates to `linearTutorHandler.ts`: a closed profile/history/
+context envelope, shared validation/prompt budget, the deterministic demo, or one
+fixed default OpenAI Responses attempt. It accepts no browser key, provider or
+model configuration. Live Linear responses require complete bounded final text,
+reject redirects, have a 90-second whole-request deadline and a 2 MiB raw-body
+limit, and expose fixed public errors. Caller abort also stops body reads;
+Linear responses never carry chart actions. The live path is fixture-tested only.
+`backend/src/dev.ts` is the local HTTP entry and is launched by the
 root `dev:api` script so `.env.local` and `.env` resolution remains rooted at
 the repository.
 
@@ -224,8 +241,14 @@ request ID, user/assistant history and context. `tutorContextValidation.ts`
 checks the selected profile's bounded finite DTO without numerical execution.
 ODE projection and validation share the existing 20-preview/80-full-point budgets;
 Linear uses the complete core result and selected-field trace described above.
-The server selects the ODE prompt from the legacy handler or the Linear prompt
+The server selects the ODE prompt from `odeTutorPrompt.ts` or the Linear prompt
 from `linearTutor.ts`, without invoking the legacy environment/provider path.
+`prepareTutorPrompt` shares history/context validation with the default Linear
+handler. `tutorMessagePolicy.ts`, `providers/openaiFinal.ts` and `tutorErrors.ts`
+hold unchanged message limits, strict OpenAI final extraction and fixed error
+identity outside local session/transport ownership. Existing adapter/policy
+exports remain compatible. Runtime imports in the hosted handler graph use
+relative emitted `.js` targets; type-only workspace imports are erased.
 Fresh context is attached to the latest user message;
 the full normalized prompt, including server instructions, is capped at 32 KiB
 and 40 messages. No evidence or history is silently removed. Complete final text
@@ -236,22 +259,25 @@ The same final-text reasoning-marker predicate runs before and after model JSON
 decoding, including accepted chart strings/keys. Invalid required text fails;
 invalid optional charts are dropped intact, without removing segments from an answer.
 Session leases reject output/errors after cancellation, replacement or expiry.
-Personal ODE chat is wired through the browser runtime, explicit history consent
-and settings. The Linear personal profile is implemented; its Lab binding,
-default-service/demo dispatch and UI/lifecycle integration remain 4B. The default
-`/api/chat` route is still ODE-only. Schema validation cannot
+Both Labs are wired through the browser runtime, explicit history consent and
+settings. Default `/api/chat` also supports both Labs. Schema validation cannot
 attest numerical correctness, freshness or a browser consent decision. See
 the [Tutor design](../superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md).
 
 Root `api/chat.ts` remains the public `/api/chat` Vercel entry. It enforces the
 POST-only adapter contract, delegates to
 the relative `../backend/src/ai/chatHandler.js` entry, and forwards handler status/body
-without interpretation.
+without interpretation. Both local and hosted wrappers pass caller cancellation;
+the new Linear branch consumes it. Packaging tests recursively emit the actual
+runtime import graph into an isolated temporary package, then invoke validation
+and Linear demo without workspace resolution or network access. Personal session,
+policy and native provider transport modules are absent from that hosted graph.
 
 ### Shared contracts
 
-`packages/contracts/src/tutor.ts` contains only serializable DTOs that cross
-the browser/server boundary. Frontend-only editable ODE problem inputs remain
+`packages/contracts/src/tutor.ts` contains serializable DTOs and pure public
+limits, error codes and destination presets shared across the browser/server
+boundary. Frontend-only editable ODE problem inputs remain
 under `frontend/src/labs/ode/odeTutorTypes.ts`; numerical result types remain
 in the numerical package.
 
@@ -290,6 +316,7 @@ frontend entry
   -> lightweight native MathML atoms plus controlled DOM/CSS composition
   -> domain-authored static trace interpretation inside the shared walkthrough shell
   -> Linear Systems numerical package and immutable computation trace
+  -> Lab-owned Tutor binding, then first-open shared Tutor panel
 
 first valid Glossary request
   -> dynamic Glossary surface
@@ -302,8 +329,8 @@ development only
 Public routes are `/`, `/about`, `/ode`, `/ode/initial-value-problems`,
 `/linear-algebra`, `/linear-algebra/linear-systems`, and `/pde`; unknown routes
 render the in-shell Not Found page. Both complete Labs have independent dynamic
-route boundaries. The Linear Systems route intentionally exposes neither a
-Tutor binding nor a Glossary binding at this gate. PDE remains a roadmap-only
+route boundaries. Both expose their own Tutor bindings. Linear Systems still
+has no Glossary binding. PDE remains a roadmap-only
 static route and exposes no runnable Lab action.
 
 `frontend/src/pages/moduleOverview.ts` is the only entry-safe top-level

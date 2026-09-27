@@ -1,5 +1,5 @@
-import { ODE_TUTOR_SERIES_LIMITS, LINEAR_TUTOR_LIMITS, LINEAR_TUTOR_TRACE_OMISSIONS, type OdeLabContext, type LinearSystemsLabContext } from "@numerical-t-lab/contracts/tutor";
-import { TutorConnectionError } from "../localTutorPolicy.js";
+import { ODE_TUTOR_SERIES_LIMITS, LINEAR_TUTOR_LIMITS, LINEAR_TUTOR_TRACE_OMISSIONS, type OdeLabContext, type LinearSystemsLabContext } from "../../../packages/contracts/src/tutor.js";
+import { TutorConnectionError } from "../tutorErrors.js";
 
 type RecordValue = Record<string, unknown>;
 function requireValue(condition: unknown): asserts condition {

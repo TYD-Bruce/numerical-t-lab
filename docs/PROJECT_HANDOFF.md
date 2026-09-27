@@ -2,6 +2,25 @@
 
 This is the durable handoff for future contributors. Use it with the current codebase and the authoritative design and plan; do not rely on prior chat history.
 
+## Unreleased local Tutor integration — 2026-09-25
+
+AI Tutor Connections v1 is the active local milestone. Chunks through 4A are
+independently passed and committed; 4B starts at `ab2a82b`, is locally verified,
+and passed independent audit with no open P0–P3 findings. Its next gate is the
+local commit. Both ODE and Linear Systems now
+have Tutor interfaces with personal connections and a default service/demo.
+Linear successful Solve, stale inputs, reset choices and route lifecycle use the
+existing Host/Store contracts. Full verify passes 130 files / 2,200 tests and the
+124-module build; native desktop/mobile checks use only mock/default and owned
+loopback synthetic services. No real key or external model request was used.
+
+Follow [PLAN](../PLAN.md), the [feature handoff](tutor/HANDOFF.md) and
+[4B evidence](reviews/2026-09-25-ai-tutor-connections-chunk-4b.md) for current work.
+Phase 5 and the independent overall audit remain before push and Vercel update.
+No feature chunk has been pushed or deployed. The production identity and older
+milestone records below are historical release evidence, not claims that this
+new feature is deployed or that its remaining gates are satisfied.
+
 ## Tutor API Production packaging recovery — verified — 2026-08-23
 
 ### Production verdict and identities

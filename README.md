@@ -16,8 +16,8 @@ The canonical Production URL is `https://numerical-t-lab.vercel.app/`.
 
 ## Local routes and module status
 
-This table describes the locally verified current repository. The Linear
-Systems work has not been pushed or deployed, so the live demo may remain on
+This table describes the locally verified current repository. The new Tutor
+Connections work has not been pushed or deployed, so the live demo remains on
 the prior accepted release until a separate deployment gate is completed.
 
 | Route | Page | Status |
@@ -46,8 +46,8 @@ qualified preset-reference difference when authoritative.
 numerical algorithm, including pivot selection, row swaps, elimination,
 triangular solves, and residual arithmetic. The renderer never reruns the
 solver. A small residual is described as equation mismatch and is not claimed
-to prove small solution error. Linear Algebra Tutor and Linear Algebra Glossary
-content are not part of this local checkpoint.
+to prove small solution error. The local Linear Tutor explains current successful
+evidence and selected stored trace fields. Linear Algebra Glossary remains deferred.
 
 ## Initial Value Problems Lab
 
@@ -118,9 +118,10 @@ exact HTTP loopback origins with explicit ports, then restart it. Changing
 `API_PORT` also requires updating the proxy target in `frontend/vite.config.ts`.
 Direct native CLI JSON requests remain supported on `/api/chat`.
 
-Personal connections are now wired into the ODE Tutor in the local development
-version and have passed their independent chunk review. Linear Systems integration
-and overall feature/release acceptance remain in progress.
+Personal connections and the default Tutor/demo are wired into both ODE and
+Linear Systems in the local development version. Linear integration is locally
+verified and independently reviewed; overall feature/release acceptance remains
+pending.
 See the [Tutor handoff](docs/tutor/HANDOFF.md). Enable the local backend with
 `T_LAB_PERSONAL_TUTOR=true` (disabled by default), then open **AI Tutor → Connection
 settings → Enable personal connections**. The frontend and backend must run on
@@ -151,10 +152,10 @@ Personal connections never use environment keys.
 
 Interface and math fonts are bundled locally with notices in `/licenses/`.
 Local dev/preview enforce a browser content security policy; production HTML
-also carries a same-origin resource policy. ODE connection workflows and assets
-have been checked with external traffic blocked and an owned synthetic local
-model. Real model/provider readiness and complete both-Lab acceptance remain
-pending. See [font provenance](frontend/src/assets/fonts/README.md).
+also carries a same-origin resource policy. Both Lab workflows and assets have
+been checked on desktop and mobile with external traffic blocked and an owned
+synthetic local model. Real model/provider readiness and final release acceptance
+remain pending. See [font provenance](frontend/src/assets/fonts/README.md).
 
 ## Build, preview, and verification
 
@@ -218,8 +219,9 @@ Key locations:
 The **Content-Agnostic Interactive Glossary Framework** and reviewed ODE Wave 1
 integration are implemented. Runtime annotations remain explicit and
 scope-owned; the development Playground remains excluded from production.
-**Numerical T Lab Project Language Standard v1** is approved. A **Linear
-Systems Tutor** remains the next separately gated milestone.
+**Numerical T Lab Project Language Standard v1** is approved. The **Linear
+Systems Tutor** is implemented and independently reviewed locally; overall
+feature acceptance and deployment remain pending.
 
 ## Project documentation
 
@@ -227,6 +229,13 @@ See [`docs/INDEX.md`](docs/INDEX.md) for the current architecture, active plan,
 design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
+
+### 2026-09-25 — Linear Systems Tutor integration
+
+- Added the Linear Tutor interface, validated default service/demo, and successful
+  Solve, input-edit, reset and navigation lifecycle integration.
+- Both Labs pass desktop/mobile mock and loopback browser checks; history transfer
+  remains an explicit per-Lab choice. Independent chunk audit passed.
 
 ### 2026-09-25 — Linear Tutor grounding foundation
 

@@ -53,7 +53,7 @@ function routeWithStore() {
 describe("Linear Systems route and complete-Lab lifecycle", () => {
   beforeEach(() => document.body.replaceChildren());
 
-  it("mounts the direct route with parent breadcrumb and no Tutor or Glossary binding", () => {
+  it("mounts the direct route with its Tutor binding and no Glossary binding", () => {
     const target = document.createElement("main");
     document.body.append(target);
     const mounted = linearSystemsRoute.mount({
@@ -69,7 +69,8 @@ describe("Linear Systems route and complete-Lab lifecycle", () => {
     ).toBe(
       "/linear-algebra"
     );
-    expect("getTutorBinding" in mounted).toBe(false);
+    expect(mounted.getTutorBinding()).toMatchObject({ moduleId: "linear_algebra", promptProfile: "linear_algebra" });
+    expect(mounted.getTutorBinding().getContext().status).toBe("unavailable");
     expect("getGlossaryBinding" in mounted).toBe(false);
     expect(() => assertPureValue(mounted.getSession())).not.toThrow();
     mounted.dispose();
@@ -115,7 +116,8 @@ describe("Linear Systems route and complete-Lab lifecycle", () => {
     expect(captured.ADraft[0]?.[0]).toBe("3.5");
     expect(() => assertPureValue(captured)).not.toThrow();
     expect(store.getLab("ode")).toEqual({ untouched: true });
-    expect(tutor.connect).not.toHaveBeenCalled();
+    expect(tutor.connect).toHaveBeenCalledWith(expect.objectContaining({ moduleId: "linear_algebra" }), expect.any(Object));
+    expect(tutor.disconnect).toHaveBeenCalled();
     expect(glossary.connect).not.toHaveBeenCalled();
 
     const second = route.mount({

@@ -25,20 +25,16 @@
 
 ## Current active milestone
 
-**AI Tutor Connections v1 — chunk 4A independently passed; local commit, then 4B.**
-Chunks through 3B are committed locally after independent audit; 3B is
-`37df723`. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-4a-checkpoint).
-4A adds current-success Linear context, a bounded stored-trace projection, closed
-validation, the personal chat profile and explanatory-only response acceptance.
-The Linear prompt and pure demo generator exist; the Lab interface and default
-service/demo dispatch remain 4B. Full verify passes 126 files / 2,154 tests,
-typechecks, boundaries and build. Independent re-audit passed with no open
-findings after correcting one P3 architecture-description inconsistency.
-Evidence uses synthetic fixtures; no real key, cloud inference or deployment.
-The complete feature scope includes personal connections
-only with local frontend/backend, native Windows, strict offline local models,
-session-only credentials, all requested cloud providers with explicit Kimi
-regions, and Tutor interfaces for both ODE and Linear Systems.
+**AI Tutor Connections v1 — chunk 4B verified and independently passed; local commit gate.**
+Chunks through 4A are committed locally after independent review; 4A is
+`ab2a82b`. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-4b-checkpoint).
+4B integrates the Linear Tutor binding/interface, validated default service/demo,
+context changes, reset choices and route lifecycle. Full verify passes 130 files /
+2,200 tests, all typechecks, boundaries and the 124-module build. Both Labs passed
+native desktop/mobile checks with default demos and an owned synthetic local
+model. Independent Astra Extra High audit passed with no open P0–P3 findings,
+including 367 independently rerun tests and real HTTP cancellation probes.
+Real key/provider/model access and deployment were not used.
 
 - [Design](superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md)
 - [Repository-grounded implementation plan](superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md)
@@ -54,19 +50,19 @@ regions, and Tutor interfaces for both ODE and Linear Systems.
 - [Chunk 3A3 evidence](reviews/2026-09-25-ai-tutor-connections-chunk-3a3.md)
 - [Chunk 3B evidence](reviews/2026-09-25-ai-tutor-connections-chunk-3b.md)
 - [Chunk 4A evidence](reviews/2026-09-25-ai-tutor-connections-chunk-4a.md)
+- [Chunk 4B evidence](reviews/2026-09-25-ai-tutor-connections-chunk-4b.md)
 
-The 3A3 and 3B audit gates are satisfied and committed. The 4A audit/re-audit
-is PASS, with 339 independent focused tests and all severities zero. Next gate:
-its local commit before 4B integration.
-The explicitly enabled local personal API supports all six provider families
-for discovery, synthetic testing and ODE/Linear personal chat, subject to documented
-model limitations. Settings/ODE wiring is implemented in 3B; Linear UI remains 4B.
-Each chunk requires audit/fix/re-audit before its local commit. No chunk
-is pushed individually; all chunks and the final independent overall audit
-must pass before push and Vercel demo update. Live provider calls remain separate.
-Current released-state evidence remains in [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md).
-Older milestone and next-gate statements below describe historical checkpoints;
-the Current active milestone section above governs this feature's next action.
+Personal connections require local frontend/backend on the same computer, use
+backend session-only credentials and offer all six requested provider families,
+with explicit Kimi regions. Both Labs use per-Lab conversation consent. Native
+Windows and strict offline local assets are the first-version boundary.
+
+Next: local 4B commit; then Phase 5
+acceptance/documentation consolidation. The independent overall audit is required
+before any push or Vercel demo update. Live provider readiness is separate from
+mock protocol verification. Released evidence remains in
+[PROJECT_HANDOFF.md](PROJECT_HANDOFF.md). Older milestones and next-gate statements
+below are historical; this section governs the current feature's next action.
 
 ## Previous milestone — Production release closeout
 

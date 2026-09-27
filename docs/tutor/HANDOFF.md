@@ -1,12 +1,58 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-25
-Phase: **Chunk 4A — Linear grounding and personal profile**
-Status: **Independent re-audit PASS; P0/P1/P2/P3 all zero**
+Phase: **Chunk 4B — Linear Lab and default-service integration**
+Status: **Verified and independently passed; local commit gate**
 Canonical status: continuing maintainer goal; audit/fix/re-audit before each commit.
-Runtime impact: Linear context projection, validated personal chat and text-only replies.
+Runtime impact: both Lab Tutor interfaces, default Linear dispatch and lifecycle.
 
-## Current chunk 4A checkpoint
+## Current chunk 4B checkpoint
+
+- Starting clean main: `ab2a82befc9488dccc8728e70cedca6bf4fb3bce`, the independently
+  passed 4A commit. Every preceding feature commit remains local.
+- `linearSystemsTutorBinding.ts` lazily projects current successful evidence,
+  caches immutable context and publishes revisions. The Lab/route expose it to
+  the existing Host; no platform domain interpretation or eager Tutor runtime.
+- Draft edits invalidate pending work. Successful Solve clears only this Lab's
+  conversation; failed Solve, close and navigation preserve it. New experiment
+  offers an explicit clear-history checkbox, checked by default. Retention uses
+  the existing Store divider and meaningful-work contract.
+- Default `/api/chat` accepts a closed Linear profile/history/context envelope,
+  validates it before mock/provider access, and invokes the actual Linear demo
+  or one fixed OpenAI Responses request with a 90-second deadline, byte bounds,
+  caller cancellation, strict final extraction and public errors. No browser
+  provider/key/model authority and no Linear chart action.
+- Shared prompt/validation/final-text/error helpers have relative emitted runtime
+  imports. The isolated recursive function-package test loads the full hosted
+  graph and executes validation/demo without workspace aliases or local session,
+  policy or native personal transport modules. Legacy ODE behavior is preserved.
+- Full `verify` passes **130 files / 2,200 tests**, typechecks, boundaries and the
+  **124-module** build. New source-shape updates permit only the authorized Lab
+  binding and require the new transport AbortSignal; no tests were suppressed.
+- Rollup graph inspection preserves Home, independent Lab routes and first-open
+  Tutor. Native Chrome evidence covers 1440 x 1000 and 390 x 844: actual default
+  demos, synthetic local models, fresh/transfer choices, connection provenance
+  across Labs, cancellation, Home/Resume, reset retention/clear and local assets.
+  All page resources were same-origin, storage empty, no page errors/CSP violations.
+- Browser background Google connection attempts were blocked by the fixture proxy;
+  these are not page resources or provider calls. The fixture disallows cloud
+  leases and all global fetch, uses mock default chat, and reads no environment
+  files. External evidence is under `t-lab-chunk-4b-browser` in task temporary storage.
+- Evidence: [4B review](../reviews/2026-09-25-ai-tutor-connections-chunk-4b.md).
+- Independent Astra Extra High audit: **PASS**, no open P0–P3 findings. It reran
+  367 focused tests, typechecks, boundaries, the build graph, four actual HTTP
+  cancellation cases and both-Lab browser scenarios. All 41 frozen hashes and
+  the exact path set matched at audit start/end and the parent's final check.
+
+Next: local commit `Integrate Linear Systems AI Tutor`, then Phase 5 documentation/full
+acceptance and the independent overall audit. No per-chunk push, deployment,
+real credentials, external model calls, model management or dependency install.
+
+<a id="current-chunk-4a-checkpoint"></a>
+
+## Previous chunk 4A checkpoint — committed at `ab2a82b`
+
+The following is the historical pre-commit record; that gate is now satisfied.
 
 - Starting clean main: `37df723d0f6ca16429c2e6c73036688185400e76`, the independently
   passed 3B commit. All preceding feature commits remain local.
@@ -502,10 +548,10 @@ Chunk 1A subsequently passed independent re-audit and was committed as
 `main` revision and is now committed at `b9fad94`. Chunk 1C followed that baseline
 and is committed at `f36cfc1`.
 
-The current Tutor is an ODE-specific client of `/api/chat`; its backend uses
+At the proposal baseline, Tutor was an ODE-specific client of `/api/chat`; its backend used
 deterministic demo replies or an environment-held OpenAI key with a fixed
-`gpt-4o-mini` model. There is no personal key/model/endpoint form.
-The Linear Systems Lab has no Tutor binding.
+`gpt-4o-mini` model. There was no personal key/model/endpoint form.
+The Linear Systems Lab had no Tutor binding then.
 
 ## Agreed decisions
 

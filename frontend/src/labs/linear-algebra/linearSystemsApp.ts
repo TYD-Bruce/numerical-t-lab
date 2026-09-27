@@ -1,6 +1,7 @@
 import type {
   LabLifecycleCallbacks,
   LabSessionMetadata,
+  LabTutorBinding,
   ResumeSummary,
 } from "../../app/contracts";
 import type {
@@ -80,6 +81,7 @@ import {
   xHatNode,
 } from "./linearSystemsMath";
 import { createLinearSystemsMethodTeaching } from "./linearSystemsTeaching";
+import { createLinearSystemsTutorBinding } from "./linearSystemsTutorBinding";
 import "./linearSystems.css";
 
 const activeMounts = new WeakMap<HTMLElement, object>();
@@ -99,6 +101,7 @@ export interface MountLinearSystemsAppOptions {
 export interface MountedLinearSystemsApp {
   getSession(): LinearSystemsSessionState;
   getResumeSummary(): ResumeSummary | undefined;
+  getTutorBinding(): LabTutorBinding;
   dispose(): void;
 }
 
@@ -223,6 +226,10 @@ export function mountLinearSystemsApp(
   let resetTrigger: HTMLElement | undefined;
   let inertBackground: Array<{ element: HTMLElement; wasInert: boolean }> = [];
   const instanceId = ++walkthroughId;
+  const tutor = createLinearSystemsTutorBinding({
+    getSession: () => session,
+    prepareForOpen: () => closeResetDialog(false),
+  });
 
   function isCurrent(): boolean {
     return !disposed && activeMounts.get(app) === token;
@@ -253,6 +260,7 @@ export function mountLinearSystemsApp(
   function publish(): void {
     if (!isCurrent()) return;
     options.lifecycle?.updateSession(session, metadata());
+    tutor.refreshContext();
   }
 
   function focusAfterRender(selector: string): void {
@@ -586,6 +594,7 @@ export function mountLinearSystemsApp(
   }
 
   function run(form: HTMLFormElement): void {
+    if (!isCurrent()) return;
     const draft = currentDraftFromForm(form);
     session = replaceLinearSystemsDraft(session, draft);
     const issues = validateLinearSystemsDraft(draft);
@@ -615,6 +624,7 @@ export function mountLinearSystemsApp(
     lastFailure = undefined;
     computationExpanded = false;
     failureComputationExpanded = false;
+    tutor.requestConversationReset();
     publish();
     render();
     focusAfterRender("[data-primary-result] > h2");
@@ -1295,7 +1305,7 @@ export function mountLinearSystemsApp(
       return;
     }
     if (event.key !== "Tab") return;
-    const controls = [...dialog.querySelectorAll<HTMLElement>("button")].filter(
+    const controls = [...dialog.querySelectorAll<HTMLElement>("input, button")].filter(
       (control) => !control.hasAttribute("disabled")
     );
     const first = controls[0];
@@ -1310,7 +1320,8 @@ export function mountLinearSystemsApp(
     }
   }
 
-  function resetExperiment(): void {
+  function resetExperiment(clearTutorConversation: boolean): void {
+    if (!isCurrent()) return;
     const fresh = createLinearSystemsSession();
     const at = (options.now ?? Date.now)();
     closeResetDialog(false);
@@ -1327,9 +1338,10 @@ export function mountLinearSystemsApp(
         meaningful: false,
         resumeSummary: createLinearSystemsResumeSummary(fresh, 0),
       },
-      clearTutorConversation: true,
+      clearTutorConversation,
       at,
     });
+    tutor.refreshContext();
     render();
     announce("New experiment started with Starter 3×3.");
     queueMicrotask(() => {
@@ -1358,12 +1370,19 @@ export function mountLinearSystemsApp(
         "This returns to Starter 3×3 and clears the current result and local walkthrough view."
       )
     );
+    const clearTutorLabel = el("label", undefined, "ls-reset-tutor-choice");
+    const clearTutor = document.createElement("input");
+    clearTutor.type = "checkbox";
+    clearTutor.checked = true;
+    clearTutor.dataset.clearTutor = "true";
+    clearTutorLabel.append(clearTutor, document.createTextNode("Also clear this Lab's Tutor conversation"));
+    dialog.append(clearTutorLabel);
     const actions = el("div", undefined, "ls-panel-actions");
     const cancel = button("Cancel", "ls-button ls-button-ghost", () =>
       closeResetDialog(true)
     );
     cancel.dataset.resetCancel = "true";
-    const confirm = button("New experiment", "ls-button ls-button-danger", resetExperiment);
+    const confirm = button("New experiment", "ls-button ls-button-danger", () => resetExperiment(clearTutor.checked));
     confirm.dataset.resetConfirm = "true";
     actions.append(cancel, confirm);
     dialog.append(actions);
@@ -1448,6 +1467,7 @@ export function mountLinearSystemsApp(
   publish();
 
   return Object.freeze({
+    getTutorBinding(): LabTutorBinding { return tutor.binding; },
     getSession(): LinearSystemsSessionState {
       return session;
     },
@@ -1460,6 +1480,7 @@ export function mountLinearSystemsApp(
     dispose(): void {
       if (disposed) return;
       disposed = true;
+      tutor.dispose();
       closeResetDialog(false);
       if (activeMounts.get(app) === token) {
         activeMounts.delete(app);

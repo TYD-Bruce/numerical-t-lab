@@ -1,5 +1,6 @@
 import type {
   LabLifecycleCallbacks,
+  LabTutorBinding,
   ResumeSummary,
 } from "../../app/contracts";
 import {
@@ -25,6 +26,7 @@ export interface LinearSystemsMountOptions {
 export interface MountedLinearSystemsRoute {
   getSession(): LinearSystemsSessionState;
   getResumeSummary(): ResumeSummary | undefined;
+  getTutorBinding(): LabTutorBinding;
   dispose(): void;
 }
 

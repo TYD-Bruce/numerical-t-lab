@@ -5,9 +5,8 @@ import { isIP } from "node:net";
 import type { LocalTutorLease } from "../../localTutorSession.js";
 import { isPublicAddress, providerRequestTarget, TutorConnectionError, type ProviderOperation } from "../../localTutorPolicy.js";
 
-export const PROVIDER_TRANSPORT_LIMITS = Object.freeze({
-  discoverMs: 15_000, completeMs: 90_000, requestBytes: 1024 * 1024, responseBytes: 2 * 1024 * 1024,
-});
+import { PROVIDER_TRANSPORT_LIMITS } from "../tutorMessagePolicy.js";
+export { PROVIDER_TRANSPORT_LIMITS } from "../tutorMessagePolicy.js";
 
 /** Exactly one native HTTP attempt. Never follows redirects or ambient proxies. */
 export async function requestProvider(lease: LocalTutorLease, operation: ProviderOperation, body?: unknown): Promise<unknown> {

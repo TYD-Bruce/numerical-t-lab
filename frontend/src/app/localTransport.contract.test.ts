@@ -164,7 +164,7 @@ describe.each(["dev", "preview"] as const)("%s loopback proxy", (mode) => {
     expect(result.status).toBe(200);
     expect(JSON.parse(result.text)).toEqual({ message: "fixture" });
     expect(handler).toHaveBeenCalledTimes(1);
-    expect(handler).toHaveBeenCalledWith({});
+    expect(handler).toHaveBeenCalledWith({}, expect.any(AbortSignal));
   });
 
   it.each(["127.0.0.1", "localhost"])("enforces resource destinations for %s", async (hostname) => {

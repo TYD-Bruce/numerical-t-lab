@@ -15,6 +15,11 @@ build, preserving the existing Vercel output directory.
 continues to own `/api/chat` method handling. It imports the server
 implementation through `../backend/src/ai/chatHandler.js`. Provider
 secrets and environment access remain outside the frontend.
+The handler dispatches both ODE and Linear profiles. Its shared prompt,
+validation and final-text dependencies use relative emitted `.js` imports;
+the recursive isolated packaging test reaches validation and Linear demo
+without workspace resolution. Caller cancellation reaches the new Linear
+bounded default request. No personal session or native transport is in this graph.
 
 For local development, root `npm run dev:api` launches
 `backend/src/dev.ts` without changing the process working directory. Existing
@@ -44,9 +49,12 @@ marker; pagination does not change the selected destination or trigger more call
 Kimi uses explicit international/mainland presets without automatic regional
 fallback. Known preserved-thinking model IDs fail before inference because this
 version retains only final text; supporting a provider does not attest every model.
-Personal chat remains unavailable until profile/context/history integration.
-The hosted adapter has no path to this session owner. No separate local
-production server or complete personal inference workflow has been added yet.
+Personal chat is wired for ODE and Linear through exact `/api/personal/chat`,
+with bounded profile/context/history validation, a 64 KiB request body, explicit
+per-Lab history consent and the same origin/proof/generation boundary. The lazy
+settings UI and connection runtime use these local routes. The hosted adapter
+has no path to the session owner. A separate local production launcher/server
+has not been added; native Windows dev/preview are the verified local surfaces.
 
 Dev/preview HTTP responses carry an enforced CSP, including `frame-ancestors
 'none'`. Build output has a meta CSP before scripts with the supported resource
@@ -59,8 +67,9 @@ inline exception supports current Vite/MathLive and layout rendering.
 Interface fonts and licenses are local build assets. MathLive's existing CSS
 owns its deferred bundled fonts; implicit font/sound requests are disabled.
 Cold browser checks used a deny-all external proxy, with local synthetic Tutor
-replies. This establishes asset/CSP behavior, not live provider readiness or a
-complete offline personal-connection product.
+replies. Both Lab interfaces and personal workflows have local desktop/mobile
+evidence. This establishes asset/CSP and mock integration behavior, not live
+provider readiness or final release acceptance.
 
 ## SPA fallback and assets
 

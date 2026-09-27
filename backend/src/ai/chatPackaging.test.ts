@@ -8,14 +8,15 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, resolve, relative, isAbsolute } from "node:path";
+import { EventEmitter } from "node:events";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import ts from "typescript";
+import { linearTutorFixture } from "./linearTutor.test-fixture";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const apiEntry = resolve(repoRoot, "api/chat.ts");
-const backendHandler = resolve(repoRoot, "backend/src/ai/chatHandler.ts");
 const expectedHandlerSpecifier = "../backend/src/ai/chatHandler.js";
 const temporaryPackages: string[] = [];
 
@@ -40,8 +41,31 @@ function writePackageFile(
   writeFileSync(outputPath, contents, "utf8");
 }
 
+// Follow the emitted runtime graph, without a workspace resolver or repository
+// node_modules. A hidden alias or source-only extension fails this package test.
+function emitRuntimeGraph(packageRoot: string): Set<string> {
+  const emitted = new Set<string>();
+  function visit(sourcePath: string): void {
+    const path = relative(repoRoot, sourcePath).replaceAll("\\", "/");
+    expect(isAbsolute(path) || path.startsWith("../")).toBe(false);
+    if (emitted.has(path)) return;
+    emitted.add(path);
+    const output = transpile(sourcePath);
+    writePackageFile(packageRoot, path.replace(/\.ts$/, ".js"), output);
+    for (const { fileName } of ts.preProcessFile(output, true, true).importedFiles) {
+      expect(fileName.startsWith(".")).toBe(true);
+      expect(fileName.endsWith(".js")).toBe(true);
+      visit(resolve(dirname(sourcePath), fileName.replace(/\.js$/, ".ts")));
+    }
+  }
+  visit(apiEntry);
+  return emitted;
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
   for (const packageRoot of temporaryPackages.splice(0)) {
     rmSync(packageRoot, { recursive: true, force: true });
   }
@@ -66,16 +90,18 @@ describe("Vercel chat function packaging contract", () => {
     expect(apiSources).toEqual(["chat.ts"]);
   });
 
-  it("loads the locally emitted function package and reaches validation", async () => {
+  it("loads the complete emitted graph and reaches validation and Linear demo without provider access", async () => {
+    vi.stubEnv("AI_TUTOR_MOCK", "true");
+    vi.stubEnv("OPENAI_API_KEY", "");
+    const fetcher = vi.fn().mockRejectedValue(new Error("No network permitted"));
+    vi.stubGlobal("fetch", fetcher);
     const packageRoot = mkdtempSync(join(tmpdir(), "ntl-chat-function-"));
     temporaryPackages.push(packageRoot);
     writePackageFile(packageRoot, "package.json", '{"type":"module"}\n');
-    writePackageFile(packageRoot, "api/chat.js", transpile(apiEntry));
-    writePackageFile(
-      packageRoot,
-      "backend/src/ai/chatHandler.js",
-      transpile(backendHandler),
-    );
+    const graph = emitRuntimeGraph(packageRoot);
+    expect(graph.has("backend/src/ai/linearTutorHandler.ts")).toBe(true);
+    expect(graph.has("packages/contracts/src/tutor.ts")).toBe(true);
+    expect([...graph].some(path => /localTutor|providerAdapters|providerTransport/.test(path))).toBe(false);
 
     const emittedAdapter = readFileSync(join(packageRoot, "api/chat.js"), "utf8");
     const emittedHandler = join(
@@ -95,18 +121,23 @@ describe("Vercel chat function packaging contract", () => {
     const module = (await import(
       `${pathToFileURL(join(packageRoot, "api/chat.js")).href}?test=${Date.now()}`
     )) as { default: (request: unknown, response: unknown) => Promise<void> };
-    const response = {
+    const response = Object.assign(new EventEmitter(), {
       setHeader: vi.fn(),
       status: vi.fn(),
       json: vi.fn(),
-    };
+    });
     response.status.mockReturnValue(response);
 
-    await module.default({ method: "POST", body: {} }, response);
+    const request = (body: unknown) => Object.assign(new EventEmitter(), { method: "POST", body });
+    await module.default(request({}), response);
 
     expect(response.status).toHaveBeenCalledWith(400);
     expect(response.json).toHaveBeenCalledWith({
       error: "messages array is required.",
     });
+    await module.default(request({ profile: "linear_algebra", context: linearTutorFixture(), messages: [{ role: "user", content: "Explain this residual" }] }), response);
+    expect(response.status).toHaveBeenLastCalledWith(200);
+    expect(response.json).toHaveBeenLastCalledWith(expect.objectContaining({ demoMode: true, message: expect.stringContaining("stored residual") }));
+    expect(fetcher).not.toHaveBeenCalled();
   });
 });

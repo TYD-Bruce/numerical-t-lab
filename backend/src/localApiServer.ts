@@ -147,7 +147,7 @@ export function createLocalApiServer(options: {
     try {
       const result = operation && auth && options.personalTutor
         ? await handlePersonalRequest(operation, auth, body, options.personalTutor, caller.signal)
-        : await chatHandler(body as ChatHandlerBody);
+        : await chatHandler(body as ChatHandlerBody, caller.signal);
       reply(result.status, result.body);
     } catch (error) {
       if (operation && error instanceof TutorConnectionError) reply(error.status, { error: error.message, code: error.code });

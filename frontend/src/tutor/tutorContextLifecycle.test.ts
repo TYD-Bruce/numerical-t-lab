@@ -127,7 +127,7 @@ describe("Lab-owned context in the shared Tutor panel", () => {
     expect((f.target.querySelector(".ai-error") as HTMLElement).hidden).toBe(true);
   });
 
-  it.each(["linear_algebra", "pde"] as const)("keeps unsupported %s profiles away from the legacy ODE API", async profile => {
+  it.each(["pde"] as const)("keeps unsupported %s profiles away from the default API", async profile => {
     const fetch = vi.fn(); vi.stubGlobal("fetch", fetch);
     await expect(sendTutorMessage({ context: ownedContext, messages: [{ role: "user", content: "Question" }] }, undefined, profile)).rejects.toThrow(/unavailable/i);
     expect(fetch).not.toHaveBeenCalled();
