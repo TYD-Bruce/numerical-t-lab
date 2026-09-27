@@ -25,15 +25,15 @@
 
 ## Current active milestone
 
-**AI Tutor Connections v1 — chunk 4B verified and independently passed; local commit gate.**
-Chunks through 4A are committed locally after independent review; 4A is
-`ab2a82b`. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-4b-checkpoint).
-4B integrates the Linear Tutor binding/interface, validated default service/demo,
-context changes, reset choices and route lifecycle. Full verify passes 130 files /
-2,200 tests, all typechecks, boundaries and the 124-module build. Both Labs passed
-native desktop/mobile checks with default demos and an owned synthetic local
-model. Independent Astra Extra High audit passed with no open P0–P3 findings,
-including 367 independently rerun tests and real HTTP cancellation probes.
+**AI Tutor Connections v1 — chunk 5A independently passed; local commit ready.**
+Chunks through 4B are committed locally after independent review; 4B is
+`0daf3b8`. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-5a-checkpoint).
+Phase 5 acceptance found an unavailable local backend reported as incompatible
+response format. 5A corrects non-JSON HTTP failure classification in the personal
+client and restores keyboard focus after the Enable button disappears. Full
+verify passes 130 files / 2,211 tests, typechecks, boundaries and the
+124-module build. The corrected desktop Light/mobile Dark failure and explicit
+recovery paths passed against an owned fixture with external traffic blocked.
 Real key/provider/model access and deployment were not used.
 
 - [Design](superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md)
@@ -51,13 +51,14 @@ Real key/provider/model access and deployment were not used.
 - [Chunk 3B evidence](reviews/2026-09-25-ai-tutor-connections-chunk-3b.md)
 - [Chunk 4A evidence](reviews/2026-09-25-ai-tutor-connections-chunk-4a.md)
 - [Chunk 4B evidence](reviews/2026-09-25-ai-tutor-connections-chunk-4b.md)
+- [Chunk 5A evidence](reviews/2026-09-26-ai-tutor-connections-chunk-5a.md)
 
 Personal connections require local frontend/backend on the same computer, use
 backend session-only credentials and offer all six requested provider families,
 with explicit Kimi regions. Both Labs use per-Lab conversation consent. Native
 Windows and strict offline local assets are the first-version boundary.
 
-Next: local 4B commit; then Phase 5
+Independent 5A audit passed with P0–P3 all zero. Next: local commit; then 5B completes the remaining
 acceptance/documentation consolidation. The independent overall audit is required
 before any push or Vercel demo update. Live provider readiness is separate from
 mock protocol verification. Released evidence remains in

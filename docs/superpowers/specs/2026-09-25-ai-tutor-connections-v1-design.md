@@ -1,7 +1,7 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Chunks through 4A committed; 4B verified and independently passed, local commit gate**
+Status: **Chunks through 4B committed; 5A independently passed, local commit ready**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
@@ -543,12 +543,11 @@ alter another client's model state.
 
 ## 12. Review gate and public references
 
-Current gate: chunks through 4A are committed locally after independent audit.
-4A is `ab2a82b`. Chunk 4B wires the Linear Lab binding/interface, default-service
-dispatch and reset/lifecycle through the existing Host and Store. Its complete
-verification and both-Lab desktop/mobile mock/loopback browser checks pass;
-independent chunk audit passed with no open P0–P3 findings. The next gate is the
-local commit. Final documentation and overall release audit remain separate gates.
+Current gate: chunks through 4B are committed locally after independent audit;
+4B is `0daf3b8`. Phase 5A corrects a reproduced unavailable-backend HTTP failure
+classification and enablement focus loss, and passed independent audit with no
+open findings. Its local commit is next. 5B completes the remaining acceptance matrix and documentation; the
+independent overall feature audit remains a separate release gate.
 Follow the continuing goal through each gate; do not push before the final
 independent overall audit.
 

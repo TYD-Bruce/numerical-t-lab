@@ -1,11 +1,11 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Chunk 4B verified and independently passed; local commit gate**
-Runtime scope this round: **Linear Tutor interface, default service and lifecycle**
-Current chunk baseline: clean `main` at `ab2a82befc9488dccc8728e70cedca6bf4fb3bce`
+Status: **Chunk 5A independently passed; local commit ready**
+Runtime scope this round: **Personal-client HTTP failure classification and settings focus recovery**
+Current chunk baseline: clean `main` at `0daf3b8106818a770645c7a83a3cc8b9dcd15899`
 The maintainer explicitly resumed after a safe pause. Current evidence is in
-[the chunk review](../../reviews/2026-09-25-ai-tutor-connections-chunk-4b.md).
+[the chunk review](../../reviews/2026-09-26-ai-tutor-connections-chunk-5a.md).
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
@@ -407,6 +407,15 @@ evidence for both Labs.
 Suggested commit boundary: `Integrate Linear Systems AI Tutor`.
 
 ## 7. Phase 5 — Full verification and documentation
+
+Phase 5 is split after reproduced browser integration findings. **5A** fixes
+non-JSON HTTP failure classification when the local backend is unavailable and
+keyboard focus lost when successful enablement hides its button,
+with focused regression tests, complete verification, browser reproduction and
+its own independent audit/commit. Suggested commit:
+`Fix local Tutor connection recovery`. **5B** completes the remaining
+acceptance matrix and final documentation described below. Neither subchunk
+replaces the independent overall feature audit.
 
 Run Windows-safe commands from the repository root. Focused commands should use
 the actual new test files plus relevant existing files.

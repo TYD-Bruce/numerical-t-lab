@@ -2,44 +2,46 @@
 
 ## Current status
 
-**Active milestone: AI Tutor Connections v1 — chunk 4B verified and independently passed; local commit gate.**
+**Active milestone: AI Tutor Connections v1 — chunk 5A independently passed; local commit ready.**
 The continuing maintainer goal authorizes the full implementation sequence.
-Chunks through 4A passed independent review and are committed locally.
-4B starts from clean main `ab2a82befc9488dccc8728e70cedca6bf4fb3bce`.
+Chunks through 4B passed independent review and are committed locally.
+5A starts from clean main `0daf3b8106818a770645c7a83a3cc8b9dcd15899`.
 
 Authority: [design](docs/superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md),
 [implementation plan](docs/superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md).
-Continuation: [feature handoff](docs/tutor/HANDOFF.md#current-chunk-4b-checkpoint).
-Evidence: [chunk 4B review](docs/reviews/2026-09-25-ai-tutor-connections-chunk-4b.md).
+Continuation: [feature handoff](docs/tutor/HANDOFF.md#current-chunk-5a-checkpoint).
+Evidence: [chunk 5A review](docs/reviews/2026-09-26-ai-tutor-connections-chunk-5a.md).
 
-4B connects the Linear Lab-owned binding through existing route/Host ports.
-Current successful evidence enables Send; edits cancel stale work. Successful
-Solve resets only this Lab's conversation, while failed Solve, close and navigation
-preserve it. New experiment defaults to clearing this Lab's history, with explicit
-retention through the existing divider and Store reset contract.
+Phase 5 browser acceptance reproduced an empty HTTP 500 when the local backend
+is stopped. The personal client previously reported incompatible response format.
+5A maps a non-JSON failed HTTP response through the existing public status-based
+failure policy, preserving strict success parsing, bounded reads, cancellation,
+redirect rejection, no retry/fallback and existing history/connection behavior.
+The same recovery check found lost keyboard focus after successful enablement.
+Settings now move focus from the hidden Enable button to Provider, without
+stealing newer focus or restoring a disposed view.
 
-Default `/api/chat` now dispatches a closed validated Linear profile to its demo
-or bounded fixed default service. Legacy ODE behavior remains intact. Shared
-prompt/error/final-text helpers have relative emitted imports so the hosted graph
-contains no local session or native personal transport code. The isolated emitted
-function package passes real import, validation and Linear demo invocation.
+Seven added cases cover empty/HTML/invalid-UTF-8 failures, HTTP 413, malformed
+success, oversized failures and personal chat preservation. Four further cases
+cover focus recovery and its guards. Focused tests pass 5 files / 153 tests;
+full verification passes **130 files / 2,211 tests**, all
+typechecks, import boundaries and the **124-module** build. Corrected production
+browser checks cover desktop Light and mobile Dark failure/recovery with local
+resources and no key entry before a successful handshake.
 
-Full verification passes **130 files / 2,200 tests**, all typechecks, import
-boundaries and the **124-module** build. Rollup graph inspection preserves Home,
-independent Lab routes and first-open Tutor boundaries. Native browser checks
-cover both Labs at 1440 x 1000 and 390 x 844, default demos, local synthetic
-inference, explicit per-Lab history transfer, cancellation, navigation and reset.
-Only mock credentials and owned loopback services were used. No real key,
-environment-file inspection or live provider/model call was needed.
+Earlier acceptance observations in this chunk also cover separate same-origin
+tabs, disconnect isolation, malformed model output, full-prompt budget rejection,
+server-clock-controlled expiry and backend restart. They are bounded evidence,
+not completion of the remaining whole-feature acceptance matrix.
 
-Independent Astra Extra High audit passes with **P0 = P1 = P2 = P3 = 0**.
-It independently reran 367 focused tests, typechecks, boundaries, the build graph,
-four actual HTTP disconnection probes and both-Lab browser checks. The parent
-rechecked all 41 frozen file hashes, path scope, HEAD and empty index.
+Independent Astra Extra High audit passed with no open P0–P3 findings. It reran
+153 focused tests, typechecks and boundaries, added six client probes, and verified
+desktop/mobile recovery and Escape. All 12 frozen paths/hashes matched at start,
+end and the parent's final check. Only verdict documentation changed afterward.
 
-**Next gate: local commit, then Phase 5 documentation and full acceptance.**
-Suggested commit: `Integrate Linear Systems AI Tutor`.
-Phase 5 consolidates feature documentation and full acceptance after that gate.
+**Next gate: local 5A commit, then 5B acceptance/documentation.**
+Suggested commit: `Fix local Tutor connection recovery`.
+5B then completes the remaining offline/both-Lab acceptance and final documentation.
 All chunks and the independent overall audit must pass before push and Vercel demo
 update. No per-chunk push, remote contact, model management, dependency install
 or numerical change. Native Windows, local-only personal connections,

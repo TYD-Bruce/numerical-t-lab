@@ -230,6 +230,14 @@ design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
 
+### 2026-09-26 — Local Tutor connection recovery
+
+- An unavailable local backend returning a non-JSON HTTP error now reports a
+  service failure. Successful responses remain strictly validated, with no
+  automatic retry or fallback.
+- Enabling a connection now keeps keyboard focus inside Tutor when its original
+  button disappears, so Escape continues to close the mobile panel.
+
 ### 2026-09-25 — Linear Systems Tutor integration
 
 - Added the Linear Tutor interface, validated default service/demo, and successful

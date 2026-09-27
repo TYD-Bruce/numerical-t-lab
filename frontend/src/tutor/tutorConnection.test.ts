@@ -363,6 +363,42 @@ describe("browser personal connection and per-Lab history", () => {
     expect(value.getState().selected.kind).toBe("personal");
     expect(requests.some(request => request.path === "/api/chat")).toBe(false);
   });
+  it.each([
+    { status: 500, body: "", code: "provider_unavailable" },
+    { status: 502, body: "<html>synthetic private proxy detail</html>", code: "provider_unavailable" },
+    { status: 503, body: new Uint8Array([0xff]), code: "provider_unavailable" },
+    { status: 413, body: "synthetic private upload detail", code: "input_too_large" },
+    { status: 200, body: "synthetic malformed success", code: "response_invalid" },
+    { status: 500, body: "x".repeat(512 * 1024 + 1), code: "response_too_large" },
+  ])("classifies non-JSON HTTP $status as $code without exposing its body", async ({ status, body, code }) => {
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => new Response(body, { status }));
+    const value = client(fetcher);
+    const error = await value.initialize().catch(error => error);
+    expect(error).toMatchObject({ code });
+    expect(String(error)).not.toContain("synthetic");
+    expect(fetcher).toHaveBeenCalledOnce();
+    expect(String(fetcher.mock.calls[0]![0])).toBe("/api/personal/session");
+    expect(value.getState().session).toBeUndefined();
+    expect(value.getState().pending).toBeUndefined();
+    expect(provider).not.toHaveBeenCalled();
+  });
+  it("preserves personal history and selection after a non-JSON backend failure without retry or fallback", async () => {
+    let fail = false;
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(async (input, options) => fail && String(input).endsWith("/chat")
+      ? new Response("synthetic private proxy detail", { status: 500 }) : fixtureFetch(input, options));
+    const value = client(fetcher), access = createAppSessionStore().createTutorSessionAccess("ode");
+    await candidate(value); await value.decideHistory(access, value.reviewHistory(access, "candidate")); append(access);
+    const selected = value.getState().selected, transcript = access.getSession().items;
+    const providerCalls = provider.mock.calls.length;
+    fail = true; fetcher.mockClear();
+    await expect(value.send(binding, access, new AbortController().signal)).rejects.toMatchObject({ code: "provider_unavailable" });
+    expect(fetcher).toHaveBeenCalledOnce();
+    expect(String(fetcher.mock.calls[0]![0])).toBe("/api/personal/chat");
+    expect(value.getState().selected).toBe(selected);
+    expect(value.getState().pending).toBeUndefined();
+    expect(access.getSession().items).toBe(transcript);
+    expect(provider.mock.calls.length).toBe(providerCalls);
+  });
   it("times out a stalled browser request once and frees the slot", async () => {
     vi.useFakeTimers(); let calls = 0;
     const fetcher: typeof fetch = (input, options) => String(input).endsWith("/chat") ? new Promise((_resolve, reject) => {

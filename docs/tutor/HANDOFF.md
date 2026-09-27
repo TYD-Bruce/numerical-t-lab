@@ -1,12 +1,56 @@
 # AI Tutor Connections v1 — Handoff
 
-Updated: 2026-09-25
-Phase: **Chunk 4B — Linear Lab and default-service integration**
-Status: **Verified and independently passed; local commit gate**
+Updated: 2026-09-26
+Phase: **Chunk 5A — Local connection recovery**
+Status: **Independently passed; local commit ready**
 Canonical status: continuing maintainer goal; audit/fix/re-audit before each commit.
-Runtime impact: both Lab Tutor interfaces, default Linear dispatch and lifecycle.
+Runtime impact: personal-client HTTP failure classification and settings focus recovery.
 
-## Current chunk 4B checkpoint
+## Current chunk 5A checkpoint
+
+- Starting clean main: `0daf3b8106818a770645c7a83a3cc8b9dcd15899`, the independently
+  passed 4B commit. All feature commits remain local.
+- An actual stopped local API produced an empty proxy HTTP 500. Settings described
+  it as incompatible response format. The personal request owner now uses the
+  existing safe status mapping only when a failed HTTP body is invalid JSON.
+- Valid structured failures keep their codes. Malformed success, oversized reads,
+  redirects, cancellation, stale identity, no retry/fallback and history rules
+  retain their existing guards.
+- Native mobile checks also exposed focus loss when successful enablement hid its
+  button. The existing settings owner now focuses Provider when that control is
+  lost; newer user focus and disposed/stale view guards are preserved. Escape
+  then closes the modal, releases inert state and returns focus to the launcher.
+- Eleven tests added; six failed before their fixes. Focused verification passes
+  5 files / 153 tests. Full verify passes 130 files / 2,211 tests, all typechecks,
+  import boundaries and the 124-module production build.
+- Corrected production browser evidence: stopped-backend error and explicit
+  recovery at 1440 x 1000 Light and 390 x 844 Dark, no pre-handshake key input,
+  same-origin resources, no page errors/CSP violations and one mobile modal.
+- Before the correction, additional browser acceptance verified two same-origin
+  tab connections, disconnect isolation, malformed model output, 32-KiB prompt
+  rejection without another model call, and controlled server-clock expiry.
+  Expiry removed key entry, preserved history and disabled Send; restarting the
+  backend required fresh explicit enablement and configuration.
+- This is a scoped correction, not final Phase 5 acceptance. Complete the remaining
+  cold-cache ODE/editor/Tutor/both-Lab matrix and provider evidence summary in 5B.
+- Evidence: [5A review](../reviews/2026-09-26-ai-tutor-connections-chunk-5a.md).
+- Independent Astra Extra High audit: PASS, P0/P1/P2/P3 all zero. Independent checks
+  passed 153 focused tests, typechecks, boundaries, six additional client probes
+  and native desktop/mobile failure/recovery/Escape scenarios. All 12 audited
+  hashes matched before/after and in the parent's final check. The parent inspected
+  the report, probe source/results and browser observations before recording this
+  verdict; no runtime or test change followed the pass.
+
+Next: local commit
+`Fix local Tutor connection recovery`. Then finish 5B and the separate
+overall audit before the authorized final push and Vercel update. No real keys,
+external model calls, model management, dependency installation or per-chunk push.
+
+<a id="current-chunk-4b-checkpoint"></a>
+
+## Previous chunk 4B checkpoint — committed at `0daf3b8`
+
+The following is the historical pre-commit record; that gate is now satisfied.
 
 - Starting clean main: `ab2a82befc9488dccc8728e70cedca6bf4fb3bce`, the independently
   passed 4A commit. Every preceding feature commit remains local.

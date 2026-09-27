@@ -78,6 +78,38 @@ describe("local connection settings", () => {
     await vi.waitFor(() => expect(get<HTMLElement>(f.target, "[data-error]").hidden).toBe(false));
     expect(f.target.querySelector("[data-key]")).toBeNull();
   });
+  it("moves lost focus to the configuration after the enable button is hidden", async () => {
+    const f = fixture(); f.settings();
+    const button = get<HTMLButtonElement>(f.target, "[data-enable]");
+    button.focus(); button.click();
+    button.blur(); // Native Chrome drops focus when the pending button is disabled.
+    await vi.waitFor(() => expect(document.activeElement).toBe(f.target.querySelector("[data-provider]")));
+    expect(button.hidden).toBe(true);
+    expect(get<HTMLSelectElement>(f.target, "[data-provider]").matches(":disabled")).toBe(false);
+  });
+  it("restores the enable button after a failed handshake without creating key entry", async () => {
+    const f = fixture(); f.flags.enabled = false; f.settings();
+    const button = get<HTMLButtonElement>(f.target, "[data-enable]");
+    button.focus(); button.click(); button.blur();
+    await vi.waitFor(() => expect(get<HTMLElement>(f.target, "[data-error]").hidden).toBe(false));
+    expect(document.activeElement).toBe(button);
+    expect(f.target.querySelector("[data-key]")).toBeNull();
+  });
+  it.each([false, true])("does not steal newer focus after enable completes (disposed: %s)", async disposed => {
+    const f = fixture(), view = f.settings();
+    const respond = f.fetcher.getMockImplementation()!;
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    f.fetcher.mockImplementationOnce(async (...args) => { await gate; return respond(...args); });
+    const button = get<HTMLButtonElement>(f.target, "[data-enable]");
+    const newer = document.createElement("button"); document.body.append(newer);
+    button.focus(); button.click(); newer.focus();
+    if (disposed) view.dispose();
+    release();
+    await vi.waitFor(() => expect(f.client.getState().pending).toBeUndefined());
+    expect(document.activeElement).toBe(newer);
+    if (disposed) expect(f.target.children).toHaveLength(0);
+  });
   it.each(["openai", "anthropic", "gemini", "deepseek"])("saves %s only after a click and clears the transient key", async provider => {
     const f = fixture(); f.settings(); await enable(f);
     const before = f.fetcher.mock.calls.length;

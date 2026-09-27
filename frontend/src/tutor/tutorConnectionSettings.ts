@@ -63,7 +63,11 @@ export function mountTutorConnectionSettings(target: HTMLElement, options: Tutor
     finally {
       if (alive() && operation === ownOperation) {
         working = false; render();
-        if (focusBefore?.isConnected && !focusBefore.matches(":disabled") && !focusBefore.closest("[hidden], [inert]") && document.activeElement === document.body) focusBefore.focus({ preventScroll: true });
+        if (focusBefore && (document.activeElement === document.body || document.activeElement === focusBefore)) {
+          const next = [focusBefore, fields?.provider, enable].find(element => element?.isConnected && !element.matches(":disabled") && !element.closest("[hidden], [inert]"));
+          next?.focus({ preventScroll: true });
+          if (next && next !== focusBefore) reveal(next);
+        }
       }
     }
   }

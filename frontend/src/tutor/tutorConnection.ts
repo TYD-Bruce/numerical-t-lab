@@ -154,7 +154,14 @@ export function createTutorConnection(options: { readonly fetch?: typeof fetch; 
         ...requestOptions(["chat", "test", "discover"].includes(operation) ? { ...body, requestId } : body, session?.sessionId, proof), signal: controller.signal,
       });
       assertCurrent();
-      const data = await readReply(response, assertCurrent);
+      let data: unknown;
+      try { data = await readReply(response, assertCurrent); }
+      catch (error) {
+        // A local proxy may report an unavailable backend without a JSON body.
+        // Preserve strict success parsing and all size/cancellation/redirect guards.
+        if (!response.ok && error instanceof TutorClientError && error.code === "response_invalid") throw readFailure(undefined, response.status);
+        throw error;
+      }
       assertCurrent();
       // A terminal session failure can legitimately report the backend's newer
       // generation. Preserve that failure instead of masking it with stale-ack validation.

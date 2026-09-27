@@ -2,21 +2,22 @@
 
 This is the durable handoff for future contributors. Use it with the current codebase and the authoritative design and plan; do not rely on prior chat history.
 
-## Unreleased local Tutor integration — 2026-09-25
+## Unreleased local Tutor integration — 2026-09-26
 
-AI Tutor Connections v1 is the active local milestone. Chunks through 4A are
-independently passed and committed; 4B starts at `ab2a82b`, is locally verified,
-and passed independent audit with no open P0–P3 findings. Its next gate is the
-local commit. Both ODE and Linear Systems now
+AI Tutor Connections v1 is the active local milestone. Chunks through 4B are
+independently passed and committed; 4B is `0daf3b8`. Phase 5A corrects a browser-
+reproduced local-backend error classification and enablement focus loss. It is
+locally verified, independently passed with no open P0–P3 findings, and ready
+for its local commit. Both ODE and Linear Systems now
 have Tutor interfaces with personal connections and a default service/demo.
 Linear successful Solve, stale inputs, reset choices and route lifecycle use the
-existing Host/Store contracts. Full verify passes 130 files / 2,200 tests and the
-124-module build; native desktop/mobile checks use only mock/default and owned
-loopback synthetic services. No real key or external model request was used.
+existing Host/Store contracts. Current full verify passes 130 files / 2,211 tests
+and the 124-module build. Native desktop/mobile checks use only mock/default and
+owned loopback services. No real key or external model request was used.
 
 Follow [PLAN](../PLAN.md), the [feature handoff](tutor/HANDOFF.md) and
-[4B evidence](reviews/2026-09-25-ai-tutor-connections-chunk-4b.md) for current work.
-Phase 5 and the independent overall audit remain before push and Vercel update.
+[5A evidence](reviews/2026-09-26-ai-tutor-connections-chunk-5a.md) for current work.
+Remaining Phase 5 acceptance and the independent overall audit precede release.
 No feature chunk has been pushed or deployed. The production identity and older
 milestone records below are historical release evidence, not claims that this
 new feature is deployed or that its remaining gates are satisfied.
