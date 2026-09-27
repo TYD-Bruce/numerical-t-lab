@@ -2,51 +2,43 @@
 
 ## Current status
 
-**Active milestone: AI Tutor Connections v1 — chunk 5A independently passed; local commit ready.**
-The continuing maintainer goal authorizes the full implementation sequence.
-Chunks through 4B passed independent review and are committed locally.
-5A starts from clean main `0daf3b8106818a770645c7a83a3cc8b9dcd15899`.
+**Active milestone: AI Tutor Connections v1 — chunk 5B independently passed; overall audit next.**
+The continuing maintainer goal authorizes the full sequence with independent
+review before each local commit. Chunks through 5A are committed locally;
+5B starts from clean main `72937725379a44c1c00d74ac8f57eb4c331f89f1`.
 
 Authority: [design](docs/superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md),
 [implementation plan](docs/superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md).
-Continuation: [feature handoff](docs/tutor/HANDOFF.md#current-chunk-5a-checkpoint).
-Evidence: [chunk 5A review](docs/reviews/2026-09-26-ai-tutor-connections-chunk-5a.md).
+Continuation: [feature handoff](docs/tutor/HANDOFF.md#current-chunk-5b-checkpoint).
+Evidence: [5B acceptance review](docs/reviews/2026-09-26-ai-tutor-connections-chunk-5b.md).
+Usage: [Windows/local connections guide](docs/tutor/LOCAL_CONNECTIONS.md).
 
-Phase 5 browser acceptance reproduced an empty HTTP 500 when the local backend
-is stopped. The personal client previously reported incompatible response format.
-5A maps a non-JSON failed HTTP response through the existing public status-based
-failure policy, preserving strict success parsing, bounded reads, cancellation,
-redirect rejection, no retry/fallback and existing history/connection behavior.
-The same recovery check found lost keyboard focus after successful enablement.
-Settings now move focus from the hidden Enable button to Provider, without
-stealing newer focus or restoring a disposed view.
+5B completes the remaining offline/both-Lab acceptance matrix and operational
+documentation. Fresh native browser checks cover cold local assets, actual ODE
+math editing, both Lab replies, Linear stale/restored/reset behavior, ODE retained
+successful-Run grounding, mobile Dark and explicit provider/region choices.
+All inference uses an owned synthetic loopback fixture; no real key/model calls.
+The owned browser and fixture listeners are closed.
 
-Seven added cases cover empty/HTML/invalid-UTF-8 failures, HTTP 413, malformed
-success, oversized failures and personal chat preservation. Four further cases
-cover focus recovery and its guards. Focused tests pass 5 files / 153 tests;
-full verification passes **130 files / 2,211 tests**, all
-typechecks, import boundaries and the **124-module** build. Corrected production
-browser checks cover desktop Light and mobile Dark failure/recovery with local
-resources and no key entry before a successful handshake.
+No runtime or numerical change is made in 5B. The unchanged 5A source passes full
+verification: **130 files / 2,211 tests**, all typechecks, boundaries and the
+**124-module** build. Fresh 5B build/graph/browser evidence preserves lazy loading.
+The acceptance matrix identifies inherited checks instead of claiming repeat runs.
+Every real provider/model remains live-untested; mocked contracts are distinguished.
 
-Earlier acceptance observations in this chunk also cover separate same-origin
-tabs, disconnect isolation, malformed model output, full-prompt budget rejection,
-server-clock-controlled expiry and backend restart. They are bounded evidence,
-not completion of the remaining whole-feature acceptance matrix.
+Independent Astra Extra High audit passed with P0/P1/P2/P3 all zero. It checked
+the guide against source with pure executable probes, inspected the browser and
+build evidence, validated all 296 links and confirmed all 12 frozen file hashes.
+The parent inspected its report/results and rechecked the exact snapshot.
 
-Independent Astra Extra High audit passed with no open P0–P3 findings. It reran
-153 focused tests, typechecks and boundaries, added six client probes, and verified
-desktop/mobile recovery and Escape. All 12 frozen paths/hashes matched at start,
-end and the parent's final check. Only verdict documentation changed afterward.
-
-**Next gate: local 5A commit, then 5B acceptance/documentation.**
-Suggested commit: `Fix local Tutor connection recovery`.
-5B then completes the remaining offline/both-Lab acceptance and final documentation.
-All chunks and the independent overall audit must pass before push and Vercel demo
-update. No per-chunk push, remote contact, model management, dependency install
-or numerical change. Native Windows, local-only personal connections,
-session-only keys, strict offline local mode and explicit cloud/region choices
-remain the approved scope. The released-state record below is historical.
+**Next gate: the separate independent overall feature audit.**
+The authorized local 5B commit is `Verify AI Tutor connections and both Labs`.
+After that commit, perform the overall audit across
+all chunks. Only its pass permits the authorized push and Vercel demo update,
+followed by deployed verification. No per-chunk push, model management, dependency
+install or numerical change. Native Windows, local-only personal connections,
+session-only keys, offline local assets and explicit cloud/region choices remain
+the approved scope. Released-state records below are historical.
 
 ## Previous milestone — Production release closeout
 

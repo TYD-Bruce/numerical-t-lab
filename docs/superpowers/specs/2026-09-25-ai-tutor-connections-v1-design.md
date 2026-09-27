@@ -1,7 +1,7 @@
 # AI Tutor Connections v1 — Design
 
 Date: 2026-09-25
-Status: **Chunks through 4B committed; 5A independently passed, local commit ready**
+Status: **Chunk 5B independently passed; separate overall audit pending**
 Runtime impact of this document: **none**
 Starting repository: local `main` at `5bfcf734b27c2a3e7b42cd2f62ca66fad6713751`
 
@@ -543,11 +543,12 @@ alter another client's model state.
 
 ## 12. Review gate and public references
 
-Current gate: chunks through 4B are committed locally after independent audit;
-4B is `0daf3b8`. Phase 5A corrects a reproduced unavailable-backend HTTP failure
-classification and enablement focus loss, and passed independent audit with no
-open findings. Its local commit is next. 5B completes the remaining acceptance matrix and documentation; the
-independent overall feature audit remains a separate release gate.
+Current gate: chunks through 5A are committed locally after independent audit;
+5A is `7293772`. The [5B acceptance matrix](../../reviews/2026-09-26-ai-tutor-connections-chunk-5b.md)
+and [Windows guide](../../tutor/LOCAL_CONNECTIONS.md) complete the remaining local
+evidence and operational documentation. Independent 5B audit passed with no open
+findings. After its authorized local commit, the independent overall feature
+audit is the next separate release gate.
 Follow the continuing goal through each gate; do not push before the final
 independent overall audit.
 

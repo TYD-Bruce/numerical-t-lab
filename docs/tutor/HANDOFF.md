@@ -1,12 +1,57 @@
 # AI Tutor Connections v1 — Handoff
 
 Updated: 2026-09-26
-Phase: **Chunk 5A — Local connection recovery**
-Status: **Independently passed; local commit ready**
+Phase: **Chunk 5B — Acceptance and operational documentation**
+Status: **Independently passed; overall audit next after local commit**
 Canonical status: continuing maintainer goal; audit/fix/re-audit before each commit.
-Runtime impact: personal-client HTTP failure classification and settings focus recovery.
+Runtime impact: none; documentation and non-secret environment-example guidance.
 
-## Current chunk 5A checkpoint
+## Current chunk 5B checkpoint
+
+- Starting clean main: `72937725379a44c1c00d74ac8f57eb4c331f89f1`, the independently
+  passed 5A recovery commit. All feature commits remain local.
+- The [acceptance matrix](../reviews/2026-09-26-ai-tutor-connections-chunk-5b.md)
+  maps every Phase 5 requirement to fresh or explicitly inherited evidence.
+- Fresh cold Home → ODE → Linear checks cover bundled fonts, real MathLive editing,
+  successful Run/Solve, local replies, stale Linear cancellation, restored inputs,
+  successful Solve reset, mobile Dark and distinct transcripts on route return.
+- ODE intentionally keeps previous-success context after draft edits/failed Run;
+  Linear requires matching current inputs. The user guide and architecture now
+  make that accepted difference explicit. No eligibility or numerical change.
+- Native provider/region selection shows fixed destinations; Kimi begins without
+  a region and clears a synthetic unsaved key on change. Those form choices make
+  no inference request and do not change the active local connection.
+- Final owned fixture: 8 local synthetic inference requests, 3 closed held
+  requests, zero prohibited global fetch attempts. No real key/model, private
+  configuration or external provider access. Browser error/CSP observations are
+  empty; resources are same-origin. Only theme persists in browser storage.
+- Fresh 124-module build and in-memory lazy graph pass. Runtime/tests/config are
+  unchanged from 5A full verify: 130 files / 2,211 tests, all typechecks/boundaries.
+  That suite is inherited rather than needlessly repeated for docs-only changes.
+- [Windows guide](LOCAL_CONNECTIONS.md) covers setup, data destinations, per-Lab
+  history, session lifetime and recovery. Every provider's live status is untested.
+  `.env.example` documents existing flags; AGENTS removes an obsolete milestone
+  gate in favor of PLAN. No runtime, dependency or deployment configuration edit.
+- Evidence is in task temporary storage, `t-lab-chunk-5b-browser`. Its owned
+  Chrome session and all six fixture listeners are stopped. Earlier automation
+  attempts are retained as inconclusive; the review names authoritative artifacts.
+- Independent Astra Extra High 5B audit passed with P0/P1/P2/P3 all zero. It
+  checked guide/config/destination rules with pure probes, all 296 links and
+  saved graph/browser evidence. All 12 hashes and the empty index matched at
+  start/end. The parent inspected its report and probe results and rechecked the
+  exact snapshot before recording this verdict. No substantive change followed.
+
+Authorized local commit: `Verify AI Tutor connections and both Labs`.
+Next after that commit: request the separate
+independent overall audit of the full accumulated feature. Only its pass permits
+the final push/Vercel update and deployed verification. No per-chunk push or live
+provider call is authorized by this acceptance work.
+
+<a id="current-chunk-5a-checkpoint"></a>
+
+## Previous chunk 5A checkpoint — committed at `7293772`
+
+The following records the historical pre-commit gate, now satisfied.
 
 - Starting clean main: `0daf3b8106818a770645c7a83a3cc8b9dcd15899`, the independently
   passed 4B commit. All feature commits remain local.

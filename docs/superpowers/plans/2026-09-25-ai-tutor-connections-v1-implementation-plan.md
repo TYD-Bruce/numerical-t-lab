@@ -1,11 +1,11 @@
 # AI Tutor Connections v1 — Repository-Grounded Implementation Plan
 
 Date: 2026-09-25
-Status: **Chunk 5A independently passed; local commit ready**
-Runtime scope this round: **Personal-client HTTP failure classification and settings focus recovery**
-Current chunk baseline: clean `main` at `0daf3b8106818a770645c7a83a3cc8b9dcd15899`
+Status: **Chunk 5B independently passed; separate overall audit pending**
+Runtime scope this round: **None; acceptance evidence and operational documentation**
+Current chunk baseline: clean `main` at `72937725379a44c1c00d74ac8f57eb4c331f89f1`
 The maintainer explicitly resumed after a safe pause. Current evidence is in
-[the chunk review](../../reviews/2026-09-26-ai-tutor-connections-chunk-5a.md).
+[the chunk review](../../reviews/2026-09-26-ai-tutor-connections-chunk-5b.md).
 
 Authority: [Design](../specs/2026-09-25-ai-tutor-connections-v1-design.md).
 Continuation: [Feature handoff](../../tutor/HANDOFF.md).
@@ -514,6 +514,18 @@ authorization above, requiring exact-head verification and hosted route/API/asse
 No current documentation or local test changes production status.
 
 ## 9. Current evidence and next gate
+
+Chunks through 5A are committed at local main `7293772`. 5B completes the
+acceptance/evidence matrix and Windows configuration guide without runtime edits.
+The unchanged full verification passes 130 files / 2,211 tests, all typechecks,
+boundaries and the 124-module build. Fresh build/graph/browser checks cover the
+remaining offline and both-Lab paths with synthetic local models only. Independent
+5B audit passed with P0/P1/P2/P3 all zero; the parent inspected its report/probes
+and rechecked all 12 frozen hashes. The local commit gate is satisfied, followed
+by the separate overall feature audit.
+See [5B evidence](../../reviews/2026-09-26-ai-tutor-connections-chunk-5b.md).
+
+### Historical evidence through 3A2
 
 The original preparation and chunk 1A are committed at `2e20a3a`. The continuing
 goal now advances through separate independent gates. Chunk 1B passes 111 files /

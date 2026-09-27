@@ -25,16 +25,14 @@
 
 ## Current active milestone
 
-**AI Tutor Connections v1 — chunk 5A independently passed; local commit ready.**
-Chunks through 4B are committed locally after independent review; 4B is
-`0daf3b8`. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-5a-checkpoint).
-Phase 5 acceptance found an unavailable local backend reported as incompatible
-response format. 5A corrects non-JSON HTTP failure classification in the personal
-client and restores keyboard focus after the Enable button disappears. Full
-verify passes 130 files / 2,211 tests, typechecks, boundaries and the
-124-module build. The corrected desktop Light/mobile Dark failure and explicit
-recovery paths passed against an owned fixture with external traffic blocked.
-Real key/provider/model access and deployment were not used.
+**AI Tutor Connections v1 — chunk 5B independently passed; overall audit next.**
+Chunks through 5A are committed locally after independent review; 5A is
+`7293772`. See the [current checkpoint](tutor/HANDOFF.md#current-chunk-5b-checkpoint)
+and [Windows/local connections guide](tutor/LOCAL_CONNECTIONS.md).
+5B consolidates the acceptance matrix, local setup, provider readiness and remaining
+release gates. Fresh cold-cache ODE/editor and both-Lab browser checks use only
+owned local fixtures with external traffic denied. Runtime is unchanged from the
+130-file / 2,211-test 5A verification; a fresh build and lazy graph also pass.
 
 - [Design](superpowers/specs/2026-09-25-ai-tutor-connections-v1-design.md)
 - [Repository-grounded implementation plan](superpowers/plans/2026-09-25-ai-tutor-connections-v1-implementation-plan.md)
@@ -52,16 +50,18 @@ Real key/provider/model access and deployment were not used.
 - [Chunk 4A evidence](reviews/2026-09-25-ai-tutor-connections-chunk-4a.md)
 - [Chunk 4B evidence](reviews/2026-09-25-ai-tutor-connections-chunk-4b.md)
 - [Chunk 5A evidence](reviews/2026-09-26-ai-tutor-connections-chunk-5a.md)
+- [Chunk 5B acceptance matrix](reviews/2026-09-26-ai-tutor-connections-chunk-5b.md)
 
 Personal connections require local frontend/backend on the same computer, use
 backend session-only credentials and offer all six requested provider families,
 with explicit Kimi regions. Both Labs use per-Lab conversation consent. Native
-Windows and strict offline local assets are the first-version boundary.
+Windows and offline local assets are the first-version boundary. The guide records
+every provider individually as mock-contract-verified and live-untested.
 
-Independent 5A audit passed with P0–P3 all zero. Next: local commit; then 5B completes the remaining
-acceptance/documentation consolidation. The independent overall audit is required
-before any push or Vercel demo update. Live provider readiness is separate from
-mock protocol verification. Released evidence remains in
+Independent 5B audit passed with P0–P3 all zero; the parent rechecked all frozen
+hashes and inspected the report/probes. After its authorized local commit, the
+separate independent overall audit precedes any push or Vercel update. No real key, external model call or
+feature deployment has been used. Released evidence remains in
 [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md). Older milestones and next-gate statements
 below are historical; this section governs the current feature's next action.
 

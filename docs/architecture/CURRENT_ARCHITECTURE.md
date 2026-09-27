@@ -78,12 +78,17 @@ actual default handler in mock mode. Live model readiness remains unverified. Se
 [chunk 1C evidence](../reviews/2026-09-25-ai-tutor-connections-chunk-1c.md).
 
 `labs/ode/odeTutorContext.ts` now owns the ODE request projection formerly in
-`tutor/aiTutor.ts`. `odeTutorBinding.ts` reads the current successful Run and the
+`tutor/aiTutor.ts`. `odeTutorBinding.ts` reads the retained last successful Run and the
 existing Convergence eligibility helper, returning a ready/unavailable snapshot
 with a binding-local revision. Unchanged immutable evidence reuses its derived
 snapshot; presentation-only Convergence changes do not invalidate it. Projection
 begins with the first panel read. Lab updates publish context-change notifications
 through the Host, whose subscriptions are released on disconnect.
+
+ODE draft edits and failed Runs preserve that successful Run as Tutor evidence;
+Compare remains unavailable. Linear instead requires its successful result to
+match current inputs, as described below. These are Lab-owned eligibility rules,
+not a shared panel policy that interprets domain state.
 
 The lazy shared panel consumes opaque Lab context and copy. Pure Tutor sessions
 have a transcript revision independent of draft/placement changes. Request
@@ -216,6 +221,9 @@ at 16 KiB and personal chat at 64 KiB. Session bootstrap
 requires same-origin browser metadata and a custom client marker; subsequent
 operations also require session ID/proof headers. The lazy local settings form
 accepts a transient key only after a compatible bootstrap succeeds.
+The [local connections guide](../tutor/LOCAL_CONNECTIONS.md) documents native
+Windows startup, exact destinations and recovery; live provider readiness is
+separate from this implemented ownership map.
 
 `localTutorPolicy.ts` owns fixed cloud/region presets and strict loopback URL
 validation. `ai/providers/providerTransport.ts` supplies one bounded native HTTP

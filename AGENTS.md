@@ -26,9 +26,9 @@ It is intentionally detailed, but it is still a map—not a substitute for appro
 - Numerical Linear Algebra — Linear Systems Lab implemented locally
 - Numerical PDE — Lab not implemented; roadmap page available
 
-**Current active milestone:** Linear Systems v1 Day 2 product integration is
-implemented and locally verified. Maintainer acceptance is the gate before the
-separate Linear Algebra Tutor task.
+**Current milestone and review gate:** Read `PLAN.md`. Both complete Labs have
+Tutor interfaces in the local implementation; release status belongs to
+`docs/PROJECT_HANDOFF.md`, not this operating contract.
 
 All new user-facing product UI is English-only unless the maintainer explicitly approves another language strategy.
 

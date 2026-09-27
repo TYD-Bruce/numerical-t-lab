@@ -121,8 +121,9 @@ Direct native CLI JSON requests remain supported on `/api/chat`.
 Personal connections and the default Tutor/demo are wired into both ODE and
 Linear Systems in the local development version. Linear integration is locally
 verified and independently reviewed; overall feature/release acceptance remains
-pending.
-See the [Tutor handoff](docs/tutor/HANDOFF.md). Enable the local backend with
+pending. The [Windows/local connections guide](docs/tutor/LOCAL_CONNECTIONS.md)
+provides exact setup steps, data destinations and individual provider verification
+status. See the [Tutor handoff](docs/tutor/HANDOFF.md). Enable the local backend with
 `T_LAB_PERSONAL_TUTOR=true` (disabled by default), then open **AI Tutor → Connection
 settings → Enable personal connections**. The frontend and backend must run on
 the same computer. The hosted demo does not accept personal keys or endpoints.
@@ -229,6 +230,14 @@ See [`docs/INDEX.md`](docs/INDEX.md) for the current architecture, active plan,
 design specifications, implementation plans, reviews, and feature handoffs.
 
 ## Changelog
+
+### 2026-09-26 — Tutor connection acceptance and Windows guide
+
+- Documented native Windows setup, local/cloud data destinations, session recovery
+  and the separate ODE/Linear grounding rules.
+- Completed the remaining local acceptance matrix with cold assets, real math
+  editing and both-Lab browser evidence. Provider contracts use mocks; live models
+  remain untested. Overall independent audit and deployment are still pending.
 
 ### 2026-09-26 — Local Tutor connection recovery
 
