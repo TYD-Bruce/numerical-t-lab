@@ -76,7 +76,8 @@ Use each document only for its intended responsibility:
 - `docs/reviews/` — evidence and release verdicts
 - feature HANDOFF files — fine-grained continuation state
 - `docs/research/` — evidence only; non-canonical unless promoted
-- `README.md` — public-facing information and concise Changelog
+- `README.md` — public-facing information and documentation links
+- `CHANGELOG.md` — concise public-facing changes and project milestones
 - Git history — exact implementation chronology
 
 ### Conflict order
@@ -502,7 +503,7 @@ For research work:
 - never turn candidate conclusions into approved standards silently;
 - update the research HANDOFF every coherent iteration;
 - mark prior research paused/background/superseded if strategy changes;
-- keep README Changelog concise and milestone-level.
+- keep `CHANGELOG.md` concise and milestone-level.
 
 ## 19. Testing and verification
 
@@ -580,7 +581,10 @@ Released state, deployment status, major limitations, next milestone. Update aft
 ### Feature HANDOFF
 Update every coherent feature/research iteration so a new Codex session can continue without the chat.
 
-### README Changelog
+### `README.md`
+Keep the public overview concise and link to `CHANGELOG.md`; do not embed changelog entries.
+
+### `CHANGELOG.md`
 Add a concise entry for coherent committed iterations that materially change public behavior, milestone/research status, or project guidance. Do not log every typo or clean audit.
 
 ### Specs, plans, reviews

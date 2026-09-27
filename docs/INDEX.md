@@ -2,8 +2,8 @@
 
 ## Start here
 
-- [README](../README.md) — public project overview, operation, limitations, and
-  Changelog.
+- [README](../README.md) — public project overview, operation, and limitations.
+- [Changelog](../CHANGELOG.md) — notable changes and project milestones.
 - [AGENTS](../AGENTS.md) — Codex repository map and operating contract.
 - [PLAN](../PLAN.md) — active milestone, next action, and review gate.
 - [GOALS](../GOALS.md) — durable product direction.
